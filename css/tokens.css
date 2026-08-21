@@ -1,0 +1,66 @@
+/* =========================================================================
+   DESIGN TOKENS — Өнгө, шрифт, зай, тэгш өнцөгт радиус, сүүдэр, шилжилт
+   ========================================================================= */
+:root {
+  /* Background scale */
+  --bg: #FAFAF7;
+  --bg-elevated: #FFFFFF;
+  --bg-muted: #F4F3EE;
+  --bg-subtle: #EBE9E0;
+
+  /* Ink (text) scale */
+  --ink: #1A1A1A;
+  --ink-soft: #4A4A4A;
+  --ink-muted: #7A7A7A;
+  --ink-subtle: #A8A8A8;
+
+  /* Lines */
+  --border: #E5E3D9;
+  --border-strong: #C9C5B5;
+
+  /* Accents */
+  --accent: #2C5F2D;          /* deep green - primary action */
+  --accent-soft: #97BC62;
+  --accent-bg: #E8F0E1;
+
+  --gold: #C8A951;            /* pivot / highlight */
+  --gold-soft: #F4E4B2;
+  --gold-bg: #FAF3DC;
+
+  --rust: #B5482A;            /* negative / penalty / error */
+  --rust-soft: #E89D7C;
+  --rust-bg: #FBE8DE;
+
+  --indigo: #3B4A7A;          /* info */
+  --indigo-bg: #E5E9F2;
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Geist', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  /* Spacing scale (4px base) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+
+  /* Radii */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 20px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(20,20,15,0.04);
+  --shadow-md: 0 4px 14px rgba(20,20,15,0.06), 0 1px 2px rgba(20,20,15,0.04);
+  --shadow-lg: 0 12px 40px rgba(20,20,15,0.08), 0 2px 6px rgba(20,20,15,0.04);
+
+  /* Transitions */
+  --t-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --t-med:  280ms cubic-bezier(0.4, 0, 0.2, 1);
+}

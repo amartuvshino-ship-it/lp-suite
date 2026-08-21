@@ -1,0 +1,85 @@
+/* =========================================================================
+   VISUALS — Graph, Transportation, Network, Branch & Bound tree
+   ========================================================================= */
+
+/* Graphical method */
+.graph-svg-wrap {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--s-3);
+  display: flex;
+  justify-content: center;
+}
+.graph-svg-wrap svg { max-width: 100%; height: auto; }
+
+/* Transportation table */
+.tp-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  margin: var(--s-3) 0;
+  width: 100%;
+}
+.tp-table th, .tp-table td {
+  border: 1px solid var(--border);
+  padding: 0;
+  position: relative;
+}
+.tp-table th {
+  background: var(--bg-muted);
+  font-weight: 600;
+  font-size: 12px;
+  padding: var(--s-2);
+  text-align: center;
+  color: var(--ink);
+}
+.tp-cell {
+  width: 90px;
+  height: 64px;
+  position: relative;
+  background: var(--bg-elevated);
+  text-align: center;
+}
+.tp-cost {
+  position: absolute;
+  top: 4px; left: 6px;
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+.tp-alloc {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--accent);
+  display: block;
+  padding-top: 16px;
+}
+.tp-cell.empty { background: var(--bg-muted); }
+.tp-cell.allocated { background: var(--accent-bg); }
+.tp-cell.pivot { background: var(--gold-bg); border: 2px solid var(--gold) !important; }
+.tp-supply, .tp-demand {
+  background: var(--bg-subtle);
+  font-weight: 600;
+  padding: var(--s-2);
+  text-align: center;
+}
+
+/* Network diagram */
+.network-svg {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  width: 100%;
+  height: auto;
+}
+
+/* Branch & Bound tree */
+.bb-tree {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--s-4);
+  overflow-x: auto;
+  margin: var(--s-3) 0;
+}

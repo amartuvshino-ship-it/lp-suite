@@ -1,0 +1,254 @@
+/* =========================================================================
+   AUTH — Нэвтрэлт, хэрэглэгч, админ самбар
+   ========================================================================= */
+
+/* ---- Sidebar-ын хэрэглэгчийн хэсэг ---- */
+.user-box {
+  padding: var(--s-3);
+  margin-bottom: var(--s-4);
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.user-avatar {
+  width: 34px; height: 34px;
+  flex: 0 0 34px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+}
+.user-avatar.sm { width: 28px; height: 28px; flex-basis: 28px; font-size: 13px; }
+.user-info { min-width: 0; }
+.user-name {
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.user-role {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--ink-muted);
+}
+.user-actions {
+  display: flex; gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+.user-actions .btn { flex: 1; }
+.user-hint {
+  font-size: 11px; line-height: 1.5;
+  color: var(--ink-muted);
+  margin: var(--s-3) 0 0;
+}
+.btn-block { width: 100%; }
+.btn-xs {
+  font-size: 11px !important;
+  padding: 5px 10px !important;
+}
+.btn-ghost.danger { color: var(--rust); }
+.btn-ghost.danger:hover { background: var(--rust-bg); }
+
+/* ---- Цэсний түгжээ ---- */
+.nav-item .nav-lock {
+  margin-left: auto;
+  font-size: 10px;
+  opacity: 0.5;
+}
+.nav-item.nav-locked { opacity: 0.55; }
+
+/* ---- Нэвтрэх цонх ---- */
+.auth-dialog { max-width: 420px; }
+.auth-field { margin-bottom: var(--s-3); }
+.auth-field .input { width: 100%; }
+.auth-field .form-label { display: block; margin-bottom: 4px; }
+.auth-error {
+  background: var(--rust-bg);
+  border: 1px solid var(--rust-soft);
+  color: var(--rust);
+  padding: var(--s-3);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  margin-bottom: var(--s-3);
+}
+
+/* ---- Хаалттай хуудас ---- */
+.locked-card { text-align: center; padding: var(--s-8) var(--s-5); }
+.locked-icon { font-size: 40px; margin-bottom: var(--s-3); opacity: 0.7; }
+.locked-title {
+  font-family: var(--font-display);
+  font-size: 24px; font-weight: 600;
+  margin: 0 0 var(--s-3);
+}
+.locked-text {
+  color: var(--ink-soft);
+  max-width: 460px; margin: 0 auto;
+  line-height: 1.65;
+}
+.locked-free {
+  margin-top: var(--s-6);
+  padding: var(--s-3) var(--s-4);
+  background: var(--accent-bg);
+  border-radius: var(--r-md);
+  color: var(--accent);
+  font-size: 13px;
+  display: inline-block;
+  max-width: 560px;
+}
+
+/* ---- Мэдээллийн тэмдэглэл ---- */
+.info-note {
+  background: var(--indigo-bg);
+  border-left: 3px solid var(--indigo);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: var(--s-4);
+}
+.info-note code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: rgba(255,255,255,0.6);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ---- Статистик хайрцгууд ---- */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--s-3);
+}
+.stat-tile {
+  background: var(--bg-muted);
+  border-radius: var(--r-md);
+  padding: var(--s-4);
+  text-align: center;
+}
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 26px; font-weight: 600;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.stat-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  margin-top: 4px;
+}
+
+/* ---- Админ формын сүлжээ ---- */
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+.list-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-4);
+  flex-wrap: wrap;
+}
+
+/* ---- Хэрэглэгчийн жагсаалт ---- */
+.user-table { display: flex; flex-direction: column; gap: var(--s-2); }
+.user-row {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-elevated);
+}
+.user-row.inactive { opacity: 0.55; background: var(--bg-muted); }
+.user-row-info { flex: 1; min-width: 0; }
+.user-row-name {
+  display: flex; align-items: center; gap: var(--s-2);
+  font-weight: 600; font-size: 14px;
+  flex-wrap: wrap;
+}
+.user-row-meta {
+  font-size: 11px; color: var(--ink-muted);
+  margin-top: 2px;
+}
+.user-row-actions { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+
+.tag-admin { background: var(--accent-bg); color: var(--accent); }
+.tag-off    { background: var(--bg-subtle); color: var(--ink-muted); }
+.tag-warn   { background: var(--gold-bg); color: #8a6d1f; }
+.tag-user   { background: var(--indigo-bg); color: var(--indigo); }
+
+.bulk-output {
+  background: var(--bg-muted);
+  border-radius: var(--r-sm);
+  padding: var(--s-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: pre-wrap;
+  margin-top: var(--s-3);
+  max-height: 240px; overflow: auto;
+}
+
+/* ---- Профайл ---- */
+.kv-row {
+  display: flex; gap: var(--s-4);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--border);
+}
+.kv-key { width: 180px; flex: 0 0 180px; color: var(--ink-muted); font-size: 13px; }
+.kv-val { font-weight: 500; }
+
+/* ---- Нэр томьёоны толь ---- */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: var(--s-4); }
+.chip {
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.chip:hover { border-color: var(--border-strong); }
+.chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.term-list { display: flex; flex-direction: column; }
+.term-row {
+  display: flex; gap: var(--s-3);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.term-row:last-child { border-bottom: none; }
+.term-main { flex: 1; min-width: 0; }
+.term-line { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+.term-mn { font-weight: 600; font-size: 15px; color: var(--ink); }
+.term-en { font-size: 13px; color: var(--ink-muted); font-style: italic; }
+.term-sym {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-muted);
+  padding: 1px 6px; border-radius: 3px;
+  color: var(--indigo);
+}
+.term-def { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin-top: 3px; }
+.term-meta { font-size: 11px; color: var(--ink-subtle); margin-top: 3px; }
+.term-actions { display: flex; gap: 4px; align-items: center; }
+.term-locked { opacity: 0.35; font-size: 14px; }
+
+/* ---- Жижиг дэлгэц ---- */
+@media (max-width: 860px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .user-row { flex-wrap: wrap; }
+  .user-row-actions { width: 100%; justify-content: flex-start; }
+  .kv-key { width: 120px; flex-basis: 120px; }
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Шугаман Программчлал — Алхам алхмаар</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <!-- PDF export libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- ===== APP STYLES ===== -->
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/tableau.css">
+  <link rel="stylesheet" href="css/visuals.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/lesson.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div>
+        <div class="brand-mark">LP<span class="accent"> Suite</span></div>
+        <div class="brand-sub">Linear Programming</div>
+      </div>
+    </div>
+
+    <!-- Хэрэглэгчийн хэсэг (JS-ээр дүүргэгдэнэ) -->
+    <div id="user-box" class="user-box"></div>
+
+    <nav>
+      <div class="nav-group">
+        <div class="nav-group-title">Эхлэл</div>
+        <button class="nav-item" data-route="home"><span class="nav-num">○</span><span>Эхлэл</span></button>
+        <button class="nav-item" data-route="lessons"><span class="nav-num">🎓</span><span>Хичээл</span></button>
+        <button class="nav-item" data-route="examples"><span class="nav-num">◆</span><span>Бэлэн жишээнүүд</span></button>
+        <button class="nav-item" data-route="my_problems"><span class="nav-num">☆</span><span>Миний бодлогууд</span></button>
+        <button class="nav-item" data-route="formulation"><span class="nav-num">01</span><span>Бодлогын тавилт</span></button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Бодох аргууд</div>
+        <button class="nav-item" data-route="graphical"><span class="nav-num">02</span><span>Графикийн арга</span></button>
+        <button class="nav-item" data-route="matrix"><span class="nav-num">03</span><span>Матрицын арга</span></button>
+        <button class="nav-item" data-route="simplex"><span class="nav-num">04</span><span>Симплекс арга</span></button>
+        <button class="nav-item" data-route="bigm"><span class="nav-num">05</span><span>Big-M арга</span></button>
+        <button class="nav-item" data-route="duality"><span class="nav-num">06</span><span>Хосмог бодлого</span></button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Тээврийн бодлого</div>
+        <button class="nav-item" data-route="transport_table"><span class="nav-num">07</span><span>Хүснэгтэн хэлбэр</span></button>
+        <button class="nav-item" data-route="transport_network"><span class="nav-num">08</span><span>Сүлжээ хэлбэр</span></button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Бүхэл тоон</div>
+        <button class="nav-item" data-route="integer"><span class="nav-num">09</span><span>Бүхэл тоон программчлал</span></button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Тусгай</div>
+        <button class="nav-item" data-route="glossary"><span class="nav-num">📖</span><span>Нэр томьёо</span></button>
+        <button class="nav-item" data-route="settings"><span class="nav-num">⚙</span><span>Тохиргоо</span></button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title">Удирдлага</div>
+        <button class="nav-item" data-route="admin"><span class="nav-num">👤</span><span>Админ самбар</span></button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main" id="main"><!-- content rendered by router --></main>
+</div>
+
+<!-- ===== APP MODULES ===== -->
+<!-- Order matters: config → core → data → engines → ui → pages → app -->
+
+<!-- Config -->
+<script src="js/config.js"></script>
+
+<!-- Core -->
+<script src="js/core/01_fraction.js"></script>
+<script src="js/core/02_settings.js"></script>
+<script src="js/core/03_helpers.js"></script>
+<script src="js/core/04_router.js"></script>
+<script src="js/core/05_storage.js"></script>
+<script src="js/core/06_generator.js"></script>
+<script src="js/core/07_crypto.js"></script>
+<script src="js/core/08_data.js"></script>
+<script src="js/core/09_auth.js"></script>
+<script src="js/core/10_book.js"></script>
+
+<!-- Data -->
+<script src="js/data/examples.js"></script>
+<script src="js/data/terms.js"></script>
+<script src="js/data/curriculum.js"></script>
+
+<!-- Engines -->
+<script src="js/engines/simplex.js"></script>
+<script src="js/engines/graphical.js"></script>
+<script src="js/engines/matrix.js"></script>
+<script src="js/engines/duality.js"></script>
+<script src="js/engines/transport.js"></script>
+<script src="js/engines/branchbound.js"></script>
+
+<!-- UI -->
+<script src="js/ui/lp_input.js"></script>
+<script src="js/ui/tableau_render.js"></script>
+<script src="js/ui/simplex_solution.js"></script>
+<script src="js/ui/pdf_export.js"></script>
+<script src="js/ui/graphical_ui.js"></script>
+<script src="js/ui/matrix_ui.js"></script>
+<script src="js/ui/duality_ui.js"></script>
+<script src="js/ui/save_dialog.js"></script>
+<script src="js/ui/transport_ui.js"></script>
+<script src="js/ui/transport_network_ui.js"></script>
+<script src="js/ui/integer_ui.js"></script>
+<script src="js/ui/auth_ui.js"></script>
+
+<!-- Pages -->
+<script src="js/pages/home.js"></script>
+<script src="js/pages/examples.js"></script>
+<script src="js/pages/my_problems.js"></script>
+<script src="js/pages/formulation.js"></script>
+<script src="js/pages/simplex.js"></script>
+<script src="js/pages/bigm.js"></script>
+<script src="js/pages/graphical.js"></script>
+<script src="js/pages/matrix.js"></script>
+<script src="js/pages/duality.js"></script>
+<script src="js/pages/transport_table.js"></script>
+<script src="js/pages/transport_network.js"></script>
+<script src="js/pages/integer.js"></script>
+<script src="js/pages/glossary.js"></script>
+<script src="js/pages/settings_page.js"></script>
+<script src="js/pages/lessons.js"></script>
+<script src="js/pages/admin.js"></script>
+
+<!-- Wire up sidebar navigation -->
+<script>
+  document.querySelectorAll('.nav-item').forEach(b => {
+    b.addEventListener('click', () => {
+      window.LP.App.go(b.dataset.route);
+    });
+  });
+</script>
+
+<!-- Boot -->
+<script src="js/app.js"></script>
+
+</body>
+</html>
