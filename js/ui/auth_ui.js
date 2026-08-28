@@ -153,11 +153,13 @@
       const rule = window.LP.Access.ruleFor(b.dataset.route);
       const ok = window.LP.Access.canRoute(b.dataset.route);
       b.classList.toggle('nav-locked', !ok);
-      if (rule === 'admin') b.style.display = (user && user.role === 'admin') ? '' : 'none';
-      else b.style.display = '';
+      const lvl = window.LP.Access.levelOf(user);
+      const need = rule === 'admin' ? 3 : rule === 'teacher' ? 2 : rule === 'auth' ? 1 : 0;
+      // Багш/админы цэсийг эрхгүй хүнд огт харуулахгүй; бусдыг түгжээтэй харуулна
+      b.style.display = (need >= 2 && lvl < need) ? 'none' : '';
       // түгжээний тэмдэг
       let lock = b.querySelector('.nav-lock');
-      if (!ok && rule !== 'admin') {
+      if (!ok && need < 2) {
         if (!lock) {
           lock = el('span', { class: 'nav-lock', title: 'Нэвтэрсэн хэрэглэгчид' }, '🔒');
           b.appendChild(lock);
@@ -185,7 +187,7 @@
       const info = el('div', { class: 'user-info' });
       info.appendChild(el('div', { class: 'user-name' }, user.name || user.username));
       info.appendChild(el('div', { class: 'user-role' },
-        user.role === 'admin' ? 'Админ' : 'Хэрэглэгч'));
+        window.LP.Auth.roleLabel(user.role)));
       chip.appendChild(info);
       box.appendChild(chip);
 

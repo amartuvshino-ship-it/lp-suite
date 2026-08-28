@@ -28,9 +28,12 @@
 
   // ---------------------------------------------------------------------------
   // ЭРХИЙН ТОХИРГОО — хуудас бүр ямар эрх шаардах вэ
-  //   'public' — хэн ч
-  //   'auth'   — нэвтэрсэн хэрэглэгч
-  //   'admin'  — зөвхөн админ
+  //   'public'  — хэн ч (нэвтрэхгүйгээр)
+  //   'auth'    — нэвтэрсэн хэн ч (оюутан ба дээш)
+  //   'teacher' — багш ба админ
+  //   'admin'   — зөвхөн админ
+  //
+  // Түвшин:  admin 3 > teacher 2 > student 1 > зочин 0
   // ---------------------------------------------------------------------------
   const ROUTE_ACCESS = {
     home:              'public',
@@ -50,28 +53,45 @@
     my_problems:       'auth',
     lessons:           'auth',
     lesson:            'auth',
+    teacher:           'teacher',   // оюутны явцын самбар
     admin:             'admin',
   };
 
   // Хуудаснаас бусад тусдаа эрхүүд
   const ABILITY = {
-    'glossary.edit':   'auth',    // нэр томьёо нэмэх / засах / устгах
-    'problem.save':    'auth',    // бодлого хадгалах
-    'examples.edit':   'admin',
-    'user.manage':     'admin',
+    'glossary.add':      'auth',      // өөрөө нэр томьёо нэмэх
+    'glossary.edit':     'auth',      // өөрийн нэмсэнийг засах (багш бүгдийг)
+    'glossary.editAny':  'teacher',   // бусдын бичлэгийг засах
+    'glossary.remove':   'teacher',   // устгах
+    'problem.save':      'auth',      // бодлого хадгалах
+    'examples.edit':     'teacher',   // бэлэн жишээ нэмэх / засах
+    'progress.viewAll':  'teacher',   // бүх оюутны явц
+    'user.view':         'teacher',   // хэрэглэгчийн жагсаалт
+    'user.manage':       'admin',     // данс үүсгэх / устгах / эрх солих
   };
+
+  const ROLE_LEVEL = { admin: 3, teacher: 2, student: 1, user: 1 };
+
+  function normRole(r) {
+    r = String(r || 'student').toLowerCase();
+    if (r === 'user') return 'student';
+    return (r === 'admin' || r === 'teacher' || r === 'student') ? r : 'student';
+  }
 
   function levelOf(user) {
     if (!user) return 0;
-    return user.role === 'admin' ? 2 : 1;
+    return ROLE_LEVEL[normRole(user.role)] || 0;
   }
   function need(rule) {
-    return rule === 'admin' ? 2 : rule === 'auth' ? 1 : 0;
+    return rule === 'admin' ? 3 : rule === 'teacher' ? 2 : rule === 'auth' ? 1 : 0;
   }
 
   window.LP.Access = {
     ROUTE_ACCESS: ROUTE_ACCESS,
     ABILITY: ABILITY,
+    ROLE_LEVEL: ROLE_LEVEL,
+    normRole: normRole,
+    levelOf: levelOf,
 
     ruleFor: function (route) {
       return ROUTE_ACCESS[route] || 'public';

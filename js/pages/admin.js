@@ -43,12 +43,15 @@
 
     // ---------------------------------------------------------------------
     function renderStats() {
-      const admins = users.filter(u => u.role === 'admin').length;
+      const R = window.LP.Access.normRole;
+      const admins   = users.filter(u => R(u.role) === 'admin').length;
+      const teachers = users.filter(u => R(u.role) === 'teacher').length;
       const active = users.filter(u => u.active !== false).length;
       statCard.innerHTML = '';
       const row = el('div', { class: 'stat-row' });
-      [['Нийт хэрэглэгч', users.length],
+      [['Нийт', users.length],
        ['Идэвхтэй', active],
+       ['Багш', teachers],
        ['Админ', admins],
        ['Идэвхгүй', users.length - active]].forEach(([label, val]) => {
         const s = el('div', { class: 'stat-tile' });
@@ -87,15 +90,22 @@
       const roleWrap = el('div', { class: 'auth-field' });
       roleWrap.appendChild(el('label', { class: 'form-label' }, 'Эрх'));
       const pill = el('div', { class: 'pill-toggle' });
-      let role = 'user';
-      const uBtn = el('button', { class: 'active', onClick: () => {
-        role = 'user'; uBtn.classList.add('active'); aBtn.classList.remove('active');
-      } }, 'Хэрэглэгч');
-      const aBtn = el('button', { onClick: () => {
-        role = 'admin'; aBtn.classList.add('active'); uBtn.classList.remove('active');
-      } }, 'Админ');
-      pill.appendChild(uBtn); pill.appendChild(aBtn);
+      let role = 'student';
+      const roleBtns = {};
+      [['student', 'Оюутан'], ['teacher', 'Багш'], ['admin', 'Админ']].forEach(([k, lbl]) => {
+        const b = el('button', {
+          class: k === 'student' ? 'active' : '',
+          onClick: () => {
+            role = k;
+            Object.keys(roleBtns).forEach(x => roleBtns[x].classList.toggle('active', x === k));
+          }
+        }, lbl);
+        roleBtns[k] = b;
+        pill.appendChild(b);
+      });
       roleWrap.appendChild(pill);
+      roleWrap.appendChild(el('div', { class: 'form-hint' },
+        'Оюутан — хичээл, дасгал. Багш — нэмээд явц харах, толь бичиг засах. Админ — данс удирдах.'));
       grid.appendChild(roleWrap);
       formCard.appendChild(grid);
 
@@ -161,7 +171,9 @@
           const info = el('div', { class: 'user-row-info' });
           const nameLine = el('div', { class: 'user-row-name' });
           nameLine.appendChild(el('span', {}, u.name || u.username));
-          if (u.role === 'admin') nameLine.appendChild(el('span', { class: 'tag tag-admin' }, 'Админ'));
+          const rl = window.LP.Access.normRole(u.role);
+          if (rl === 'admin') nameLine.appendChild(el('span', { class: 'tag tag-admin' }, 'Админ'));
+          else if (rl === 'teacher') nameLine.appendChild(el('span', { class: 'tag tag-teacher' }, 'Багш'));
           if (u.active === false) nameLine.appendChild(el('span', { class: 'tag tag-off' }, 'Идэвхгүй'));
           if (u.must_change_pw) nameLine.appendChild(el('span', { class: 'tag tag-warn' }, 'Нууц үг солино'));
           info.appendChild(nameLine);
@@ -191,11 +203,18 @@
               .then(reload).catch(e => alert(e.message))
           }, u.active === false ? 'Идэвхжүүлэх' : 'Идэвхгүй'));
 
-          acts.appendChild(el('button', {
-            class: 'btn btn-ghost btn-xs',
-            onClick: () => Auth.setRole(u.id, u.role === 'admin' ? 'user' : 'admin')
-              .then(reload).catch(e => alert(e.message))
-          }, u.role === 'admin' ? '↓ Хэрэглэгч' : '↑ Админ'));
+          const sel = el('select', {
+            class: 'input input-xs',
+            title: 'Эрх солих',
+            onChange: e => Auth.setRole(u.id, e.target.value)
+              .then(reload).catch(err => { alert(err.message); reload(); })
+          });
+          [['student', 'Оюутан'], ['teacher', 'Багш'], ['admin', 'Админ']].forEach(([k, lbl]) => {
+            const o = el('option', { value: k }, lbl);
+            if (window.LP.Access.normRole(u.role) === k) o.selected = true;
+            sel.appendChild(o);
+          });
+          acts.appendChild(sel);
 
           acts.appendChild(el('button', {
             class: 'btn btn-ghost btn-xs danger',
@@ -234,9 +253,12 @@
         class: 'btn btn-secondary',
         onClick: () => Auth.bulkCreate(ta.value).then(res => {
           out.style.display = 'block';
-          out.textContent = res.map(r => r.ok
-            ? '✓ ' + r.username + '  →  ' + r.password
-            : '✗ ' + r.username + '  →  ' + r.error).join('\n');
+          const lines = res.created.map(u =>
+            '✓ ' + u.username + '  →  ' + u.password +
+            (u.generated ? '  (автомат)' : '') + '   [' + Auth.roleLabel(u.role) + ']');
+          res.skipped.forEach(x => lines.push('✗ ' + x.username + '  →  ' + x.error));
+          lines.push('', 'Үүссэн: ' + res.created.length + ' | алгассан: ' + res.skipped.length);
+          out.textContent = lines.join('\n');
           reload();
         }).catch(e => alert(e.message))
       }, 'Багцаар үүсгэх'));
@@ -262,8 +284,16 @@
           r.onload = () => {
             try {
               const arr = JSON.parse(r.result);
-              Auth.importUsers(arr, false)
-                .then(n => { window.LP.showToast('✓ ' + n + ' хэрэглэгч нэмэгдлээ'); reload(); })
+              Auth.importUsers(arr)
+                .then(res => {
+                  const txt = res.created.map(u => u.username + '  →  ' + u.password).join('\n');
+                  window.LP.showToast('✓ ' + res.created.length + ' хэрэглэгч нэмэгдлээ');
+                  if (txt) {
+                    out.style.display = 'block';
+                    out.textContent = 'ШИНЭ НУУЦ ҮГ (заавал хадгална уу):\n' + txt;
+                  }
+                  reload();
+                })
                 .catch(err => alert(err.message));
             } catch (err) { alert('Файл уншиж чадсангүй: ' + err.message); }
           };
@@ -304,7 +334,7 @@
     const rows = [
       ['Нэвтрэх нэр', '@' + u.username],
       ['Овог нэр', u.name || '—'],
-      ['Эрх', u.role === 'admin' ? 'Админ' : 'Хэрэглэгч'],
+      ['Эрх', Auth.roleLabel(u.role)],
       ['Бүртгүүлсэн', fmtDate(u.created_at)],
       ['Сүүлд нэвтэрсэн', fmtDate(u.last_login)],
     ];
