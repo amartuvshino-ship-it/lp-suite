@@ -95,3 +95,26 @@ p.lead { font-size: 17px; color: var(--ink); line-height: 1.6; }
   .main { padding: 0; max-width: none; }
   .step { page-break-inside: avoid; }
 }
+
+/* =========================================================================
+   ТЕКСТИЙГ ХОЁР ТАЛААР ТЭГШЛЭХ (justify) — сайт даяар
+   ========================================================================= */
+.page-subtitle,
+.lesson-brief,
+.objective-list li,
+.practice-list li,
+.term-def,
+.info-note p,
+.dr-q,
+.dr-feedback,
+.case-story,
+.card > p:not(.form-label):not(.book-caption):not(.book-ref) {
+  text-align: justify;
+  text-justify: inter-word;
+}
+/* Хүснэгт, товч, тэмдэглэгээ, томьёо зэрэг богино текстийг тэгшлэхгүй */
+.book-table th, .book-table td,
+.btn, .chip, .mark, .kbd, kbd,
+.form-label,
+.slide-keys, .dr-kind, .dr-num,
+.match-tile, .match-slot, .ord-item, .mc-opt { text-align: left; }

@@ -96,6 +96,23 @@
   color: var(--ink-soft);
   margin: 0 0 var(--s-3);
   font-size: 15px;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+/* Томьёо, жагсаалт мэт мөр таслалттай бичвэрийг заавал зүүн тэгшилнэ */
+.book-p.book-ref, .book-p.book-caption, .book-p.book-pre { text-align: left; }
+.book-p.book-pre {
+  white-space: pre-wrap;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 14px;
+  background: var(--bg-subtle);
+  border-left: 3px solid var(--border-strong);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-sm);
+  line-height: 1.7;
+  overflow-x: auto;
 }
 .book-ref {
   font-size: 13px;
