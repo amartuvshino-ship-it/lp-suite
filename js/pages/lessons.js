@@ -96,6 +96,24 @@
       'Долоо хоног ' + L.n + '. ' + L.title));
     head.appendChild(el('p', { class: 'page-subtitle' },
       L.brief + ' · Эх сурвалж: Бүлэг ' + L.ch + ' — ' + Book.TITLES[L.ch]));
+
+    // Хичээлд хамаарах кейсийн богино холбоос
+    const CASE_BY_CH = {
+      1: [], 2: ['Модон урлал', 'Хиам'], 3: ['Модон урлал', 'Гоо Мебель', 'Норов'],
+      4: ['Модон урлал'], 5: ['Модон урлал'], 6: ['Хиам'], 7: ['Модон урлал'],
+      8: [], 9: [], 10: [],
+    };
+    const cs = (window.LP.Enrich ? (CASE_BY_CH[L.ch] || []) : []);
+    if (cs.length) {
+      const row = el('div', { class: 'dr-actions', style: { marginTop: '4px' } });
+      row.appendChild(el('span', { class: 'dr-kind', style: { marginLeft: '0' } },
+        'Кейсийн өгөгдөл:'));
+      cs.forEach(k => row.appendChild(el('button', {
+        class: 'case-chip', type: 'button',
+        onClick: () => window.LP.Enrich.openCase(k),
+      }, '«' + k + '»')));
+      head.appendChild(row);
+    }
     main.appendChild(head);
 
     // ---- Таб ----
@@ -238,6 +256,7 @@
 
       Book.load(L.ch).then(ch => {
         body.innerHTML = '';
+        if (window.LP.Enrich) window.LP.Enrich.resetScope();
 
         if (tab === 'lecture') {
           // Сурах зорилт
@@ -248,14 +267,12 @@
           obj.appendChild(ul);
           body.appendChild(obj);
 
-          // Онолын агуулга
-          const content = el('div', { class: 'card' });
+          // Онолын агуулга — дундуур нь мэдлэг шалгах тест оруулна
           const blocks = window.LP.Book.slice(ch.blocks, L.sections)
             .filter(b => !(b.t === 'h' && b.lvl === 2 &&
               /хариу түлхүүр|дасгал ажил/i.test(b.x)));
           const filtered = dropAfterExercises(blocks);
-          content.appendChild(Book.render(filtered));
-          body.appendChild(content);
+          renderWithChecks(filtered, L.n).forEach(node => body.appendChild(node));
 
           const bar = el('div', { class: 'action-bar' });
           if (L.slides) {
@@ -280,6 +297,18 @@
           tasks.appendChild(ol);
           tasks.appendChild(toolButton());
           body.appendChild(tasks);
+
+          // Интерактив дасгал — чирж тааруулах, нөхөх, эрэмбэлэх, тест
+          const drills = window.LP.Drill && window.LP.Drill.render(L.n);
+          if (drills) {
+            const dc = el('div', { class: 'card' });
+            dc.appendChild(el('h3', { class: 'subsection' }, '⚡ Интерактив дасгал'));
+            dc.appendChild(el('p', { class: 'book-p' },
+              'Хариултаа шууд шалгана. Чирж тааруулах дасгалд хавтанг хулганаар чирэх, ' +
+              'эсвэл товшоод байрлах нүдэн дээрээ дахин товшино уу.'));
+            dc.appendChild(drills);
+            body.appendChild(dc);
+          }
 
           // Номын дасгал
           const exBlocks = Book.sectionByKeyword(ch.blocks, ['дасгал ажил']);
@@ -332,6 +361,49 @@
         body.appendChild(el('div', { class: 'card' },
           el('p', { class: 'auth-error' }, e.message)));
       });
+    }
+
+    // Агуулгыг H2 хэсгээр хэсэглэж, тохирох газарт мэдлэг шалгах тест шигтгэнэ
+    function renderWithChecks(blocks, lessonN) {
+      const checks = (window.LP.Checks || {})[lessonN] || [];
+      const Drill = window.LP.Drill;
+      if (!checks.length || !Drill) {
+        const c = el('div', { class: 'card' });
+        c.appendChild(Book.render(blocks));
+        return [c];
+      }
+
+      // H2 гарчиг бүрээр хэрчинэ
+      const chunks = [];
+      let cur = { sec: null, blocks: [] };
+      blocks.forEach(b => {
+        if (b.t === 'h' && b.lvl === 2) {
+          if (cur.blocks.length) chunks.push(cur);
+          const m = /^(\d+(?:\.\d+)*)/.exec(b.x.trim());
+          cur = { sec: m ? m[1] : null, blocks: [b] };
+        } else {
+          cur.blocks.push(b);
+        }
+      });
+      if (cur.blocks.length) chunks.push(cur);
+
+      const out = [];
+      let card = el('div', { class: 'card' });
+      chunks.forEach(chunk => {
+        card.appendChild(Book.render(chunk.blocks));
+        const hit = checks.filter(c => c.after === chunk.sec);
+        if (hit.length) {
+          out.push(card);
+          hit.forEach((c, i) => {
+            out.push(Drill.quiz(c.item, {
+              tag: '✓ Мэдлэг шалгах · ' + chunk.sec + (hit.length > 1 ? ' (' + (i + 1) + ')' : ''),
+            }));
+          });
+          card = el('div', { class: 'card' });
+        }
+      });
+      if (card.childNodes.length) out.push(card);
+      return out;
     }
 
     // Лекцийн хэсгээс "Дасгал ажил"-аас хойшхийг таслах

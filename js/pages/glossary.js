@@ -239,7 +239,12 @@
           if (t.symbol) line.appendChild(el('span', { class: 'term-sym' }, t.symbol));
           if (t.kind === 'user') line.appendChild(el('span', { class: 'tag tag-user' }, 'нэмсэн'));
           mainCol.appendChild(line);
-          if (t.definition) mainCol.appendChild(el('div', { class: 'term-def' }, t.definition));
+          if (t.definition) {
+            const d = el('div', { class: 'term-def' });
+            if (window.LP.Enrich) window.LP.Enrich.text(d, t.definition);
+            else d.appendChild(document.createTextNode(t.definition));
+            mainCol.appendChild(d);
+          }
           const meta = [];
           if (t.chapter) meta.push('Бүлэг ' + t.chapter);
           if (t.author_name) meta.push(t.author_name);

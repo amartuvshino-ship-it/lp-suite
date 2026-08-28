@@ -17,7 +17,7 @@
 
     wrap.appendChild(el('h2', { class: 'section-title' },
       el('span', { class: 'step-num' }, 'Бодолт'),
-      'Branch & Bound (Салаалуулан хязгаарлах)'
+      'Branch & Bound (Салбарлан зааглах)'
     ));
 
     if (result.status === 'infeasible') {
@@ -89,7 +89,7 @@
       const lpZ = result.tree[0].z;
       if (!lpZ.eq(result.bestZ)) {
         const diffCard = el('div', { class: 'solution-card' });
-        diffCard.appendChild(el('div', { class: 'solution-label' }, 'LP сулруулалт Z'));
+        diffCard.appendChild(el('div', { class: 'solution-label' }, 'Бүхэл тоон нөхцөлийг чөлөөлөх Z'));
         diffCard.appendChild(el('div', {
           class: 'solution-value',
           style: { color: 'var(--ink-muted)' }
@@ -106,13 +106,13 @@
       subscriptDigits('x_' + (j + 1)) + ' = ' + v.toString()).join(', ');
     let lpZNote = '';
     if (result.tree[0] && result.tree[0].z && !result.tree[0].z.eq(result.bestZ)) {
-      lpZNote = ' Анхдагч LP сулруулалтын шийдэл (Z = ' + result.tree[0].z.toString() +
+      lpZNote = ' Анхдагч чөлөөлсөн бодлогын шийдэл (Z = ' + result.tree[0].z.toString() +
                 ') нь бутархай хувьсагчтай байсан учир Branch & Bound-аар <b>' +
                 (result.tree.length - 1) + '</b> дэд бодлого бодон бүхэл тооны эцсийн ' +
                 'оптимумд хүрсэн.';
     }
     conc.appendChild(el('p', {
-      html: 'Бүхэл тоон оптимум шийдэл: <b>' + xParts + '</b>, Z = <b>' +
+      html: 'Бүхэл тоон оновчтой шийд: <b>' + xParts + '</b>, Z = <b>' +
             result.bestZ.toString() + '</b>.' + lpZNote
     }));
     wrap.appendChild(conc);
@@ -628,7 +628,7 @@
     header.appendChild(badge);
 
     let title;
-    if (node.parentId === null) title = 'Анхны бодлого (LP сулруулалт)';
+    if (node.parentId === null) title = 'Анхны бодлого (Бүхэл тоон нөхцөлийг чөлөөлөх)';
     else if (node.branchInfo) {
       title = 'Эцэг #' + node.parentId + ' + хязгаарлалт: ' +
               subscriptDigits(node.branchInfo.varName) + ' ' +

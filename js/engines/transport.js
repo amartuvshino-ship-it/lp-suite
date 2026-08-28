@@ -112,7 +112,7 @@
     const totalCost = computeCost(alloc, input.cost);
     return {
       method: 'NW',
-      methodName: 'Баруун дээд өнцгийн арга (Northwest Corner)',
+      methodName: 'Баруун дээд өнцгийн арга (North-West Corner)',
       input: input,
       alloc: alloc,
       steps: steps,
