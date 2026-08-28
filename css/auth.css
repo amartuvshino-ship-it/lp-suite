@@ -252,3 +252,48 @@
   .user-row-actions { width: 100%; justify-content: flex-start; }
   .kv-key { width: 120px; flex-basis: 120px; }
 }
+
+/* ---- Эрхийн тэмдэг ба жижиг элементүүд (3 түвшний эрх) ---- */
+.tag-teacher { background: var(--gold-bg); color: #8a6d1f; }
+.input-xs {
+  font-size: 12px; padding: 4px 8px; height: auto;
+  width: auto; min-width: 96px;
+}
+.form-hint {
+  font-size: 11.5px; color: var(--ink-muted);
+  margin-top: 5px; line-height: 1.5;
+}
+.role-legend {
+  display: flex; flex-wrap: wrap; gap: var(--s-3);
+  font-size: 12px; color: var(--ink-muted); margin-top: var(--s-3);
+}
+.role-legend b { color: var(--ink); font-weight: 600; }
+
+/* ---- Багшийн явцын самбар ---- */
+.prog-row {
+  display: flex; flex-direction: column; align-items: stretch; gap: var(--s-2);
+  padding: var(--s-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-elevated);
+  margin-bottom: var(--s-2);
+}
+.user-main { display: flex; flex-direction: column; gap: 3px; }
+.user-name { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap;
+  font-weight: 600; color: var(--ink); font-size: 14px; }
+.user-uname { font-family: var(--font-mono); font-size: 11.5px;
+  color: var(--ink-muted); font-weight: 400; }
+.user-meta { font-size: 12px; color: var(--ink-muted); }
+
+.wk-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--s-3); }
+.wk {
+  width: 24px; height: 22px; border-radius: 4px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-family: var(--font-mono);
+  background: var(--bg-subtle); color: var(--ink-subtle);
+  border: 1px solid var(--border);
+}
+.wk.half { background: var(--gold-bg); color: #8a6d1f; border-color: var(--gold-soft); }
+.wk.both { background: var(--accent-bg); color: var(--accent); border-color: var(--accent-soft);
+  font-weight: 600; }
+.role-legend-item { display: inline-flex; align-items: center; gap: 5px; }
