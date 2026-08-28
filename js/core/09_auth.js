@@ -154,12 +154,20 @@
   // ---------------------------------------------------------------------------
   // Бөөнөөр үүсгэх: мөр бүр «нэвтрэх нэр, овог нэр, нууц үг, эрх»
   // ---------------------------------------------------------------------------
+  // Санамсаргүй нууц үг — үргэлж 8 тэмдэгт (lp + 6)
+  function genPassword() {
+    const abc = 'abcdefghijkmnpqrstuvwxyz23456789';   // ойлгомжгүй тэмдэгтгүй
+    let s = 'lp';
+    for (let i = 0; i < 6; i++) s += abc.charAt(Math.floor(Math.random() * abc.length));
+    return s;
+  }
+
   function parseBulk(text) {
     return String(text || '').split('\n')
       .map(l => l.trim()).filter(Boolean)
       .map(l => {
         const c = l.split(/[,;\t]/).map(s => s.trim());
-        const pw = c[2] || ('lp' + Math.random().toString(36).slice(2, 8));
+        const pw = c[2] || genPassword();
         return {
           username: c[0],
           name: c[1] || c[0],
@@ -211,7 +219,7 @@
       const rows = arr.filter(u => u && u.username).map(u => ({
         username: u.username,
         name: u.name || u.username,
-        password: 'lp' + Math.random().toString(36).slice(2, 8),
+        password: genPassword(),
         role: Data.normRole(u.role),
         note: u.note || '',
         _generated: true,
@@ -251,6 +259,7 @@
     deleteUser: deleteUser,
     bulkCreate: bulkCreate,
     parseBulk: parseBulk,
+    genPassword: genPassword,
     allProgress: allProgress,
     exportUsers: exportUsers,
     importUsers: importUsers,

@@ -13,8 +13,10 @@
   window.LP = window.LP || {};
 
   window.LP.Config = {
-    MODE: 'local',
-    API_URL: '',              // жишээ: 'https://script.google.com/macros/s/AKfy.../exec'
+    MODE: 'sheets',
+    API_URL: 'https://script.google.com/macros/s/AKfycbyLFT94zxNRh5nXJ699MmPd7-AUAi_tA8ylSnVQJRAoBt4NoIyKKcoEri5W1Gcb6GlE/exec',
+                              // Apps Script Web App хаяг. Локал горимд буцахдаа
+                              // MODE-ыг 'local' болгоно (API_URL-ыг хөндөх шаардлагагүй).
     SESSION_DAYS: 14,         // нэвтрэлт хэдэн хоног хүчинтэй байх
 
     // Эхний удаа автоматаар үүсэх админ данс.
