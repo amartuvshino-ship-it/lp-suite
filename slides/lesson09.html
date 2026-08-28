@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 9 — Мэдрэмжийн шинжилгээ ба сүүдрийн үнэ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ——— Хичээл 9-ийн интерактивт зориулсан нэмэлт хэв маяг ——— */
+.l9calc{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.75;
+  background:var(--gold-bg);border-radius:9px;padding:9px 11px;margin-top:8px}
+.l9calc b{color:var(--green)}
+.l9warn{margin-top:8px;padding:8px 11px;border-radius:9px;font-size:13px;line-height:1.45;
+  border:1px solid transparent}
+.l9warn.good{background:var(--green-bg);color:var(--green);border-color:rgba(44,95,45,.25)}
+.l9warn.bad{background:var(--rust-bg);color:var(--rust);border-color:rgba(181,72,42,.32);font-weight:500}
+.l9big{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:var(--green);line-height:1.1}
+.l9sub{font-size:12px;color:var(--ink-mute);letter-spacing:.05em;text-transform:uppercase;margin-bottom:2px}
+.l9row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding:5px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.l9row:last-child{border-bottom:0}
+.l9row .v{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ink)}
+.l9range{position:relative;height:30px;margin:9px 0 2px;border-radius:8px;
+  background:var(--rust-bg);overflow:hidden;border:1px solid var(--line)}
+.l9range .ok{position:absolute;top:0;bottom:0;background:var(--green-bg)}
+.l9range .mk{position:absolute;top:0;bottom:0;width:3px;background:var(--ink);border-radius:2px}
+.l9range .lb{position:absolute;top:50%;transform:translateY(-50%);font-size:11px;
+  color:var(--ink-soft);font-family:'JetBrains Mono',monospace}
+/* Эцсийн хүснэгтээс унших дасгал */
+.l9tab{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:15px;margin-top:10px}
+.l9tab th{font-family:'Geist',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-mute);padding:6px 4px;border-bottom:1px solid var(--line)}
+.l9tab td{padding:7px 4px;text-align:center;border-bottom:1px solid var(--line)}
+.l9tab td.bs{font-weight:600;color:var(--green);font-family:'Geist',sans-serif}
+.l9tab tr.zr td{border-top:2px solid var(--ink);border-bottom:0}
+.l9tab td.hit{cursor:pointer;border-radius:7px;transition:background .14s,color .14s}
+.l9tab td.hit:hover{background:var(--gold-bg)}
+.l9tab td.ok{background:var(--green-bg);color:var(--green);font-weight:700}
+.l9tab td.bad{background:var(--rust-bg);color:var(--rust);font-weight:700}
+.l9q{display:flex;align-items:center;gap:14px;padding:11px 15px;border:1px solid var(--line);
+  border-radius:11px;background:var(--gold-bg)}
+.l9q .n{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-mute);white-space:nowrap}
+.l9q .qt{font-size:16.5px;font-weight:500;flex:1;line-height:1.35}
+.l9fb{min-height:20px;margin-top:8px;font-size:13.5px;line-height:1.45;color:var(--ink-soft)}
+.l9fb b{color:var(--green)}
+.l9fb i{color:var(--rust);font-style:normal;font-weight:600}
+/* Solver тааруулах */
+.l9match{display:grid;grid-template-columns:1fr 1fr;gap:9px 26px;margin-top:6px}
+.l9m{display:block;width:100%;text-align:left;padding:8px 12px;border:1px solid var(--line);
+  border-radius:10px;background:transparent;cursor:pointer;font:inherit;font-size:14px;
+  line-height:1.3;color:var(--ink);transition:border-color .14s,background .14s}
+.l9m:hover{border-color:var(--gold)}
+.l9m.sel{border-color:var(--gold);background:var(--gold-bg)}
+.l9m.bad{border-color:var(--rust);background:var(--rust-bg)}
+.l9m.done{border-color:var(--green);background:var(--green-bg);color:var(--green);cursor:default}
+.l9m .xs{display:block;font-family:'JetBrains Mono',monospace;font-size:11.5px;
+  color:var(--ink-mute);margin-top:1px}
+.l9m.done .xs{color:var(--green)}
+.l9head{display:grid;grid-template-columns:1fr 1fr;gap:26px;font-size:11.5px;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--ink-mute)}
+</style>
+</head>
+<body>
+
+<div id="viewport"><div id="stage">
+
+<!-- 1 · НҮҮР -->
+<section class="slide cover" data-sec="—" data-notes="Тавтай морил. Өнөөдөр симплекс аргын хамгийн үнэ цэнэтэй давуу тал — мэдрэмжийн шинжилгээг үзнэ. Хичээлийн зүрх нь 8-р слайдын Сүүдрийн үнэ туршигч. Нийт 4 интерактив байгаа тул цагаа хуваарилаарай.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Мэдрэмжийн шинжилгээ ба <em>сүүдрийн үнэ</em></h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 9</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 5.6–5.8</span>
+    <span class="pill">4 интерактив дасгал</span>
+  </div>
+</section>
+
+<!-- 2 · ЮУ ҮЗЭХ ВЭ -->
+<section class="slide" data-sec="—" data-notes="Хичээлийн бүтэц. 5.6 бол гол блок — 40 минут. 5.7 кейс 25 минут, 5.8 хязгаарлал 15 минут. Интерактивуудыг алгасахгүй байхыг зөвлөе.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">5.6.1–5.6.2</div><h3>Сүүдрийн үнэ</h3><p>Нөөц 1 нэгжээр нэмэгдвэл ашиг хэдээр өсөх вэ? Эцсийн хүснэгтээс шууд уншина.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Сүүдрийн үнэ туршигч</h3><p>Мод, цагийн нөөцийг гулсуураар өөрчилж ΔZ-ийн задаргааг хараарай.</p></div>
+    <div class="card accent"><div class="k">5.6.3</div><h3>Оновчлолын муж</h3><p>Ашиг хэр өөрчлөгдөхөд (20, 10) гэсэн шийд хэвээр үлдэх вэ?</p></div>
+    <div class="card accent"><div class="k">5.6.4</div><h3>Боломжит муж</h3><p>Нөөц хэр өөрчлөгдөхөд сүүдрийн үнэ тогтвортой байх вэ?</p></div>
+    <div class="card accent"><div class="k">5.7</div><h3>Кейс: 3 бүтээгдэхүүн</h3><p>Ширээ, сандал, шүүгээ — графикаар боддоггүй бодлого хоёр үе шатанд.</p></div>
+    <div class="card green"><div class="k">5.8 + Интерактив</div><h3>Хязгаарлал ба Solver</h3><p>Симплекс хэзээ ажиллахгүй вэ? Excel-ийн тайлан ↔ номын ойлголт.</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 9 · Бүлэг 5.6–5.8</span><span class="pg"></span></div>
+</section>
+
+<!-- 3 · СУРАХ ЗОРИЛТ -->
+<section class="slide" data-sec="—" data-notes="Хичээлийн эцэст оюутан эдгээрийг чаддаг байх ёстой. Дадлагын даалгавар яг эдгээрийг шалгана — ялангуяа 2 ба 3 дугаарыг.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span><strong>Мэдрэмжийн шинжилгээ</strong> юунд хэрэгтэйг тайлбарлаж, менежментийн шийдвэртэй холбох</span></li>
+    <li><span class="b">2</span><span>Эцсийн симплекс хүснэгтийн Z мөрөөс <strong>сүүдрийн үнэ</strong> болон <strong>буурсан зардлыг</strong> уншиж авах</span></li>
+    <li><span class="b">3</span><span><strong>Оновчлолын муж</strong> (cⱼ) ба <strong>боломжит муж</strong> (bᵢ)-ийг тооцоолж, эдийн засгийн утгыг нь тайлбарлах</span></li>
+    <li><span class="b">4</span><span>3 хувьсагчтай бодлогыг симплексээр бодож, <strong>гүйцээх сул шинжийг</strong> таних</span></li>
+    <li><span class="b">5</span><span>Стандарт симплекс арга <strong>хэзээ ажиллахгүйг</strong> нэрлэж, тусгай тохиолдлуудыг ялгах</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 9 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- 4 · ЗААГЛАХ 5.6 -->
+<section class="slide divider dark" data-sec="5.6" data-notes="Онцгой чухал хэсэг гэдгийг тодруул. Симплексийн хариу нь тоо биш — тоо ба түүний тогтвортой байдал гэдгийг эндээс эхлэн ойлгуулна.">
+  <div class="num">5.6</div>
+  <h2>Мэдрэмжийн шинжилгээ</h2>
+  <p class="sub">Симплекс аргын хамгийн үнэ цэнэтэй давуу тал бөгөөд менежментийн шийдвэр гаргахад хамгийн үр ашигтай хэрэглүүр.</p>
+  <div class="s-foot"><span>Бүлэг 5.6 · Sensitivity Analysis</span><span class="pg"></span></div>
+</section>
+
+<!-- 5 · 5.6.1 -->
+<section class="slide" data-sec="5.6" data-notes="Гол зүйрлэл: хариу бол өнөөдрийн зураг, мэдрэмжийн шинжилгээ бол луужин. Оюутнаас асуу: 'Модны үнэ маргааш 20% өсвөл та юу хийх вэ?'">
+  <div class="s-tag">5.6.1 · Мэдрэмжийн шинжилгээ гэж юу вэ?</div>
+  <h2 class="title">Хариу бол зураг. Шинжилгээ бол <em>луужин</em>.</h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Мэдрэмжийн шинжилгээ нь оновчтой шийд өгөгдлийн өөрчлөлтөд хэр мэдрэмтгий байгааг судална: ямар өгөгдлийг (үнэ, нөөц) хэдэн хувиар өөрчилвөл шийд өөрчлөгдөх вэ.</p>
+      <div class="def">
+        <div class="lbl">Яагаад хэрэгтэй вэ?</div>
+        <p>Практикт үнэ ханш, нөөцийн хэмжээ <strong>байнга хэлбэлздэг</strong>. Мэдрэмжийн шинжилгээ нь тодорхой бус нөхцөлд итгэлтэй шийдвэр гаргах боломж олгодог.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card"><h3 style="font-size:17px">“20 ба 10” гэсэн хариу</h3><p>Симплексээр олсон энэ хариу бол зөвхөн <strong>өнөөдрийн зураг</strong>.</p></div>
+      <div class="card green"><h3 style="font-size:17px">Мэдрэмжийн шинжилгээ</h3><p>Зах зээл дээр юу ч болсон таныг <strong>зөв зам дээр байлгах луужин</strong>.</p></div>
+      <div class="card accent"><div class="k">Гурван асуулт</div><p style="font-size:14px">Нөөц нэмбэл юу болох вэ? · Ашиг өөрчлөгдвөл шийд өөрчлөгдөх үү? · Хэр хол хүртэл найдвартай вэ?</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.6.1</span><span class="pg"></span></div>
+</section>
+
+<!-- 6 · САНУУЛГА + ЭЦСИЙН ХҮСНЭГТ -->
+<section class="slide" data-sec="5.6" data-notes="Бүлэг 5.5.4-ийн эцсийн хүснэгтийг сануулна. Ногоон дүрсэлсэн 10 ба 5 гэсэн хоёр тоо бол өнөөдрийн хичээлийн бүх зүйлийн эх сурвалж. Нэгж нь мянган төгрөг гэдгийг заавал хэлээрэй.">
+  <div class="s-tag">5.5.4 · Сануулга — “Модон урлал” ХХК</div>
+  <h2 class="title">Эцсийн симплекс <em>хүснэгт</em></h2>
+  <div class="split wide">
+    <div>
+      <div class="def">
+        <div class="lbl">Бодлого (нэгж = мянган ₮)</div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.8">
+          max Z = 50x₁ + 40x₂<br>
+          4x₁ + 2x₂ ≤ 100 &nbsp;(мод, м³)<br>
+          2x₁ + 4x₂ ≤ 80 &nbsp;(цаг)<br>
+          x₁, x₂ ≥ 0
+        </p>
+      </div>
+      <p class="lead" style="font-size:16px;margin-top:12px">Оновчтой шийд: <strong>x₁ = 20 ширээ, x₂ = 10 сандал</strong>, Z = 1400 нэгж = <strong>1,400,000₮</strong>. Мод, цаг хоёулаа бүрэн ашиглагдсан.</p>
+    </div>
+    <div>
+      <table class="t sm">
+        <thead><tr><th>Суурь</th><th>x₁</th><th>x₂</th><th>s₁</th><th>s₂</th><th>RHS</th></tr></thead>
+        <tbody>
+          <tr><td class="k">x₁</td><td>1</td><td>0</td><td>0.333</td><td>−0.167</td><td>20</td></tr>
+          <tr><td class="k">x₂</td><td>0</td><td>1</td><td>−0.167</td><td>0.333</td><td>10</td></tr>
+          <tr><td class="k">Z</td><td>0</td><td>0</td>
+            <td style="background:var(--green-bg);color:var(--green);font-weight:700">10</td>
+            <td style="background:var(--green-bg);color:var(--green);font-weight:700">5</td>
+            <td>1400</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:14px;color:var(--ink-soft);margin-top:10px;line-height:1.5">Z мөрийн <strong>s₁ = 10</strong> ба <strong>s₂ = 5</strong> — өнөөдрийн хичээлийн бүх тооцоо эдгээр хоёр тооноос эхэлнэ.</p>
+    </div>
+  </div>
+  <div class="s-foot"><span>Хүснэгт 5.5.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 7 · 5.6.2 СҮҮДРИЙН ҮНЭ -->
+<section class="slide" data-sec="5.6" data-notes="Тодорхойлолтыг үгчлэн уншуул. Дараа нь 8,000₮-ийн жишээг заавал ярь: 10,000 > 8,000 тул 1 м³ тутамд 2,000₮ цэвэр ашиг. Илүү цагийн хөлс 5,000₮-өөс дээш бол алдагдалтай.">
+  <div class="s-tag">5.6.2 · Сүүдрийн үнэ (Shadow Price)</div>
+  <h2 class="title">Нэг нэгж нөөц <em>хэдэн төгрөг</em> авчрах вэ?</h2>
+  <div class="def">
+    <div class="lbl">Тодорхойлолт</div>
+    <p>Сүүдрийн үнэ нь хязгаарлалтын сул гишүүн (b) <strong>1 нэгжээр нэмэгдэхэд</strong> зорилгын функцийн утга хэдэн нэгжээр өөрчлөгдөхийг харуулна. Энэ утгыг эцсийн симплекс хүснэгтийн <strong>Z мөрөөс</strong>, тухайн нөөцийн нэмэлт хувьсагчийн (s₁, s₂) доорх тооноос шууд уншиж болно.</p>
+  </div>
+  <div class="grid g2">
+    <div class="card green"><div class="k">s₁ · Z мөр = 10</div><h3>Модны сүүдрийн үнэ</h3><p>1 м³ мод нэмэгдвэл ашиг 10 нэгжээр буюу <strong>10,000₮-өөр</strong> өснө.</p></div>
+    <div class="card green"><div class="k">s₂ · Z мөр = 5</div><h3>Цагийн сүүдрийн үнэ</h3><p>1 цаг нэмэгдвэл ашиг 5 нэгжээр буюу <strong>5,000₮-өөр</strong> өснө.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Практик хэрэглээ</div>
+    <p>Модонд 1 м³-т <strong>8,000₮ хүртэл нэмэгдэл төлбөр</strong> хийх нь ашигтай: 10,000₮ &gt; 8,000₮ — цэвэр ашиг 2,000₮ нэмж олно. Мөн ажилчдын илүү цагийн хөлсийг 1 цагт <strong>5,000₮-өөс дээш</strong> төлбөл алдагдалтай болно.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.6.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 8 · ИНТЕРАКТИВ 1 — СҮҮДРИЙН ҮНЭ ТУРШИГЧ -->
+<section class="slide" data-sec="5.6" id="spSlide" data-notes="ЭНЭ БОЛ ХИЧЭЭЛИЙН ЗҮРХ. 7–8 минут. Эхлээд модыг 100→101 болгож ашиг яг 10 нэгжээр өссөнийг харуул. Дараа нь 160-аас давуулж улаан анхааруулга гарахыг үзүүл: боломжит мужаас гарахад сүүдрийн үнэ 10 → 0 болж, цаг гацаа болно. Тоонууд номын 5.6.4-тэй яг таарна: мод [40 – 160], цаг [50 – 200].">
+  <div class="s-tag">Интерактив 1 · Бүлэг 5.6.2 → 5.6.4</div>
+  <h2 class="title">Сүүдрийн үнэ <em>туршигч</em></h2>
+  <div class="sim">
+    <div class="sim-panel">
+      <h4>Нөөцөө өөрчил</h4>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">Мод b₁ (м³)</span><span class="cv" id="spWoodV">100</span></div>
+        <input type="range" id="spWood" min="20" max="200" step="1" value="100">
+        <div class="ch">Номын утга 100 м³ · хүчинтэй муж <b id="spWoodR">[40 – 160]</b></div>
+      </div>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">Цаг b₂ (цаг)</span><span class="cv" id="spTimeV">80</span></div>
+        <input type="range" id="spTime" min="20" max="260" step="1" value="80">
+        <div class="ch">Номын утга 80 цаг · хүчинтэй муж <b id="spTimeR">[50 – 200]</b></div>
+      </div>
+      <div class="l9row"><span>Модны сүүдрийн үнэ</span><span class="v" id="spY1">10</span></div>
+      <div class="l9row"><span>Цагийн сүүдрийн үнэ</span><span class="v" id="spY2">5</span></div>
+    </div>
+
+    <div class="sim-panel">
+      <h4>Шинэ оновчтой шийд</h4>
+      <div class="l9row"><span>Ширээ x₁</span><span class="v" id="spX1">20.0</span></div>
+      <div class="l9row"><span>Сандал x₂</span><span class="v" id="spX2">10.0</span></div>
+      <div style="margin-top:8px">
+        <div class="l9sub">Оновчтой Z</div>
+        <div class="l9big"><span id="spZ">1400</span> <small style="font-size:13px;color:var(--ink-mute)">нэгж</small></div>
+        <div style="font-size:13px;color:var(--ink-soft)" id="spZmnt">= 1,400,000₮</div>
+      </div>
+      <div class="l9calc" id="spCalc">ΔZ = 10·Δb₁ + 5·Δb₂</div>
+      <div class="l9warn good" id="spWarn">Хоёр нөөц хоёулаа боломжит мужид байна — сүүдрийн үнэ тогтвортой.</div>
+    </div>
+
+    <div class="plotbox">
+      <svg id="spPlot" viewBox="0 0 300 232" style="width:100%;height:auto"></svg>
+      <div class="cap">Ногоон муж = боломжит шийдүүд · улаан цэг = шинэ оройн цэг</div>
+    </div>
+  </div>
+  <div class="simhints">
+    <div class="simhint"><b>Туршилт 1</b>Модыг 100 → 110 болго. Z яг 100 нэгжээр (10 × 10) өсөх ёстой.</div>
+    <div class="simhint"><b>Туршилт 2</b>Модыг 161 болго. Сандлын тоо 0 руу шахагдаж, сүүдрийн үнэ 10 → 0 болно.</div>
+    <div class="simhint"><b>Туршилт 3</b>Цагийг 49 болго. Одоо мод илүүдэж, гацаа нь цаг болов.</div>
+  </div>
+  <div class="s-foot"><span>ΔZ = сүүдрийн үнэ × Δнөөц — зөвхөн боломжит мужийн дотор</span><span class="pg"></span></div>
+</section>
+
+<!-- 9 · 5.6.3 ОНОВЧЛОЛЫН МУЖ -->
+<section class="slide" data-sec="5.6" data-notes="Хүснэгтийн тоог номоос яг хуулсан. Тооцооллын логик: Z мөрийн 10 ба 5 сөрөг болохгүй байх нөхцөл. 0.333 ба −0.167 нь эцсийн хүснэгтийн s₁ баганын тоонууд гэдгийг сануул.">
+  <div class="s-tag">5.6.3 · Ашгийн зөвшөөрөгдөх муж (Range of Optimality)</div>
+  <h2 class="title">Ашиг хэр өөрчлөгдөхөд шийд <em>хэвээр</em> үлдэх вэ?</h2>
+  <p class="lead" style="font-size:17px">cⱼ (зорилгын коэффициент) ямар мужид өөрчлөгдөхөд одоогийн оновчтой суурь буюу <strong>x₁ = 20, x₂ = 10</strong> гэсэн шийд хэвээр үлдэхийг харуулна.</p>
+  <table class="t sm">
+    <thead><tr><th>Бүтээгдэхүүн</th><th>Оновчтой тоо</th><th>Нэгж ашиг (cⱼ)</th><th>Зөвшөөрөгдөх өсөлт</th><th>Зөвшөөрөгдөх бууралт</th><th>Оновчтой муж</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Ширээ (x₁)</td><td>20 ширхэг</td><td>50,000₮</td><td>+30,000₮</td><td>−30,000₮</td><td><strong>[20,000 – 80,000]</strong></td></tr>
+      <tr><td class="k">Сандал (x₂)</td><td>10 ширхэг</td><td>40,000₮</td><td>+60,000₮</td><td>−15,000₮</td><td><strong>[25,000 – 100,000]</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Тооцооллыг хэрхэн хийсэн бэ? (x₁-ийн ашгийг Δ-гээр өөрчилнө)</div>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.8">
+      10 + Δ·0.333 ≥ 0 → Δ ≥ −30 &nbsp;(50,000 − 30,000 = <strong>20,000₮</strong> хүртэл буурч болно)<br>
+      5 + Δ·(−0.167) ≥ 0 → Δ ≤ 30 &nbsp;(50,000 + 30,000 = <strong>80,000₮</strong> хүртэл өсч болно)
+    </p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.6.3 · Z мөрийн утгууд сөрөг болохгүй байх нөхцөл</span><span class="pg"></span></div>
+</section>
+
+<!-- 10 · ИНТЕРАКТИВ 2 — ОНОВЧЛОЛЫН МУЖ -->
+<section class="slide" data-sec="5.6" id="roSlide" data-notes="5 минут. Ашгийг 70,000 болгоод шийд өөрчлөгдөхгүйг харуул — зөвхөн Z өснө. Дараа нь 81,000 болгоход шийд (25, 0) руу үсэрнэ. 20 ба 80 дээр яг зогсоовол хоёр орой ижил Z өгнө — энэ бол 5.8.3-ын Олон оновчтой шийд.">
+  <div class="s-tag">Интерактив 2 · Бүлэг 5.6.3</div>
+  <h2 class="title">Оновчлолын муж — <em>хэзээ шийд үсрэх вэ?</em></h2>
+  <div class="sim">
+    <div class="sim-panel">
+      <h4>Ширээний нэгж ашиг c₁</h4>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">c₁ (мянган ₮)</span><span class="cv" id="roCV">50</span></div>
+        <input type="range" id="roC" min="0" max="120" step="1" value="50">
+        <div class="ch">Номын утга 50,000₮ · сандлын ашиг c₂ = 40,000₮ тогтмол</div>
+      </div>
+      <div class="l9range" id="roBar">
+        <div class="ok" id="roOk"></div><div class="mk" id="roMk"></div>
+        <div class="lb" style="left:6px">0</div>
+        <div class="lb" id="roL1">20</div>
+        <div class="lb" id="roL2">80</div>
+        <div class="lb" style="right:6px">120</div>
+      </div>
+      <div style="font-size:12.5px;color:var(--ink-mute);line-height:1.5">Ногоон хэсэг = оновчтой муж <b>[20,000 – 80,000]</b></div>
+    </div>
+
+    <div class="sim-panel">
+      <h4>Оновчтой орой</h4>
+      <div class="l9row"><span>Ширээ x₁</span><span class="v" id="roX1">20</span></div>
+      <div class="l9row"><span>Сандал x₂</span><span class="v" id="roX2">10</span></div>
+      <div style="margin-top:8px">
+        <div class="l9sub">Нийт ашиг Z</div>
+        <div class="l9big"><span id="roZ">1400</span> <small style="font-size:13px;color:var(--ink-mute)">нэгж</small></div>
+      </div>
+      <div class="l9warn good" id="roWarn">Мужид байна — шийд (20, 10) хэвээр, зөвхөн Z өөрчлөгдөнө.</div>
+    </div>
+
+    <div class="plotbox">
+      <svg id="roPlot" viewBox="0 0 300 232" style="width:100%;height:auto"></svg>
+      <div class="cap">Тасархай шугам = зорилгын функцийн шугам · улаан цэг = оновчтой орой</div>
+    </div>
+  </div>
+  <div class="simhints">
+    <div class="simhint"><b>Туршилт 1</b>c₁ = 70. Шийд (20, 10) хэвээр — зөвхөн ашиг өснө.</div>
+    <div class="simhint"><b>Туршилт 2</b>c₁ = 81. Шийд (25, 0) руу үсэрнэ — зөвхөн ширээ хийнэ.</div>
+    <div class="simhint"><b>Туршилт 3</b>c₁ = 19. Шийд (0, 20) руу үсэрнэ — зөвхөн сандал хийнэ.</div>
+  </div>
+  <div class="s-foot"><span>Мужаас гарвал шинээр симплекс бодолт хийх шаардлагатай</span><span class="pg"></span></div>
+</section>
+
+<!-- 11 · 5.6.3 ЖИШЭЭ -->
+<section class="slide" data-sec="5.6" data-notes="Номын жишээг үгчлэн ярь: 30,000₮ бол мужид багтана — юу ч өөрчлөхгүй. 15,000₮ бол доод хязгаараас гарна — ширээний тоог багасгах шаардлагатай. Оюутнаас 'та захирал бол юу хийх вэ?' гэж асуу.">
+  <div class="s-tag">5.6.3 · Жишээ ба удирдлагын шийдвэр</div>
+  <h2 class="title">Модны үнэ өсөж, ширээний ашиг <em>буурлаа</em></h2>
+  <div class="checks">
+    <div class="chk"><span class="m">✓</span><span class="tx"><b>Ашиг 70,000₮ болж өсвөл</b> — үйлдвэрлэх тоогоо (20, 10) огт өөрчлөх шаардлагагүй, зөвхөн нийт ашиг өснө</span></div>
+    <div class="chk"><span class="m">✓</span><span class="tx"><b>Ашиг 30,000₮ болж буурвал</b> — зөвшөөрөгдөх доод хязгаар 20,000₮-өөс дээш, мужид багтаж байна. Хуучин төлөвлөгөө (20 ширээ, 10 сандал) хамгийн ашигтай хэвээр</span></div>
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>Ашиг 15,000₮ болбол</b> — 20,000₮-ийн доод хязгаараас гарлаа. Компани бодлогоо шинээр бодож, <strong>ширээний тоог багасгах</strong> шаардлагатай</span></div>
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>Ашиг 80,000₮-өөс давбал</b> — шинээр симплекс бодолт хийж, <strong>зөвхөн ширээ хийх</strong> шинэ төлөвлөгөө рүү шилжинэ</span></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Санах дүрэм</div>
+    <p>Муж дотор бол <strong>шийдийн бүтэц</strong> (аль бүтээгдэхүүнийг хэдээр хийх) хэвээр — зөвхөн Z-ийн утга өөрчлөгдөнө. Мужаас гарвал <strong>өөр оройн цэг</strong> оновчтой болно.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.6.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 12 · 5.6.4 БОЛОМЖИТ МУЖ -->
+<section class="slide" data-sec="5.6" data-notes="Хоёр мужийн ялгааг тодруул: оновчлолын муж = cⱼ-д, боломжит муж = bᵢ-д. Оновчлолын мужид шийд хэвээр, боломжит мужид сүүдрийн үнэ хэвээр.">
+  <div class="s-tag">5.6.4 · Нөөцийн зөвшөөрөгдөх муж (Range of Feasibility)</div>
+  <h2 class="title">Сүүдрийн үнэ хэр хол хүртэл <em>хүчинтэй</em> вэ?</h2>
+  <p class="lead" style="font-size:17px">bᵢ (нөөцийн хэмжээ) ямар мужид өөрчлөгдөхөд <strong>сүүдрийн үнэ хэвээр буюу тогтвортой</strong> үлдэхийг харуулна.</p>
+  <table class="t sm">
+    <thead><tr><th>Нөөцийн төрөл</th><th>Ашигласан</th><th>Сүүдрийн үнэ</th><th>Зөвшөөрөгдөх өсөлт</th><th>Зөвшөөрөгдөх бууралт</th><th>Хүчинтэй муж</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Мод (s₁)</td><td>100 м³</td><td>10,000₮</td><td>+60 м³</td><td>−60 м³</td><td><strong>[40 – 160]</strong></td></tr>
+      <tr><td class="k">Цаг (s₂)</td><td>80 цаг</td><td>5,000₮</td><td>+120 цаг</td><td>−30 цаг</td><td><strong>[50 – 200]</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="grid g2">
+    <div class="card accent"><div class="k">Оновчлолын муж</div><h3>cⱼ өөрчлөгдөнө</h3><p>Оновчтой <strong>шийд</strong> (20, 10) хэвээр үлдэнэ.</p></div>
+    <div class="card green"><div class="k">Боломжит муж</div><h3>bᵢ өөрчлөгдөнө</h3><p>Оновчтой <strong>сүүдрийн үнэ</strong> (10, 5) хэвээр үлдэнэ.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.6.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 13 · 5.6.4 ТООЦООЛОЛ -->
+<section class="slide" data-sec="5.6" data-notes="Тооцооллын дүрэм: бууралтад эерэг коэффициент, өсөлтөд сөрөг коэффициент. Дараа нь эдийн засгийн утгыг ярь — 160-аас цааш цаг гацаа болно. Энэ нь 8-р слайдын симуляцийн улаан анхааруулгатай яг таарна.">
+  <div class="s-tag">5.6.4 · Тооцоолол ба эдийн засгийн утга</div>
+  <h2 class="title">[40 – 160] хаанаас <em>гарч ирэв?</em></h2>
+  <div class="def">
+    <div class="lbl">Эцсийн хүснэгтийн s₁ багана: 0.333 ба −0.167 · RHS: 20 ба 10</div>
+    <p style="font-family:'JetBrains Mono',monospace;font-size:14.5px;line-height:1.85">
+      Бууралт (эерэг коэффициент): 20 / 0.333 = 60 → 100 − 60 = <strong>40</strong><br>
+      Өсөлт (сөрөг коэффициент): 10 / 0.167 = 60 → 100 + 60 = <strong>160</strong>
+    </p>
+  </div>
+  <div class="grid g2">
+    <div class="card green"><div class="k">Эдийн засгийн утга</div><p>Модны нөөц 100 м³-аас <strong>160 м³ хүртэл</strong> нэмэгдэх хүртэл л мод бүрээс <strong>10,000₮-ийн ашиг</strong> тогтвортой нэмж олно.</p></div>
+    <div class="card"><div class="k">160-аас цааш</div><p>Сандлын үйлдвэрлэл сөрөг утга руу орох гээд байгаа тул сүүдрийн үнэ (10,000₮) <strong>хүчингүй</strong> болно — энэ үед <strong>цаг</strong> гэсэн өөр нөөц гацаа (bottleneck) болж хувирна.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Практик хэрэглээ</div>
+    <p>Нөөц нэмэх шийдвэр гаргах, хөрөнгө оруулалт төлөвлөхөд энэ мужийг мэдэх нь чухал — мужаас гадуур сүүдрийн үнэ өөрчлөгдөж, <strong>шинээр тооцоолол</strong> хийх шаардлагатай болно.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.6.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 14 · ЗААГЛАХ 5.7 -->
+<section class="slide divider dark" data-sec="5.7" data-notes="Шилжилт: одоо симплексийн жинхэнэ хүчийг харуулна. Оюутнаас асуу: 'Гурван хэмжээст орон зайд та зурж чадах уу?' Симплекс хувьсагчийн тооноос үл хамаарна.">
+  <div class="num">5.7</div>
+  <h2>Кейс: 3 бүтээгдэхүүнтэй үйлдвэр</h2>
+  <p class="sub">Графикийн аргаар гурван хэмжээст орон зайд зурах шаардлагатай болох тул хүн нүдээр харж бодох боломжгүй. Харин симплекс арга хувьсагчийн тооноос үл хамааран ижил алгоритмаар ажиллана.</p>
+  <div class="s-foot"><span>Бүлэг 5.7</span><span class="pg"></span></div>
+</section>
+
+<!-- 15 · 5.7.1–5.7.2 -->
+<section class="slide" data-sec="5.7" data-notes="Тоонууд сургалтын зориулалттай жижиг — гараар давтахад тохиромжтой. Нэгж нь өмнөх кейсээс өөр масштабтай гэдгийг сануул.">
+  <div class="s-tag">5.7.1–5.7.2 · Бизнесийн нөхцөл ба бодлогын тавилт</div>
+  <h2 class="title">Ширээ, сандал, <em>шүүгээ</em></h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">“Модон урлал” ХХК гурав дахь төрлийн бүтээгдэхүүн нэмж үйлдвэрлэхээр шийдлээ: ширээ (x₁), сандал (x₂), шүүгээ (x₃).</p>
+      <div class="def">
+        <div class="lbl">Гурван хязгаарлагдмал нөөц</div>
+        <p>Мод (м³) · Цаг (ажиллах хугацаа) · Төмөр (кг, ширмэл иж бүрдэл эд ангид зориулсан). Компани нийт ашгаа <strong>хамгийн их</strong> байлгахыг зорьж байна.</p>
+      </div>
+    </div>
+    <div class="formula">
+      <div class="fl">
+        max Z = <span class="c">5</span>x₁ + <span class="c">4</span>x₂ + <span class="c">3</span>x₃<br>
+        <span style="font-size:15px;color:rgba(255,255,255,.7)">хязгаарлалтууд:</span><br>
+        2x₁ + 3x₂ + x₃ <span class="op">≤</span> 5 &nbsp;(мод, м³)<br>
+        4x₁ + x₂ + 2x₃ <span class="op">≤</span> 11 &nbsp;(цаг)<br>
+        3x₁ + 4x₂ + 2x₃ <span class="op">≤</span> 8 &nbsp;(төмөр, кг)<br>
+        x₁, x₂, x₃ <span class="op">≥ 0</span>
+      </div>
+      <div class="cap">Тооцооллыг гараар давтахад тохиромжтой байхаар жижиг тоотой, сургалтын зориулалттай өгөгдөл</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.7.1–5.7.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 16 · 5.7.3–5.7.4 -->
+<section class="slide" data-sec="5.7" data-notes="Каноник хэлбэр 5.2-ын дүрмээр. Нэмэлт хувьсагч бүр эдийн засгийн утгатай: ашиглагдаагүй нөөц. Анхны хүснэгтийн Z мөр сөрөг тэмдэгтэй гэдгийг сануул.">
+  <div class="s-tag">5.7.3–5.7.4 · Каноник хэлбэр ба анхны хүснэгт</div>
+  <h2 class="title">Гурван нэмэлт <em>хувьсагч</em></h2>
+  <div class="split wide">
+    <div>
+      <div class="def">
+        <div class="lbl">Каноник хэлбэр</div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.8">
+          max Z = 5x₁ + 4x₂ + 3x₃ + 0·s₁ + 0·s₂ + 0·s₃<br>
+          2x₁ + 3x₂ + x₃ + s₁ = 5<br>
+          4x₁ + x₂ + 2x₃ + s₂ = 11<br>
+          3x₁ + 4x₂ + 2x₃ + s₃ = 8<br>
+          x₁, x₂, x₃, s₁, s₂, s₃ ≥ 0
+        </p>
+      </div>
+      <p style="font-size:14.5px;color:var(--ink-soft);margin-top:10px;line-height:1.55">s₁ = ашиглагдаагүй мод · s₂ = ашиглагдаагүй цаг · s₃ = ашиглагдаагүй төмөр — 5.2.3-т үзсэнтэй адил эдийн засгийн утгатай.</p>
+    </div>
+    <div>
+      <table class="t sm">
+        <thead><tr><th>Суурь</th><th>x₁</th><th>x₂</th><th>x₃</th><th>s₁</th><th>s₂</th><th>s₃</th><th>RHS</th></tr></thead>
+        <tbody>
+          <tr><td class="k">s₁</td><td>2</td><td>3</td><td>1</td><td>1</td><td>0</td><td>0</td><td>5</td></tr>
+          <tr><td class="k">s₂</td><td>4</td><td>1</td><td>2</td><td>0</td><td>1</td><td>0</td><td>11</td></tr>
+          <tr><td class="k">s₃</td><td>3</td><td>4</td><td>2</td><td>0</td><td>0</td><td>1</td><td>8</td></tr>
+          <tr><td class="k">Z</td><td>−5</td><td>−4</td><td>−3</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:14px;color:var(--ink-soft);margin-top:10px">Анхны суурь шийд: s₁ = 5, s₂ = 11, s₃ = 8, Z = 0.</p>
+    </div>
+  </div>
+  <div class="s-foot"><span>Хүснэгт 5.7.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 17 · 5.7.5 1-Р ҮЕ ШАТ -->
+<section class="slide" data-sec="5.7" data-notes="Гурван харьцааг самбар дээр гараар давтуулж болно. Ялгагч элемент 2. Z = 12.5 болсон ч x₃ баганад −0.5 үлдсэн тул үргэлжилнэ.">
+  <div class="s-tag">5.7.5 · 1-р үе шат</div>
+  <h2 class="title">Орох багана <em>x₁</em>, гарах мөр <em>s₁</em></h2>
+  <div class="def">
+    <div class="lbl">Сонголт</div>
+    <p>Z мөрийн хамгийн сөрөг тоо <strong>−5</strong> (x₁ баганад) → x₁ орох багана. Харьцааны тест: 5 / 2 = 2.5, &nbsp; 11 / 4 = 2.75, &nbsp; 8 / 3 = 2.667. Хамгийн бага нь <strong>2.5</strong> → s₁ гарах мөр, ялгагч элемент = <strong>2</strong>. Гол мөрийг 2-т хуваана: [2, 3, 1, 1, 0, 0, 5] ÷ 2 = [1, 1.5, 0.5, 0.5, 0, 0, 2.5].</p>
+  </div>
+  <table class="t sm">
+    <thead><tr><th>Суурь</th><th>x₁</th><th>x₂</th><th>x₃</th><th>s₁</th><th>s₂</th><th>s₃</th><th>RHS</th></tr></thead>
+    <tbody>
+      <tr><td class="k">x₁</td><td>1</td><td>1.5</td><td>0.5</td><td>0.5</td><td>0</td><td>0</td><td>2.5</td></tr>
+      <tr><td class="k">s₂</td><td>0</td><td>−5</td><td>0</td><td>−2</td><td>1</td><td>0</td><td>1</td></tr>
+      <tr><td class="k">s₃</td><td>0</td><td>−0.5</td><td>0.5</td><td>−1.5</td><td>0</td><td>1</td><td>0.5</td></tr>
+      <tr><td class="k">Z</td><td>0</td><td>3.5</td><td><strong>−0.5</strong></td><td>2.5</td><td>0</td><td>0</td><td>12.5</td></tr>
+    </tbody>
+  </table>
+  <p class="lead" style="font-size:16px">Одоогийн шийд: x₁ = 2.5, Z = 12.5. Гэвч Z мөрөнд <strong>−0.5</strong> (x₃ баганад) байгаа тул үргэлжлүүлнэ.</p>
+  <div class="s-foot"><span>Бүлэг 5.7.5 · 1-р үе шат</span><span class="pg"></span></div>
+</section>
+
+<!-- 18 · 5.7.5 2-Р ҮЕ ШАТ -->
+<section class="slide" data-sec="5.7" data-notes="s₂ мөрөнд x₃ баганын коэффициент 0 тул харьцаа тооцохгүй — энэ бол оюутнууд байнга андуурдаг цэг. Z мөрөнд сөрөг тоо үлдсэнгүй → оновчтой. Ердөө хоёр үе шат.">
+  <div class="s-tag">5.7.5 · 2-р үе шат</div>
+  <h2 class="title">Орох багана <em>x₃</em>, гарах мөр <em>s₃</em></h2>
+  <div class="def">
+    <div class="lbl">Сонголт</div>
+    <p>Цорын ганц сөрөг тоо <strong>−0.5</strong> (x₃ баганад) → x₃ орох багана. Харьцааны тест: x₁ мөр 2.5 / 0.5 = 5; s₂ мөрөнд x₃ баганын коэффициент <strong>0</strong> тул харьцаа тооцохгүй; s₃ мөр 0.5 / 0.5 = <strong>1</strong> (хамгийн бага) → s₃ гарах мөр, ялгагч элемент = 0.5. Гол мөр ÷ 0.5 = [0, −1, 1, −3, 0, 2, 1].</p>
+  </div>
+  <table class="t sm">
+    <thead><tr><th>Суурь</th><th>x₁</th><th>x₂</th><th>x₃</th><th>s₁</th><th>s₂</th><th>s₃</th><th>RHS</th></tr></thead>
+    <tbody>
+      <tr><td class="k">x₁</td><td>1</td><td>2</td><td>0</td><td>2</td><td>0</td><td>−1</td><td>2</td></tr>
+      <tr><td class="k">s₂</td><td>0</td><td>−5</td><td>0</td><td>−2</td><td>1</td><td>0</td><td>1</td></tr>
+      <tr><td class="k">x₃</td><td>0</td><td>−1</td><td>1</td><td>−3</td><td>0</td><td>2</td><td>1</td></tr>
+      <tr><td class="k">Z</td><td>0</td><td>3</td><td>0</td><td>1</td><td>0</td><td>1</td><td><strong>13</strong></td></tr>
+    </tbody>
+  </table>
+  <p class="lead" style="font-size:16px">Z мөрөнд сөрөг тоо байхгүй (0, 3, 0, 1, 0, 1 — бүгд ≥ 0) → <strong>оновчтой шийд олдлоо</strong>. Ердөө хоёр үе шатанд бодлого шийдэгдлээ.</p>
+  <div class="s-foot"><span>Хүснэгт 5.7.5 · эцсийн хүснэгт</span><span class="pg"></span></div>
+</section>
+
+<!-- 19 · 5.7.6 ОНОВЧТОЙ ШИЙД -->
+<section class="slide" data-sec="5.7" data-notes="Сандал огт хийхгүй гэдэг нь гэнэтийн үр дүн — оюутнуудаас яагаад гэж асуу. Суурьт s₁, s₃ байхгүй = мод, төмөр бүрэн ашиглагдсан (Binding Constraint).">
+  <div class="s-tag">5.7.6 · Оновчтой шийд</div>
+  <h2 class="title">Хоёр ширээ, нэг <em>шүүгээ</em></h2>
+  <div class="grid g3">
+    <div class="card green"><div class="k">x₁</div><h3>2 ширхэг ширээ</h3><p>Үндсэн бүтээгдэхүүн.</p></div>
+    <div class="card"><div class="k">x₂</div><h3>0 ширхэг сандал</h3><p>Энэ төлөвлөгөөнд үйлдвэрлэхгүй.</p></div>
+    <div class="card green"><div class="k">x₃</div><h3>1 ширхэг шүүгээ</h3><p>Шинэ бүтээгдэхүүн орж ирлээ.</p></div>
+  </div>
+  <div class="grid g2">
+    <div class="card accent"><div class="k">s₂ = 1</div><h3>Цагийн нөөц илүүдэлтэй</h3><p>Цагийн нөөцөөс 1 нэгж ашиглагдалгүй үлдэнэ — цаг энэ жишээнд <strong>хязгаарлагч хүчин зүйл биш</strong>.</p></div>
+    <div class="card accent"><div class="k">Z = 13</div><h3>Нийт ашиг</h3><p>13 нэгж ашиг (жишээ өгөгдлийн масштабаар).</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Анзаараарай</div>
+    <p>Суурь баганад <strong>s₁ болон s₃ байхгүй</strong> — энэ нь мод, төмөр хоёулаа бүрэн ашиглагдсан (<strong>Binding Constraint</strong>) гэсэн үг.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.7.6</span><span class="pg"></span></div>
+</section>
+
+<!-- 20 · ИНТЕРАКТИВ 3 — ХҮСНЭГТЭЭС УНШИХ -->
+<section class="slide" data-sec="5.7" id="rdSlide" data-notes="6–7 минут. Оюутныг самбар дээр гаргаж товшуулж болно. Асуулт бүрийн дараа яагаад гэдгийг тайлбарла. 4-р асуулт (буурсан зардал) хамгийн чухал: x₂ суурьт байхгүй тул Z мөрийн 3 бол сандлын буурсан зардал.">
+  <div class="s-tag">Интерактив 3 · Эцсийн хүснэгтээс унших</div>
+  <h2 class="title">Энэ тоо хүснэгтийн <em>хаана</em> байна вэ?</h2>
+  <div class="l9q">
+    <span class="n" id="rdN">1 / 6</span>
+    <span class="qt" id="rdQ">Модны нөөцийн (s₁) сүүдрийн үнэ хаана байна вэ?</span>
+  </div>
+  <table class="l9tab" id="rdTab">
+    <thead><tr><th>Суурь</th><th>x₁</th><th>x₂</th><th>x₃</th><th>s₁</th><th>s₂</th><th>s₃</th><th>RHS</th></tr></thead>
+    <tbody>
+      <tr><td class="bs">x₁</td><td class="hit" data-i="0-0">1</td><td class="hit" data-i="0-1">2</td><td class="hit" data-i="0-2">0</td><td class="hit" data-i="0-3">2</td><td class="hit" data-i="0-4">0</td><td class="hit" data-i="0-5">−1</td><td class="hit" data-i="0-6">2</td></tr>
+      <tr><td class="bs">s₂</td><td class="hit" data-i="1-0">0</td><td class="hit" data-i="1-1">−5</td><td class="hit" data-i="1-2">0</td><td class="hit" data-i="1-3">−2</td><td class="hit" data-i="1-4">1</td><td class="hit" data-i="1-5">0</td><td class="hit" data-i="1-6">1</td></tr>
+      <tr><td class="bs">x₃</td><td class="hit" data-i="2-0">0</td><td class="hit" data-i="2-1">−1</td><td class="hit" data-i="2-2">1</td><td class="hit" data-i="2-3">−3</td><td class="hit" data-i="2-4">0</td><td class="hit" data-i="2-5">2</td><td class="hit" data-i="2-6">1</td></tr>
+      <tr class="zr"><td class="bs">Z</td><td class="hit" data-i="3-0">0</td><td class="hit" data-i="3-1">3</td><td class="hit" data-i="3-2">0</td><td class="hit" data-i="3-3">1</td><td class="hit" data-i="3-4">0</td><td class="hit" data-i="3-5">1</td><td class="hit" data-i="3-6">13</td></tr>
+    </tbody>
+  </table>
+  <div class="l9fb" id="rdFb">Хүснэгтийн нүдэн дээр товшиж хариулаарай.</div>
+  <div class="gamebar">
+    <span id="rdScore">0 / 6 зөв</span>
+    <button id="rdReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Хүснэгт 5.7.5 · сүүдрийн үнэ ба буурсан зардал</span><span class="pg"></span></div>
+</section>
+
+<!-- 21 · 5.7.7 ЭДИЙН ЗАСГИЙН ТАЙЛБАР -->
+<section class="slide" data-sec="5.7" data-notes="Гүйцээх сул шинж бол Бүлэг 7-гийн үндэс. Дүрмийг хоёр чиглэлд нь давтуул: s > 0 → сүүдрийн үнэ 0; s = 0 → сүүдрийн үнэ эерэг байж болно. Мөн 4.5-ын урвуу матрицтай уялдааг сануул.">
+  <div class="s-tag">5.7.7 · Эдийн засгийн тайлбар</div>
+  <h2 class="title">Гүйцээх сул шинжийн <em>анхны жишээ</em></h2>
+  <div class="checks">
+    <div class="chk"><span class="m">✓</span><span class="tx"><b>s₁ баганад Z мөр = 1</b> — мод 1 нэгжээр нэмэгдвэл ашиг 1 нэгжээр өснө</span></div>
+    <div class="chk"><span class="m">✓</span><span class="tx"><b>s₃ баганад Z мөр = 1</b> — төмөр 1 нэгжээр нэмэгдвэл мөн адил ашиг 1 нэгжээр өснө</span></div>
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>s₂ баганад Z мөр = 0</b> — s₂ өөрөө суурь хувьсагч буюу илүүдэлтэй нөөц болсон тул нэмэлт цаг өгсөн ч ашигт нэмэр өгөхгүй</span></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Гүйцээх сул шинж (Complementary Slackness)</div>
+    <p>Хэрэв нөөц <strong>бүрэн ашиглагдаагүй</strong> бол (s &gt; 0) түүний сүүдрийн үнэ <strong>0</strong> байх ёстой; харин нөөц <strong>бүрэн ашиглагдсан</strong> үед (s = 0) л сүүдрийн үнэ эерэг байж болно.</p>
+  </div>
+  <div class="grid g2">
+    <div class="card accent"><div class="k">← Бүлэг 4.5</div><p>Урвуу матрицын элементүүд яг энэ сүүдрийн үнийг тооцоход ашиглагддаг: <strong>сүүдрийн үнэ = урвуу матрицын элемент × зорилгын коэффициент</strong>.</p></div>
+    <div class="card green"><div class="k">→ Бүлэг 7</div><p>Хосмог бодлогод <strong>сүүдрийн үнэ = хосмог хувьсагчийн утга</strong>. Гүйцээх сул шинжийг тэнд бүрэн, албан ёсны байдлаар үзнэ.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.7.7</span><span class="pg"></span></div>
+</section>
+
+<!-- 22 · ИНТЕРАКТИВ 4 — SOLVER ТААРУУЛАХ -->
+<section class="slide" data-sec="5.7" id="mtSlide" data-notes="4–5 минут. Excel-ийн Sensitivity Report бол яг өнөөдөр үзсэн ойлголтуудын англи нэр. Зүүн талын багана дээр товшоод, баруун талаас тохирох ойлголтыг сонгоно. Дадлагад Solver ажиллуулж энэ тайланг гаргуулна.">
+  <div class="s-tag">Интерактив 4 · Excel Solver ↔ ном</div>
+  <h2 class="title">Sensitivity Report-ыг <em>уншиж сурах</em></h2>
+  <div class="l9head"><span>Excel-ийн багана</span><span>Номын ойлголт</span></div>
+  <div class="l9match" id="mtGrid"></div>
+  <div class="l9fb" id="mtFb">Зүүн талын багана дээр товшоод, дараа нь баруун талаас тохирох ойлголтыг сонгоно уу.</div>
+  <div class="gamebar">
+    <span id="mtScore">0 / 6 тааруулсан</span>
+    <button id="mtReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Solver → Sensitivity Report · Бүлэг 5.6-гийн бүх ойлголт нэг тайланд</span><span class="pg"></span></div>
+</section>
+
+<!-- 23 · 5.8.1–5.8.2 -->
+<section class="slide" data-sec="5.8" data-notes="Гол шалтгаан: 'бүх x = 0' гэсэн гарааны цэг боломжит шийд байх ёстой. ≥ хязгаарлалт үүнийг эвддэг. Min бодлого том асуудал биш — 5.2.5-аар хувиргана.">
+  <div class="s-tag">5.8.1–5.8.2 · Симплекс аргын хязгаарлал</div>
+  <h2 class="title">Хэзээ ажиллах вэ, хэзээ <em>ажиллахгүй</em> вэ?</h2>
+  <div class="grid g2">
+    <div class="card green"><div class="k">5.8.1 · Ажиллана</div><h3>Стандарт нөхцөл</h3><p>Бүх хязгаарлалт <strong>≤</strong> тэмдэгтэй, <strong>max</strong> зорилготой бодлогод. Каноник хэлбэрт шууд оруулах боломжтой — эхний суурь боломжит шийд (s₁ = b₁, s₂ = b₂, …) байгалиасаа <strong>боломжит (feasible)</strong> байх ёстой.</p></div>
+    <div class="card"><div class="k">5.8.2 · Ажиллахгүй</div><h3>Хоёр тохиолдол</h3><p><strong>≥ эсвэл = тэмдэгтэй</strong> хязгаарлалт — “бүх x = 0” гэсэн гарааны цэг боломжит шийд болдоггүй (x ≥ 10-ыг x = 0 хангахгүй).<br><strong>Min бодлого</strong> — гэвч 5.2.5-т үзсэнчлэн max болгож хувиргах боломжтой тул том асуудал биш.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">→ Шийдэл</div>
+    <p>≥ болон = хязгаарлалттай бодлогыг <strong>Big-M арга (Big-M Method)</strong> ашиглан шийднэ — <strong>Бүлэг 6</strong>-гийн гол сэдэв.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.8.1–5.8.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 24 · 5.8.3 ТУСГАЙ ТОХИОЛДЛУУД -->
+<section class="slide" data-sec="5.8" data-notes="Гурван тусгай тохиолдол. Олон оновчтой шийдийг 10-р слайдын интерактив дээр c₁ = 20 эсвэл 80 болгож үзүүлж болно. Хязгааргүй шийд практикт ихэвчлэн загварчлалын алдаа.">
+  <div class="s-tag">5.8.3 · Тусгай тохиолдлууд</div>
+  <h2 class="title">Гурван онцгой <em>тохиолдол</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">Degeneracy</div><h3>Гажуудал</h3><p>Харьцааны тестэд хоёр ба түүнээс дээш мөр <strong>тэнцүү хамгийн бага харьцаа</strong> өгөх үед үүснэ. Алгоритм нэг цэг дээр удаан “гацаж”, үе шат хийсэн ч Z утга сайжрахгүй байх боломжтой.</p></div>
+    <div class="card accent"><div class="k">Multiple Optimal</div><h3>Олон оновчтой шийд</h3><p>Эцсийн хүснэгтийн Z мөрөнд <strong>суурийн бус хувьсагчийн доор 0</strong> үлдсэн тохиолдолд өөр оройн цэг дээр ч ижил оновчтой Z утга авах боломжтой болно.</p></div>
+    <div class="card accent"><div class="k">Unbounded</div><h3>Хязгааргүй шийд</h3><p>Орох баганад бүх коэффициент <strong>сөрөг буюу тэг</strong> байвал харьцааны тест хийх боломжгүй болж, гарах мөр олдохгүй. Зорилгын функц хязгааргүй өсөх боломжтой гэсэн үг.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Практик анхааруулга</div>
+    <p>Хязгааргүй шийд гарлаа гэдэг нь ихэвчлэн <strong>бодлогын тавилтад алдаа гарсныг</strong> илтгэдэг — нөөцийн хязгаарлалт орхигдсон эсэхээ шалгаарай.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.8.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 25 · ГОЛ САНАА -->
+<section class="slide" data-sec="—" data-notes="Таван гол санаа. Оюутнаар нэг бүрчлэн давтуулж хэлүүл. Ялангуяа 2 ба 3-ын ялгааг (шийд хэвээр vs сүүдрийн үнэ хэвээр) шалгаарай.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Таван гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt"><b>Сүүдрийн үнэ</b> = нөөц 1 нэгжээр нэмэгдэхэд Z хэдээр өөрчлөгдөх нь. Эцсийн хүснэгтийн Z мөрөөс sᵢ баганаас шууд уншина: мод <b>10</b>, цаг <b>5</b>.</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt"><b>Оновчлолын муж</b> (cⱼ): ширээ <b>[20,000 – 80,000]</b>, сандал <b>[25,000 – 100,000]</b> — энэ мужид (20, 10) гэсэн шийд хэвээр үлдэнэ.</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt"><b>Боломжит муж</b> (bᵢ): мод <b>[40 – 160]</b>, цаг <b>[50 – 200]</b> — энэ мужид сүүдрийн үнэ тогтвортой. Мужаас гарвал шинээр тооцоолол хийнэ.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt"><b>Гүйцээх сул шинж</b>: нөөц бүрэн ашиглагдаагүй бол (s &gt; 0) сүүдрийн үнэ нь 0. 3 бүтээгдэхүүний кейст s₂ = 1 тул цагийн сүүдрийн үнэ 0 байлаа.</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt">Стандарт симплекс <b>≤ ба max</b> бодлогод л ажиллана. ≥ болон = хязгаарлалтад <b>Big-M арга</b> хэрэгтэй — Бүлэг 6.</span></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 9 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- 26 · ТӨГСГӨЛ -->
+<section class="slide closing dark" data-sec="—" data-notes="Дараагийн 1.5 цаг — дадлага: Solver-ээр Sensitivity Report гаргана. Дараагийн долоо хоног Бүлэг 6: Big-M арга. Сүүдрийн үнэ Бүлэг 7-д хосмог хувьсагч болж эргэж ирнэ.">
+  <h2>Симплекс танд <em>тоо</em> өгсөн.<br>Мэдрэмжийн шинжилгээ <em>итгэл</em> өгнө.</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    “20 ба 10” бол хариу. Харин “мод [40 – 160]-д 10,000₮” гэдэг бол шийдвэр. Бүлэг 7-д яг энэ сүүдрийн үнэ хосмог бодлогын хувьсагч болж эргэж ирнэ.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг · Solver-ийн Sensitivity Report</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 6.1–6.3 (Big-M арга)</span>
+    <span>🔗 LP Suite → Хичээл → Долоо хоног 9</span>
+  </div>
+</section>
+
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 26</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+window.DECK = {
+  lesson: 'Хичээл 9',
+  course: 'Бүлэг 5 — Симплекс арга',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'5.6',   label:'Мэдрэмжийн шинжилгээ'},
+    {k:'5.7',   label:'Кейс: 3 бүтээгдэхүүн'},
+    {k:'5.8',   label:'Хязгаарлал'},
+    {k:'end',   label:'Дүгнэлт'}
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Хичээлийн бүтэц'},
+    {p:'intro', s:'Сурах зорилт'},
+    {p:'5.6',   s:'5.6 · Мэдрэмжийн шинжилгээ'},
+    {p:'5.6',   s:'5.6.1 · Мэдрэмжийн шинжилгээ гэж юу вэ?'},
+    {p:'5.6',   s:'5.5.4 · Эцсийн симплекс хүснэгт'},
+    {p:'5.6',   s:'5.6.2 · Сүүдрийн үнэ'},
+    {p:'5.6',   s:'Интерактив · Сүүдрийн үнэ туршигч'},
+    {p:'5.6',   s:'5.6.3 · Оновчлолын муж'},
+    {p:'5.6',   s:'Интерактив · Оновчлолын муж'},
+    {p:'5.6',   s:'5.6.3 · Жишээ ба удирдлагын шийдвэр'},
+    {p:'5.6',   s:'5.6.4 · Боломжит муж'},
+    {p:'5.6',   s:'5.6.4 · Тооцоолол ба эдийн засгийн утга'},
+    {p:'5.7',   s:'5.7 · Кейс: 3 бүтээгдэхүүнтэй үйлдвэр'},
+    {p:'5.7',   s:'5.7.1–5.7.2 · Бодлогын тавилт'},
+    {p:'5.7',   s:'5.7.3–5.7.4 · Каноник хэлбэр ба анхны хүснэгт'},
+    {p:'5.7',   s:'5.7.5 · 1-р үе шат'},
+    {p:'5.7',   s:'5.7.5 · 2-р үе шат'},
+    {p:'5.7',   s:'5.7.6 · Оновчтой шийд'},
+    {p:'5.7',   s:'Интерактив · Эцсийн хүснэгтээс унших'},
+    {p:'5.7',   s:'5.7.7 · Эдийн засгийн тайлбар'},
+    {p:'5.7',   s:'Интерактив · Solver ↔ ном'},
+    {p:'5.8',   s:'5.8.1–5.8.2 · Симплекс аргын хязгаарлал'},
+    {p:'5.8',   s:'5.8.3 · Тусгай тохиолдлууд'},
+    {p:'end',   s:'Хураангуй'},
+    {p:'end',   s:''}
+  ]
+};
+</script>
+
+<script>
+/* ————————————————————————————————————————————————
+   Хичээл 9 · интерактив кодууд (гадаад сангүй)
+   ———————————————————————————————————————————————— */
+
+/* Нийтлэг туслах: шугамыг [0,AX]×[0,AY] хайрцагт таслах */
+function l9clip(x1, y1, x2, y2, AX, AY){
+  var t0 = 0, t1 = 1, dx = x2 - x1, dy = y2 - y1;
+  function cl(p, q){
+    if (p === 0) return q >= 0;
+    var r = q / p;
+    if (p < 0){ if (r > t1) return false; if (r > t0) t0 = r; }
+    else      { if (r < t0) return false; if (r < t1) t1 = r; }
+    return true;
+  }
+  if (!cl(-dx, x1)) return null;
+  if (!cl( dx, AX - x1)) return null;
+  if (!cl(-dy, y1)) return null;
+  if (!cl( dy, AY - y1)) return null;
+  return [x1 + t0*dx, y1 + t0*dy, x1 + t1*dx, y1 + t1*dy];
+}
+function l9num(v, d){
+  var s = (Math.round(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
+  return s.replace(/\.0+$/, d ? '.' + Array(d+1).join('0') : '');
+}
+function l9thou(n){
+  return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+/* ———— ИНТЕРАКТИВ 1 · Сүүдрийн үнэ туршигч ———— */
+(function(){
+  var sw = document.getElementById('spWood');
+  if (!sw) return;
+  var st = document.getElementById('spTime');
+  var el = function(id){ return document.getElementById(id); };
+
+  var AX = 60, AY = 70;                 // графикийн тэнхлэгийн хязгаар
+  var L = 32, R = 290, T = 12, B = 202; // зургийн талбай
+
+  function px(x){ return L + x / AX * (R - L); }
+  function py(y){ return B - y / AY * (B - T); }
+
+  function solve(b1, b2){
+    var x1 = (2*b1 - b2) / 6, x2 = (2*b2 - b1) / 6, mode = 'in';
+    if (x2 < 0){ x2 = 0; x1 = Math.min(b1/4, b2/2); mode = 'wood'; }
+    else if (x1 < 0){ x1 = 0; x2 = Math.min(b1/2, b2/4); mode = 'time'; }
+    return { x1:x1, x2:x2, Z: 50*x1 + 40*x2, mode:mode };
+  }
+
+  function draw(b1, b2, r){
+    var s = [];
+    s.push('<rect x="'+L+'" y="'+T+'" width="'+(R-L)+'" height="'+(B-T)+'" style="fill:none;stroke:var(--line);stroke-width:1"/>');
+    // боломжит муж
+    var xm = Math.min(b1/4, b2/2), ym = Math.min(b1/2, b2/4);
+    var pts = [[0,0], [xm,0]];
+    var ix = (2*b1 - b2) / 6, iy = (2*b2 - b1) / 6;
+    if (ix > 0.0001 && iy > 0.0001) pts.push([ix, iy]);
+    pts.push([0, ym]);
+    s.push('<polygon points="' + pts.map(function(p){ return px(p[0]).toFixed(1)+','+py(p[1]).toFixed(1); }).join(' ') +
+           '" style="fill:var(--green);fill-opacity:.16;stroke:var(--green);stroke-width:1.4"/>');
+    // хязгаарлалтын шугамууд
+    var lines = [[0, b1/2, b1/4, 0, 'var(--gold)'], [0, b2/4, b2/2, 0, 'var(--indigo)']];
+    for (var i = 0; i < lines.length; i++){
+      var c = l9clip(lines[i][0], lines[i][1], lines[i][2], lines[i][3], AX, AY);
+      if (c) s.push('<line x1="'+px(c[0]).toFixed(1)+'" y1="'+py(c[1]).toFixed(1)+'" x2="'+px(c[2]).toFixed(1)+
+                    '" y2="'+py(c[3]).toFixed(1)+'" style="stroke:'+lines[i][4]+';stroke-width:1.6"/>');
+    }
+    // тэнхлэг
+    s.push('<line x1="'+L+'" y1="'+B+'" x2="'+R+'" y2="'+B+'" style="stroke:var(--ink);stroke-width:1.2"/>');
+    s.push('<line x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+B+'" style="stroke:var(--ink);stroke-width:1.2"/>');
+    // оновчтой цэг
+    if (r.x1 <= AX && r.x2 <= AY){
+      s.push('<circle cx="'+px(r.x1).toFixed(1)+'" cy="'+py(r.x2).toFixed(1)+'" r="5" style="fill:var(--rust)"/>');
+      var tx = Math.min(px(r.x1) + 8, R - 62);
+      s.push('<text x="'+tx.toFixed(1)+'" y="'+Math.max(py(r.x2) - 8, T + 12).toFixed(1)+
+             '" style="font:600 11px \'JetBrains Mono\',monospace;fill:var(--rust)">('+l9num(r.x1,1)+', '+l9num(r.x2,1)+')</text>');
+    }
+    s.push('<text x="'+(R-4)+'" y="'+(B+15)+'" text-anchor="end" style="font:11px Geist,sans-serif;fill:var(--ink-mute)">x₁ · ширээ</text>');
+    s.push('<text x="'+(L-4)+'" y="'+(T+9)+'" text-anchor="end" style="font:11px Geist,sans-serif;fill:var(--ink-mute)">x₂</text>');
+    s.push('<text x="'+(L+6)+'" y="'+(B+15)+'" style="font:10px Geist,sans-serif;fill:var(--ink-mute)">мод</text>');
+    s.push('<text x="'+(L+44)+'" y="'+(B+15)+'" style="font:10px Geist,sans-serif;fill:var(--ink-mute)">цаг</text>');
+    s.push('<line x1="'+(L+30)+'" y1="'+(B+11)+'" x2="'+(L+40)+'" y2="'+(B+11)+'" style="stroke:var(--gold);stroke-width:2"/>');
+    s.push('<line x1="'+(L+68)+'" y1="'+(B+11)+'" x2="'+(L+78)+'" y2="'+(B+11)+'" style="stroke:var(--indigo);stroke-width:2"/>');
+    el('spPlot').innerHTML = s.join('');
+  }
+
+  function upd(){
+    var b1 = +sw.value, b2 = +st.value;
+    var r = solve(b1, b2);
+    el('spWoodV').textContent = b1;
+    el('spTimeV').textContent = b2;
+    el('spX1').textContent = l9num(r.x1, 1);
+    el('spX2').textContent = l9num(r.x2, 1);
+    el('spZ').textContent  = l9num(r.Z, 1);
+    el('spZmnt').textContent = '= ' + l9thou(r.Z * 1000) + '₮';
+
+    var lo1 = b2 / 2, hi1 = 2 * b2, lo2 = b1 / 2, hi2 = 2 * b1;
+    el('spWoodR').textContent = '[' + l9num(lo1,0) + ' – ' + l9num(hi1,0) + ']';
+    el('spTimeR').textContent = '[' + l9num(lo2,0) + ' – ' + l9num(hi2,0) + ']';
+
+    var d1 = b1 - 100, d2 = b2 - 80;
+    var pred = 1400 + 10*d1 + 5*d2;
+    var sg = function(v){ return (v >= 0 ? '+' : '−') + Math.abs(v); };
+
+    if (r.mode === 'in'){
+      el('spY1').textContent = '10';
+      el('spY2').textContent = '5';
+      el('spCalc').innerHTML =
+        'ΔZ = 10·Δb₁ + 5·Δb₂<br>' +
+        'Z = 1400 + 10×(' + sg(d1) + ') + 5×(' + sg(d2) + ')<br>' +
+        'Z = <b>' + l9num(pred, 1) + ' нэгж</b>';
+      el('spWarn').className = 'l9warn good';
+      el('spWarn').innerHTML = 'Хоёр нөөц боломжит мужид байна — сүүдрийн үнэ (10 ба 5) тогтвортой, ΔZ шугаман.';
+    } else if (r.mode === 'wood'){
+      el('spY1').textContent = '0';
+      el('spY2').textContent = '25';
+      el('spCalc').innerHTML =
+        'Шугаман задаргаа таслагдав<br>' +
+        'Таамаглал: 1400 + 10×(' + sg(d1) + ') + 5×(' + sg(d2) + ') = ' + l9num(pred,1) + '<br>' +
+        'Бодит Z = <b>' + l9num(r.Z, 1) + ' нэгж</b>';
+      el('spWarn').className = 'l9warn bad';
+      el('spWarn').innerHTML = '⚠ Мод боломжит мужаас (' + l9num(lo1,0) + ' – ' + l9num(hi1,0) +
+        ') гарлаа. Сандлын үйлдвэрлэл 0 болж, энэ хязгаараас цааш сүүдрийн үнэ өөрчлөгдөв: мод 10 → <b>0</b>, цаг 5 → <b>25</b>. Одоо гацаа нь цаг.';
+    } else {
+      el('spY1').textContent = '20';
+      el('spY2').textContent = '0';
+      el('spCalc').innerHTML =
+        'Шугаман задаргаа таслагдав<br>' +
+        'Таамаглал: 1400 + 10×(' + sg(d1) + ') + 5×(' + sg(d2) + ') = ' + l9num(pred,1) + '<br>' +
+        'Бодит Z = <b>' + l9num(r.Z, 1) + ' нэгж</b>';
+      el('spWarn').className = 'l9warn bad';
+      el('spWarn').innerHTML = '⚠ Цаг боломжит мужаас (' + l9num(lo2,0) + ' – ' + l9num(hi2,0) +
+        ') гарлаа. Ширээний үйлдвэрлэл 0 болж, энэ хязгаараас цааш сүүдрийн үнэ өөрчлөгдөв: мод 10 → <b>20</b>, цаг 5 → <b>0</b>. Одоо гацаа нь мод.';
+    }
+    draw(b1, b2, r);
+  }
+
+  sw.addEventListener('input', upd);
+  st.addEventListener('input', upd);
+  upd();
+})();
+
+/* ———— ИНТЕРАКТИВ 2 · Оновчлолын муж ———— */
+(function(){
+  var sc = document.getElementById('roC');
+  if (!sc) return;
+  var el = function(id){ return document.getElementById(id); };
+
+  var AX = 30, AY = 25;
+  var L = 32, R = 290, T = 12, B = 202;
+  function px(x){ return L + x / AX * (R - L); }
+  function py(y){ return B - y / AY * (B - T); }
+  var VERT = [[0,0], [25,0], [20,10], [0,20]];
+
+  function draw(c1, best){
+    var s = [];
+    s.push('<rect x="'+L+'" y="'+T+'" width="'+(R-L)+'" height="'+(B-T)+'" style="fill:none;stroke:var(--line);stroke-width:1"/>');
+    s.push('<polygon points="' + VERT.map(function(p){ return px(p[0]).toFixed(1)+','+py(p[1]).toFixed(1); }).join(' ') +
+           '" style="fill:var(--green);fill-opacity:.16;stroke:var(--green);stroke-width:1.4"/>');
+    // зорилгын функцийн шугам
+    var Z = c1 * best[0] + 40 * best[1];
+    var p1, p2;
+    if (c1 === 0){ p1 = [0, Z/40]; p2 = [AX, Z/40]; }
+    else { p1 = [0, Z/40]; p2 = [Z/c1, 0]; }
+    var c = l9clip(p1[0], p1[1], p2[0], p2[1], AX, AY);
+    if (c) s.push('<line x1="'+px(c[0]).toFixed(1)+'" y1="'+py(c[1]).toFixed(1)+'" x2="'+px(c[2]).toFixed(1)+
+                  '" y2="'+py(c[3]).toFixed(1)+'" style="stroke:var(--gold);stroke-width:2;stroke-dasharray:6 4"/>');
+    s.push('<line x1="'+L+'" y1="'+B+'" x2="'+R+'" y2="'+B+'" style="stroke:var(--ink);stroke-width:1.2"/>');
+    s.push('<line x1="'+L+'" y1="'+T+'" x2="'+L+'" y2="'+B+'" style="stroke:var(--ink);stroke-width:1.2"/>');
+    for (var i = 1; i < VERT.length; i++){
+      var v = VERT[i], on = (v[0] === best[0] && v[1] === best[1]);
+      s.push('<circle cx="'+px(v[0]).toFixed(1)+'" cy="'+py(v[1]).toFixed(1)+'" r="'+(on?5.5:3.5)+
+             '" style="fill:'+(on?'var(--rust)':'var(--ink-mute)')+'"/>');
+    }
+    s.push('<text x="'+(px(best[0])+8).toFixed(1)+'" y="'+(py(best[1])-8).toFixed(1)+
+           '" style="font:600 11px \'JetBrains Mono\',monospace;fill:var(--rust)">('+best[0]+', '+best[1]+')</text>');
+    s.push('<text x="'+(R-4)+'" y="'+(B+15)+'" text-anchor="end" style="font:11px Geist,sans-serif;fill:var(--ink-mute)">x₁ · ширээ</text>');
+    s.push('<text x="'+(L-4)+'" y="'+(T+9)+'" text-anchor="end" style="font:11px Geist,sans-serif;fill:var(--ink-mute)">x₂</text>');
+    el('roPlot').innerHTML = s.join('');
+  }
+
+  function upd(){
+    var c1 = +sc.value;
+    var best = [20,10], bz = c1*20 + 400;
+    var cand = [[25,0, c1*25], [0,20, 800]];
+    for (var i = 0; i < cand.length; i++){
+      if (cand[i][2] > bz + 1e-9){ bz = cand[i][2]; best = [cand[i][0], cand[i][1]]; }
+    }
+    el('roCV').textContent = c1;
+    el('roX1').textContent = best[0];
+    el('roX2').textContent = best[1];
+    el('roZ').textContent  = l9num(bz, 0);
+
+    var pc = function(v){ return (v / 120 * 100) + '%'; };
+    el('roOk').style.left  = pc(20);
+    el('roOk').style.width = pc(60);
+    el('roMk').style.left  = pc(c1);
+    el('roL1').style.left  = 'calc(' + pc(20) + ' + 4px)';
+    el('roL2').style.left  = 'calc(' + pc(80) + ' + 4px)';
+
+    var w = el('roWarn');
+    if (c1 === 20 || c1 === 80){
+      w.className = 'l9warn good';
+      w.innerHTML = 'Мужийн яг <b>хязгаар дээр</b> байна — хоёр орой ижил Z өгч байна. Энэ бол 5.8.3-ын <b>Олон оновчтой шийд</b>.';
+    } else if (c1 > 20 && c1 < 80){
+      w.className = 'l9warn good';
+      w.innerHTML = 'Оновчтой мужид <b>[20,000 – 80,000]</b> байна — шийд (20, 10) хэвээр, зөвхөн Z өөрчлөгдөнө.';
+    } else if (c1 > 80){
+      w.className = 'l9warn bad';
+      w.innerHTML = '⚠ Дээд хязгаар 80,000₮-өөс давлаа. Шинээр симплекс бодолт хийж, <b>зөвхөн ширээ хийх</b> төлөвлөгөө (25, 0) руу шилжинэ.';
+    } else {
+      w.className = 'l9warn bad';
+      w.innerHTML = '⚠ Доод хязгаар 20,000₮-өөс гарлаа. Компани бодлогоо шинээр бодож, ширээний тоог багасгана — шийд <b>(0, 20)</b> болов.';
+    }
+    draw(c1, best);
+  }
+
+  sc.addEventListener('input', upd);
+  upd();
+})();
+
+/* ———— ИНТЕРАКТИВ 3 · Эцсийн хүснэгтээс унших ———— */
+(function(){
+  var tab = document.getElementById('rdTab');
+  if (!tab) return;
+  var Q = [
+    { c:'3-3', q:'Модны нөөцийн (s₁) сүүдрийн үнэ хаана байна вэ?',
+      ok:'Зөв — Z мөрийн s₁ багана = 1. Мод 1 нэгжээр нэмэгдвэл ашиг 1 нэгжээр өснө.' },
+    { c:'3-5', q:'Төмрийн нөөцийн (s₃) сүүдрийн үнийг хаанаас уншина вэ?',
+      ok:'Зөв — Z мөрийн s₃ багана = 1. Төмөр бас бүрэн ашиглагдсан (binding) нөөц.' },
+    { c:'3-4', q:'Цагийн нөөцийн (s₂) сүүдрийн үнэ хаана байна, яагаад 0 вэ?',
+      ok:'Зөв — Z мөрийн s₂ багана = 0. s₂ өөрөө суурь хувьсагч тул нэмэлт цаг ашигт нэмэр өгөхгүй (гүйцээх сул шинж).' },
+    { c:'3-1', q:'Сандлын (x₂) буурсан зардлыг хаанаас уншина вэ?',
+      ok:'Зөв — Z мөрийн x₂ багана = 3. x₂ суурьт байхгүй тул энэ нь түүний буурсан зардал.' },
+    { c:'1-6', q:'Ашиглагдалгүй үлдсэн цагийн хэмжээг хаанаас уншина вэ?',
+      ok:'Зөв — s₂ мөрийн RHS = 1. Цагийн нөөцөөс 1 нэгж ашиглагдалгүй үлдэнэ.' },
+    { c:'3-6', q:'Оновчтой нийт ашиг Z хаана байна вэ?',
+      ok:'Зөв — Z мөрийн RHS = 13 нэгж ашиг.' }
+  ];
+  var i = 0, score = 0, lock = false;
+  var qEl = document.getElementById('rdQ'), nEl = document.getElementById('rdN');
+  var fEl = document.getElementById('rdFb'), sEl = document.getElementById('rdScore');
+  var cells = tab.querySelectorAll('td.hit');
+
+  function show(){
+    if (i >= Q.length){
+      qEl.textContent = 'Бүх асуулт дууслаа — хүснэгтээ уншиж сурлаа!';
+      nEl.textContent = Q.length + ' / ' + Q.length;
+      fEl.innerHTML = '<b>Дүн: ' + score + ' / ' + Q.length + '.</b> Сүүдрийн үнэ ба буурсан зардал хоёулаа Z мөрөнд, ашиглагдаагүй нөөц RHS баганад байдаг.';
+      return;
+    }
+    qEl.textContent = Q[i].q;
+    nEl.textContent = (i + 1) + ' / ' + Q.length;
+  }
+  function reset(){
+    i = 0; score = 0; lock = false;
+    for (var k = 0; k < cells.length; k++) cells[k].className = 'hit';
+    fEl.textContent = 'Хүснэгтийн нүдэн дээр товшиж хариулаарай.';
+    sEl.textContent = '0 / ' + Q.length + ' зөв';
+    show();
+  }
+  for (var k = 0; k < cells.length; k++){
+    (function(td){
+      td.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      td.addEventListener('click', function(){
+        if (lock || i >= Q.length) return;
+        if (td.getAttribute('data-i') === Q[i].c){
+          td.className = 'hit ok';
+          score++;
+          sEl.textContent = score + ' / ' + Q.length + ' зөв';
+          fEl.innerHTML = '<b>' + Q[i].ok + '</b>';
+          i++; lock = true;
+          setTimeout(function(){ lock = false; show(); }, 900);
+        } else {
+          td.className = 'hit bad';
+          fEl.innerHTML = '<i>Дахин үзээрэй.</i> Сүүдрийн үнэ бол <b>Z мөрийн</b> нэмэлт хувьсагчийн багана; буурсан зардал бол <b>Z мөрийн</b> үндсэн хувьсагчийн багана.';
+          setTimeout(function(){ if (td.className === 'hit bad') td.className = 'hit'; }, 700);
+        }
+      });
+    })(cells[k]);
+  }
+  var rb = document.getElementById('rdReset');
+  rb.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  rb.addEventListener('click', reset);
+  show();
+})();
+
+/* ———— ИНТЕРАКТИВ 4 · Solver ↔ ном тааруулах ———— */
+(function(){
+  var grid = document.getElementById('mtGrid');
+  if (!grid) return;
+  var PAIRS = [
+    { id:'fv', en:'Final Value',            sec:'Variable Cells', mn:'Оновчтой шийдийн утга', hint:'x₁ = 20, x₂ = 10' },
+    { id:'rc', en:'Reduced Cost',           sec:'Variable Cells', mn:'Буурсан зардал',        hint:'суурийн бус хувьсагчийн Z мөрийн утга' },
+    { id:'oc', en:'Objective Coefficient',  sec:'Variable Cells', mn:'Нэгж ашиг (cⱼ)',        hint:'ширээ 50,000₮ · сандал 40,000₮' },
+    { id:'ao', en:'Allowable Increase / Decrease', sec:'Variable Cells', mn:'Оновчлолын муж',  hint:'ширээ [20,000 – 80,000]' },
+    { id:'sp', en:'Shadow Price',           sec:'Constraints',    mn:'Сүүдрийн үнэ',          hint:'мод 10,000₮ · цаг 5,000₮' },
+    { id:'af', en:'Allowable Increase / Decrease', sec:'Constraints', mn:'Боломжит муж',      hint:'мод [40 – 160] · цаг [50 – 200]' }
+  ];
+  var fb = document.getElementById('mtFb'), sc = document.getElementById('mtScore');
+  var sel = null, done = 0;
+
+  function shuffle(a){
+    var b = a.slice();
+    for (var i = b.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = b[i]; b[i] = b[j]; b[j] = t; }
+    return b;
+  }
+  function build(){
+    grid.innerHTML = '';
+    sel = null; done = 0;
+    sc.textContent = '0 / ' + PAIRS.length + ' тааруулсан';
+    fb.textContent = 'Зүүн талын багана дээр товшоод, дараа нь баруун талаас тохирох ойлголтыг сонгоно уу.';
+    var right = shuffle(PAIRS);
+    for (var i = 0; i < PAIRS.length; i++){
+      var L = document.createElement('button');
+      L.className = 'l9m'; L.setAttribute('data-side', 'L'); L.setAttribute('data-id', PAIRS[i].id);
+      L.innerHTML = PAIRS[i].en + '<span class="xs">' + PAIRS[i].sec + '</span>';
+      var Rb = document.createElement('button');
+      Rb.className = 'l9m'; Rb.setAttribute('data-side', 'R'); Rb.setAttribute('data-id', right[i].id);
+      Rb.innerHTML = right[i].mn + '<span class="xs">' + right[i].hint + '</span>';
+      grid.appendChild(L); grid.appendChild(Rb);
+    }
+    var all = grid.querySelectorAll('.l9m');
+    for (var k = 0; k < all.length; k++){
+      all[k].addEventListener('mousedown', function(e){ e.preventDefault(); });
+      all[k].addEventListener('click', onClick);
+    }
+  }
+  function onClick(){
+    var b = this;
+    if (b.classList.contains('done')) return;
+    if (b.getAttribute('data-side') === 'L'){
+      if (sel) sel.classList.remove('sel');
+      sel = b; b.classList.add('sel');
+      fb.textContent = 'Одоо баруун талаас тохирох ойлголтыг сонгоно уу.';
+      return;
+    }
+    if (!sel){ fb.textContent = 'Эхлээд зүүн талын Excel-ийн баганыг сонгоно уу.'; return; }
+    if (sel.getAttribute('data-id') === b.getAttribute('data-id')){
+      sel.classList.remove('sel'); sel.classList.add('done'); b.classList.add('done');
+      done++;
+      sc.textContent = done + ' / ' + PAIRS.length + ' тааруулсан';
+      fb.innerHTML = done === PAIRS.length
+        ? '<b>Бүгд зөв! Solver-ийн Sensitivity Report бол өнөөдөр үзсэн бүх ойлголтын англи нэр юм.</b>'
+        : '<b>Зөв тааруулав.</b>';
+      sel = null;
+    } else {
+      b.classList.add('bad');
+      fb.innerHTML = '<i>Тохирохгүй байна.</i> Variable Cells хэсэг нь хувьсагчийн тухай, Constraints хэсэг нь нөөцийн тухай гэдгийг санаарай.';
+      (function(x){ setTimeout(function(){ x.classList.remove('bad'); }, 600); })(b);
+    }
+  }
+  var rb = document.getElementById('mtReset');
+  rb.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  rb.addEventListener('click', build);
+  build();
+})();
+</script>
+<script src="deck.js"></script>
+</body>
+</html>

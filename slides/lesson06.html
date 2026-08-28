@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 6 — Матрицын арга: AX=B, тодорхойлогч, урвуу матриц</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ═══════ Хичээл 6 — матрицын нэмэлт загвар ═══════ */
+.mx{display:inline-block;position:relative;padding:7px 15px;font-family:var(--mono);
+  font-size:15.5px;color:var(--ink);line-height:1.2}
+.mx.sm{font-size:13px;padding:6px 13px}
+.mx::before,.mx::after{content:'';position:absolute;top:0;bottom:0;width:9px;
+  border:1.7px solid var(--line-strong)}
+.mx::before{left:0;border-right:0;border-radius:4px 0 0 4px}
+.mx::after{right:0;border-left:0;border-radius:0 4px 4px 0}
+.mx table{border-collapse:separate;border-spacing:9px 4px}
+.mx.sm table{border-spacing:7px 3px}
+.mx td{text-align:center;min-width:24px;padding:1px 3px;border-radius:5px;
+  transition:background .18s ease,color .18s ease}
+.mxwrap{display:flex;flex-direction:column;align-items:center;gap:5px}
+.mxlab{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute);
+  text-align:center;max-width:150px;line-height:1.4}
+.mxop{font-family:var(--mono);font-size:22px;color:var(--green);font-weight:600;padding-bottom:16px}
+.mxrow{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+.mx td.hr{background:var(--gold-bg);color:var(--ink);font-weight:600}
+.mx td.hc{background:var(--indigo-bg);color:var(--ink);font-weight:600}
+.mx td.hx{background:var(--green);color:#fff;font-weight:700}
+.mx td.pick{cursor:pointer;box-shadow:inset 0 0 0 1.2px var(--line-strong)}
+.mx td.pick:hover{background:var(--green-bg)}
+
+/* товч */
+.mbtn{background:var(--paper);border:1.4px solid var(--line-strong);border-radius:9px;
+  padding:8px 15px;font-family:var(--body);font-size:12.5px;font-weight:600;
+  color:var(--ink-soft);cursor:pointer;transition:all .2s ease;white-space:nowrap}
+.mbtn:hover{border-color:var(--green);color:var(--green)}
+.mbtn.on{background:var(--green);border-color:var(--green);color:#fff}
+.mbtn[disabled]{opacity:.35;cursor:not-allowed}
+.mbtn.warn{border-color:var(--rust);color:var(--rust)}
+.mbtn.warn.on{background:var(--rust);color:#fff}
+
+/* Интерактив 1 */
+.mmside{display:flex;flex-direction:column;gap:9px;align-items:flex-start;padding-bottom:16px}
+.mmdim{font-family:var(--mono);font-size:12.5px;color:var(--green);background:var(--green-bg);
+  border-radius:8px;padding:8px 12px;line-height:1.5;max-width:200px}
+.mmdim.bad{color:var(--rust);background:var(--rust-bg)}
+.mmcalc{margin-top:14px;background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:11px;padding:14px 18px;font-size:15px;line-height:1.65;color:var(--ink-soft);min-height:74px}
+.mmcalc b{font-family:var(--mono);color:var(--ink);font-weight:600}
+.mmcalc .eq{font-family:var(--mono);font-size:16px;color:var(--green);font-weight:600}
+.mmnote{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:13px}
+.mmnote div{font-size:12.5px;line-height:1.55;color:var(--ink-mute);background:var(--muted);
+  border-radius:9px;padding:10px 13px}
+.mmnote b{color:var(--ink);display:block;font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:4px}
+
+/* Интерактив 2 — тодорхойлогч */
+.detbar{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.detwrap{display:grid;grid-template-columns:300px 1fr;gap:24px;margin-top:16px;align-items:start}
+.detgrid{display:grid;gap:7px;justify-content:start}
+.mxin{width:52px;height:36px;text-align:center;font-family:var(--mono);font-size:15px;
+  border:1.4px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.mxin:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+.detres{margin-top:14px;background:var(--green-bg);border-radius:11px;padding:13px 16px;
+  font-family:var(--mono);font-size:19px;color:var(--green);font-weight:600;line-height:1.4}
+.detres.bad{background:var(--rust-bg);color:var(--rust)}
+.detres small{display:block;font-family:var(--body);font-size:12.5px;font-weight:500;
+  margin-top:5px;line-height:1.5}
+.sar{display:grid;grid-template-columns:repeat(5,42px);gap:6px}
+.sar span{height:34px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);
+  font-size:14.5px;border-radius:7px;background:var(--muted);color:var(--ink);transition:all .18s ease}
+.sar span.ex{opacity:.5;border:1px dashed var(--line-strong);background:transparent}
+.sar span.gh{background:var(--green);color:#fff;opacity:1;border-color:var(--green)}
+.sar span.rh{background:var(--rust);color:#fff;opacity:1;border-color:var(--rust)}
+.sarterms{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.sarterms button{font-family:var(--mono);font-size:12px;padding:7px 6px;border-radius:8px;
+  border:1.2px solid var(--line);background:var(--paper);cursor:pointer;color:var(--ink-soft);
+  transition:all .18s ease}
+.sarterms button.p{border-color:#C3D9AE;background:var(--green-bg);color:var(--green)}
+.sarterms button.m{border-color:#E9C0AE;background:var(--rust-bg);color:var(--rust)}
+.sarterms button:hover{transform:translateY(-2px)}
+.dethint{font-size:12.5px;color:var(--ink-mute);margin-top:11px;line-height:1.55}
+
+/* Интерактив 3 — алхмаар бодогч */
+.stpbar{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.stpbar .sp{flex:1}
+.stp{margin-top:14px;background:var(--paper);border:1px solid var(--line);border-radius:13px;
+  padding:18px 24px;min-height:296px;position:relative}
+.stpp{display:none}
+.stpp.on{display:block;animation:fadein .34s ease}
+.stpp h4{font-family:var(--display);font-size:20px;font-weight:600;color:var(--green);margin-bottom:10px}
+.stpp p{font-size:14.5px;line-height:1.62;color:var(--ink-soft);max-width:70ch}
+.stpp .eqline{font-family:var(--mono);font-size:16px;color:var(--ink);line-height:1.85;margin:8px 0}
+.stpp .eqline em{font-style:normal;color:var(--green);font-weight:600}
+.stpprog{font-family:var(--mono);font-size:12px;color:var(--ink-mute);letter-spacing:.1em}
+.hit{background:var(--gold-bg);border-radius:6px;padding:1px 5px}
+
+/* нийтлэг жижиг блок */
+.mnote{background:var(--muted);border-radius:11px;padding:13px 17px;font-size:14px;
+  line-height:1.6;color:var(--ink-soft)}
+.mnote b{color:var(--ink)}
+.eqbox{font-family:var(--mono);font-size:17px;line-height:1.95;color:var(--ink)}
+.eqbox .op{color:var(--green);font-weight:600}
+.eqbox .mu{color:var(--ink-mute);font-size:14px;font-family:var(--body)}
+</style>
+</head>
+<body>
+
+<div id="viewport"><div id="stage">
+
+<!-- ══════════ 1. НҮҮР ══════════ -->
+<section class="slide cover" data-sec="—" data-notes="Тавтай морил. Бүлэг 3-т графикаар бодсон 'Модон урлал' ХХК-ийн бодлогыг өнөөдөр огт өөр замаар — матрицын алгебраар бодно. Хариу нь яг ижил гарна: x₁=20, x₂=10, Z=1,400,000₮. Хичээлд дөрвөн интерактив байгаа: үржвэрийн задаргаа, тодорхойлогч тооцоолуур, AX=B алхмаар бодогч, чанарын карт. Хамгийн чухал мессеж: энэ бүлэг бол Бүлэг 5-ын симплекс аргын математик суурь.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Матрицын арга: <em>AX = B</em></h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 6</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 4</span>
+    <span class="pill">4 интерактив дасгал</span>
+  </div>
+</section>
+
+<!-- ══════════ 2. АГУУЛГА ══════════ -->
+<section class="slide" data-sec="—" data-notes="Өнөөдрийн зургаан блок. Эхний блок хамгийн урт — матрицын үндэс дээр хоёр интерактив байна. Оюутнуудад сануул: 4.6 бол бүлгийн оргил — тэнд бид номын гол жишээг эхнээс нь дуустал бүрэн бодно.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">4.1</div><h3>Матрицын үндэс</h3><p>Нийлбэр, скаляр үржвэр, матрицын үржвэр, хөрвүүлэг ба үржвэрийн гурван онцлог шинж.</p></div>
+    <div class="card accent"><div class="k">4.2</div><h3>AX = B систем</h3><p>Хязгаарлалтын тэгшитгэлийн системийг гурван матриц болгон задлах нь.</p></div>
+    <div class="card accent"><div class="k">4.3</div><h3>Тодорхойлогч</h3><p>2×2, 3×3-ыг бодох арга ба Δ-ийн тэмдгээс уншигдах эдийн засгийн утга.</p></div>
+    <div class="card accent"><div class="k">4.4–4.5</div><h3>Урвуу матриц</h3><p>A⁻¹ олох алгоритм, X = A⁻¹B томьёо, элемент бүрийн эдийн засгийн утга.</p></div>
+    <div class="card green"><div class="k">4.6 · Гол жишээ</div><h3>“Модон урлал” ХХК</h3><p>Номын бодлогыг матрицын аргаар бүрэн бодож, Бүлэг 3-ын хариутай харьцуулна.</p></div>
+    <div class="card green"><div class="k">4.7–4.8</div><h3>Кейс ба хязгаар</h3><p>3 нөөцтэй 3×3 систем. Матрицын арга хэзээ ажиллаж, хэзээ ажиллахгүй вэ?</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 6 · Матрицын арга</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 3. СУРАХ ЗОРИЛТ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Хичээлийн эцэст оюутан эдгээрийг чаддаг байх ёстой. Дасгал 1–7 яг эдгээрийг шалгана: 1–3 тооцооллын чадвар, 4–5 эдийн засгийн тайлбар.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Матрицын <strong>нийлбэр, скаляр үржвэр, үржвэр, хөрвүүлгийг</strong> гүйцэтгэж, үржвэрийн хэмжээний нөхцөлийг шалгах</span></li>
+    <li><span class="b">2</span><span>Шугаман программчлалын хязгаарлалтын системийг <strong>AX = B</strong> матриц хэлбэрт оруулах</span></li>
+    <li><span class="b">3</span><span>2×2 ба 3×3 матрицын <strong>тодорхойлогчийг</strong> бодож, Δ &gt; 0, Δ &lt; 0, Δ = 0 гурван тохиолдлын эдийн засгийн утгыг тайлбарлах</span></li>
+    <li><span class="b">4</span><span><strong>Урвуу матриц A⁻¹</strong>-ийг олж, X = A⁻¹B томьёогоор системийг бүрэн бодох</span></li>
+    <li><span class="b">5</span><span>A⁻¹-ийн элемент бүрийг <strong>“1 нэгж нөөц нэмэгдвэл юу болох вэ?”</strong> гэсэн менежментийн хариулт болгон унших</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 6 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 4. DIVIDER 4.1 ══════════ -->
+<section class="slide divider dark" data-sec="4.1" data-notes="Сэргээн санах блок. Ихэнх оюутан ахлах сургуулиасаа мэднэ — тиймээс хурдан яв, гэхдээ 4.1.5 (үржвэр) дээр удаан зогс. Симплекс аргын бүх алгебр яг тэр дээр суурилдаг.">
+  <div class="num">4.1</div>
+  <h2>Матрицын үндэс</h2>
+  <p class="sub">Ахлах сургуулиас мэдэх ойлголтууд — гэвч тэдгээр нь шугаман программчлалд яг хэрхэн ажилладгийг тодорхой ойлгохын тулд эргэн санах шаардлагатай.</p>
+  <div class="s-foot"><span>Бүлэг 4.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 5. 4.1.1–4.1.2 ══════════ -->
+<section class="slide" data-sec="4.1" data-notes="Мөр — хэвтээ, багана — босоо. Индексийн дараалал: эхлээд мөр, дараа нь багана — үүнийг оюутнууд байнга андуурдаг. Баруун талын дөрвөн төрлөөс квадрат матриц хамгийн чухал: тодорхойлогч, урвуу матриц зөвхөн квадрат матрицад л оршдог.">
+  <div class="s-tag">4.1.1–4.1.2 · Матриц гэж юу вэ?</div>
+  <h2 class="title">Тоонуудын <em>цэгцтэй</em> байрлал</h2>
+  <div class="split wide">
+    <div>
+      <div class="def">
+        <div class="lbl">Тодорхойлолт</div>
+        <p><strong>Матриц (Matrix)</strong> гэдэг нь тоонуудыг тэгш өнцөгт хэлбэрээр, мөр ба баганад цэгцтэй байрлуулсан цуглуулга юм. m мөр, n багантай бол хэмжээ нь <strong>m × n</strong>.</p>
+      </div>
+      <div class="mxrow" style="margin-top:16px;justify-content:flex-start">
+        <div class="mxwrap">
+          <div class="mx"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>0</td><td>4</td><td>5</td></tr></table></div>
+          <div class="mxlab">A — 2 × 3 хэмжээтэй</div>
+        </div>
+        <div class="mnote" style="font-size:13.5px;max-width:250px">
+          A = [a<sub>ij</sub>], i — мөрийн дугаар, j — баганын дугаар.<br>
+          <b>a₁₂ = 2</b> (1-р мөр, 2-р багана)<br><b>a₂₃ = 5</b> (2-р мөр, 3-р багана)
+        </div>
+      </div>
+    </div>
+    <div class="grid" style="gap:11px;margin-top:0">
+      <div class="card accent"><div class="k">Квадрат матриц</div><p>Мөр, баганын тоо тэнцүү (n × n). <strong>Матрицын аргад A заавал квадрат байх ёстой</strong> — тодорхойлогч, урвуу матриц хоёр зөвхөн квадрат матрицад оршдог.</p></div>
+      <div class="card"><div class="k">Нэгж матриц · I</div><p>Гол диагональ дээр 1, бусад бүх элемент 0. Тооны ертөнцийн “1”: A · I = I · A = A.</p></div>
+      <div class="card"><div class="k">Тэг матриц · 0</div><p>Бүх элемент 0 — тооны ертөнцийн “0”-той адил.</p></div>
+      <div class="card"><div class="k">Диагональ матриц</div><p>Гол диагоналиас гадуурх бүх элемент 0 байх квадрат матриц.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.1.1–4.1.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 6. 4.1.3–4.1.4 + 4.1.6 ══════════ -->
+<section class="slide" data-sec="4.1" data-notes="Гурван хялбар үйлдэл. Нийлбэрт хэмжээ ЯГ ижил байх ёстой — энэ бол цорын ганц нөхцөл. Хөрвүүлгийг онцгойл: Бүлэг 7-д хосмог бодлого руу шилжихэд Aᵀ шууд хэрэглэгдэнэ.">
+  <div class="s-tag">4.1.3–4.1.4 · 4.1.6 · Үндсэн үйлдлүүд</div>
+  <h2 class="title">Нийлбэр · скаляр · <em>хөрвүүлэг</em></h2>
+  <div class="grid g3">
+    <div class="card"><div class="k">Жишээ 4.1 · Нийлбэр</div>
+      <div class="mxrow" style="justify-content:flex-start;gap:9px;margin:8px 0 6px">
+        <div class="mx sm"><table><tr><td>2</td><td>1</td></tr><tr><td>3</td><td>4</td></tr></table></div>
+        <span class="mxop" style="font-size:16px;padding:0">+</span>
+        <div class="mx sm"><table><tr><td>1</td><td>5</td></tr><tr><td>2</td><td>0</td></tr></table></div>
+        <span class="mxop" style="font-size:16px;padding:0">=</span>
+        <div class="mx sm"><table><tr><td>3</td><td>6</td></tr><tr><td>5</td><td>4</td></tr></table></div>
+      </div>
+      <p>Хэмжээ нь <strong>яг ижил</strong> байх ёстой. Харгалзах байрлалын элементүүдийг нэмнэ. Практикт: хоёр улирлын үйлдвэрлэлийг нэгтгэх.</p>
+    </div>
+    <div class="card"><div class="k">Жишээ 4.2 · Скаляраар</div>
+      <div class="mxrow" style="justify-content:flex-start;gap:9px;margin:8px 0 6px">
+        <span class="mxop" style="font-size:16px;padding:0">3 ·</span>
+        <div class="mx sm"><table><tr><td>1</td><td>2</td></tr><tr><td>0</td><td>3</td></tr></table></div>
+        <span class="mxop" style="font-size:16px;padding:0">=</span>
+        <div class="mx sm"><table><tr><td>3</td><td>6</td></tr><tr><td>0</td><td>9</td></tr></table></div>
+      </div>
+      <p>Скаляр гэдэг нь матриц биш, <strong>энгийн ганц тоо</strong>. Матрицын элемент бүрийг тухайн тоогоор үржүүлнэ.</p>
+    </div>
+    <div class="card accent"><div class="k">Жишээ 4.7 · Хөрвүүлэг Aᵀ</div>
+      <div class="mxrow" style="justify-content:flex-start;gap:9px;margin:8px 0 6px">
+        <div class="mx sm"><table><tr><td>4</td><td>2</td><td>7</td></tr><tr><td>1</td><td>5</td><td>3</td></tr></table></div>
+        <span class="mxop" style="font-size:16px;padding:0">→</span>
+        <div class="mx sm"><table><tr><td>4</td><td>1</td></tr><tr><td>2</td><td>5</td></tr><tr><td>7</td><td>3</td></tr></table></div>
+      </div>
+      <p>Мөр, баганыг нь сольж бичнэ. A-ийн 1-р мөр <strong>(4, 2, 7)</strong> нь Aᵀ-ийн 1-р багана болов. 2×3 → 3×2.</p>
+    </div>
+  </div>
+  <div class="def">
+    <div class="lbl">Хөрвүүлгийн хоёр шинж — Бүлэг 7-ийн бэлтгэл</div>
+    <p><strong>(Aᵀ)ᵀ = A</strong> — хоёр удаа хөрвүүлбэл анхны матриц руугаа буцна. &nbsp;·&nbsp; <strong>(AB)ᵀ = Bᵀ Aᵀ</strong> — эсрэг дараалалтай. Хосмог бодлогын коэффициентийн матриц нь анхдагч бодлогынхоо хөрвүүлэг (Aᵀ) байдаг. → Бүлэг 7.2</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.1.3–4.1.4 · 4.1.6</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 7. 4.1.5 ҮРЖВЭР ══════════ -->
+<section class="slide" data-sec="4.1" data-notes="Хамгийн чухал үйлдэл. Дүрмийг самбар дээр бич: 'дотоод хэмжээ таарна, гадаад хэмжээ үлдэнэ'. Жишээ 4.3-ын дөрвөн тоог оюутнаар бодуулж хэлүүл. Дараагийн слайдад үүнийг товшиж задалдаг интерактив байна.">
+  <div class="s-tag">4.1.5 · Матрицын үржвэр</div>
+  <h2 class="title">Хэмжээний <em>нөхцөл</em> ба мөр × багана</h2>
+  <div class="formula">
+    <div class="fl">
+      A<span class="op">(m × p)</span> · B<span class="op">(p × n)</span> = C<span class="op">(m × n)</span><br>
+      <span style="font-size:16px;color:rgba(255,255,255,.7)">A-ийн баганын тоо (p) = B-ийн мөрийн тоо (p) — заавал тэнцүү</span>
+    </div>
+    <div class="cap">C-ийн (i, j) элемент = A-ийн i-р мөрийг B-ийн j-р баганатай элемент тус бүрээр үржүүлж, үржвэрүүдийн нийлбэрийг авах</div>
+  </div>
+  <div class="mxrow" style="margin-top:18px">
+    <div class="mxwrap"><div class="mx"><table><tr><td>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></table></div><div class="mxlab">A</div></div>
+    <div class="mxop">·</div>
+    <div class="mxwrap"><div class="mx"><table><tr><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td></tr></table></div><div class="mxlab">B</div></div>
+    <div class="mxop">=</div>
+    <div class="mxwrap"><div class="mx"><table><tr><td>19</td><td>22</td></tr><tr><td>43</td><td>50</td></tr></table></div><div class="mxlab">Жишээ 4.3 · AB</div></div>
+    <div class="mnote" style="max-width:290px;font-family:var(--mono);font-size:13px;line-height:1.85">
+      (1×5 + 2×7) = 19<br>(1×6 + 2×8) = 22<br>(3×5 + 4×7) = 43<br>(3×6 + 4×8) = 50
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.1.5 · Жишээ 4.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 8. ИНТЕРАКТИВ 1 — ҮРЖВЭР ══════════ -->
+<section class="slide" data-sec="4.1" id="mmSlide" data-notes="ИНТЕРАКТИВ 1 — 6 минут. Дөрвөн ногоон нүд дээр товшиж, задаргааг харуул. Онцлох: C-ийн эхний багана (80, 70) яг 4.7-гийн кейсийн нөөцтэй тэнцүү байна — учир нь B-ийн эхний багана (10, 15, 5) бол тэр кейсийн хариу! Улаан товч дээр дарж хэмжээ таарахгүй тохиолдлыг заавал үзүүл.">
+  <div class="s-tag">Интерактив 1 · 4.1.5 · A(2×3) · B(3×2)</div>
+  <h2 class="title">Үр дүнгийн нүд дээр <em>товшино уу</em></h2>
+  <div class="mxrow" style="margin-top:8px;gap:14px">
+    <div class="mxwrap">
+      <div class="mx" id="mmA"><table>
+        <tr><td data-r="0" data-c="0">3</td><td data-r="0" data-c="1">2</td><td data-r="0" data-c="2">4</td></tr>
+        <tr><td data-r="1" data-c="0">2</td><td data-r="1" data-c="1">3</td><td data-r="1" data-c="2">1</td></tr>
+      </table></div>
+      <div class="mxlab">A · Орцын норм (2×3)<br>мөр: мод, цаг</div>
+    </div>
+    <div class="mxop">·</div>
+    <div class="mxwrap">
+      <div class="mx" id="mmB"><table>
+        <tr><td data-r="0" data-c="0">10</td><td data-r="0" data-c="1">5</td></tr>
+        <tr><td data-r="1" data-c="0">15</td><td data-r="1" data-c="1">10</td></tr>
+        <tr><td data-r="2" data-c="0">5</td><td data-r="2" data-c="1">8</td></tr>
+      </table></div>
+      <div class="mxlab">B · Төлөвлөгөө (3×2)<br>мөр: ширээ, сандал, шүүгээ</div>
+    </div>
+    <div class="mxop">=</div>
+    <div class="mxwrap">
+      <div class="mx" id="mmC"><table>
+        <tr><td class="pick" data-i="0" data-j="0">80</td><td class="pick" data-i="0" data-j="1">67</td></tr>
+        <tr><td class="pick" data-i="1" data-j="0">70</td><td class="pick" data-i="1" data-j="1">48</td></tr>
+      </table></div>
+      <div class="mxlab">C = A·B (2×2)<br>нийт нөөцийн хэрэглээ</div>
+    </div>
+    <div class="mmside">
+      <div class="mmdim" id="mmDim">A(2×<b>3</b>) · B(<b>3</b>×2)<br>3 = 3 ✓ → үр дүн 2×2</div>
+      <button class="mbtn warn" id="mmBad">Хэмжээ таарахгүй бол?</button>
+    </div>
+  </div>
+  <div class="mmcalc" id="mmCalc">Дөрвөн үр дүнгийн нүдний аль нэг дээр товшиж, тухайн элемент хэрхэн бодогдохыг үзнэ үү.</div>
+  <div class="mmnote">
+    <div><b>Мөр × багана</b>A-ийн i-р мөр (алт өнгө) B-ийн j-р багана (индиго өнгө)-тай уулзаж нэг тоо төрүүлнэ.</div>
+    <div><b>Эхний багана</b>C-ийн эхний багана (80, 70) — яг Бүлэг 4.7-гийн модны ба цагийн нөөц. B-ийн (10, 15, 5) бол тэр кейсийн хариу.</div>
+    <div><b>Гадаад хэмжээ үлдэнэ</b>2×<s>3</s> · <s>3</s>×2 → 2×2. Дотоод хэмжээ таарч, гадаад хэмжээ үр дүнг тодорхойлно.</div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.1.5 · Интерактив</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 9. ГУРВАН ШИНЖ ══════════ -->
+<section class="slide" data-sec="4.1" data-notes="Гурван шинжийг САНАХ ёстой — симплекс аргын алгебр яг эдгээр дээр суурилдаг. Хамгийн чухал нь эхнийх: AB ≠ BA. Үнийн жишээг заавал ярь — шимтгэл, хямдралын дараалал.">
+  <div class="s-tag">4.1.5 · Үржвэрийн гурван онцлог шинж</div>
+  <h2 class="title">Матрицын үржвэр яагаад <em>өвөрмөц</em> вэ?</h2>
+  <table class="t">
+    <thead><tr><th style="width:25%">Шинж</th><th style="width:23%">Томьёо</th><th>Эдийн засгийн утга</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Байр солих чанар БАЙХГҮЙ<br><span class="en">Non-commutative</span></td><td style="font-family:var(--mono);color:var(--rust);font-weight:600">A · B ≠ B · A</td><td>Дараалал өөрчлөгдвөл эдийн засгийн үр дүн бүхэлдээ өөрчлөгдөнө. 100,000₮ бараанд эхлээд 10,000₮ шимтгэл нэмээд 20% хямдруулах нь, эхлээд хямдруулаад дараа нь шимтгэл нэмэхтэй <strong>ижил дүн өгөхгүй</strong>.</td></tr>
+    <tr><td class="k">Бүлэглэх чанар<br><span class="en">Associative</span></td><td style="font-family:var(--mono);color:var(--green);font-weight:600">(A·B)·C = A·(B·C)</td><td>Үржүүлэгчдийн дараалал хэвээр, зөвхөн аль хос эхэлж үрждэгээрээ ялгаатай. Зуу гаруй матриц үржүүлэхэд <strong>аль хосыг эхэлж бодохоос компьютерийн хурд эрс өөрчлөгддөг</strong>.</td></tr>
+    <tr><td class="k">Задлах чанар<br><span class="en">Distributive</span></td><td style="font-family:var(--mono);color:var(--green);font-weight:600">A·(B+C) = A·B + A·C</td><td>Зардлыг тус тусад нь — “түүхий эдийн зардал + хөдөлмөрийн зардал” — бодоод нэмэх нь нэгдсэн дүнг нэг дор бодохтой <strong>ижил хариу өгнө</strong>. Санхүүг модульчлан бодох боломж.</td></tr>
+    </tbody>
+  </table>
+  <div class="mnote" style="margin-top:16px">
+    <b>Жишээ 4.5:</b> A = [[1,0],[0,1]], B = [[2,1],[1,2]], C = [[1,1],[0,1]] → (A·B)·C ба A·(B·C) хоёулаа <b>[[2,3],[1,3]]</b>. &nbsp;·&nbsp;
+    <b>Жишээ 4.6:</b> A = [[2,0],[0,2]], B = [[1,1],[1,1]], C = [[1,0],[0,1]] → A·(B+C) = A·B + A·C = <b>[[4,2],[2,4]]</b>.
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.1.5 · Жишээ 4.4–4.6</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 10. ИНТЕРАКТИВ 4 — ҮНЭН/ХУДАЛ КАРТ ══════════ -->
+<section class="slide" data-sec="4.1" id="tfSlide" data-notes="ИНТЕРАКТИВ 4 — 5 минут. Карт бүрийг эхлээд оюутнаар таамаглуулаад дараа нь товшиж нээ. Гараа өргүүлж санал асуулга ав. Зөв хариу: 1 ХУДАЛ, 2 ҮНЭН, 3 ҮНЭН, 4 ХУДАЛ, 5 ҮНЭН, 6 ХУДАЛ.">
+  <div class="s-tag">Интерактив 4 · Матрицын чанарын шалгуур</div>
+  <h2 class="title">Үнэн үү, <em>худал уу?</em></h2>
+  <div class="game" id="tfGrid">
+    <button class="gc no" data-why="Ерөнхий тохиолдолд A·B ≠ B·A. Жишээ 4.4-т нэг тохиолдолд (1,1) элемент 4, нөгөөд 2 гарсан. Байр солих чанар матрицад ажиллахгүй.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">A · B = B · A — матрицын үржвэрт байр солих чанар үргэлж хүчинтэй</div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc yes" data-why="Бүлэглэх чанар (Associative). Жишээ 4.5-д (A·B)·C ба A·(B·C) хоёулаа [[2,3],[1,3]] гарсан. Дараалал хэвээр, зөвхөн бүлэглэлт өөр.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">(A · B) · C = A · (B · C) — аль хосыг эхэлж үржүүлэх нь үр дүнд нөлөөлөхгүй</div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc yes" data-why="Задлах чанар (Distributive). Жишээ 4.6: A·(B+C) = [[4,2],[2,4]] ба A·B + A·C = [[2,2],[2,2]] + [[2,0],[0,2]] = [[4,2],[2,4]].">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">A · (B + C) = A·B + A·C — зардлыг тусад нь бодоод нэмж болно</div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc no" data-why="Тодорхойлогч ЗӨВХӨН квадрат матрицад тодорхойлогдоно (4.3.1). Тиймээс матрицын аргад хязгаарлалтын тоо, хувьсагчийн тоо тэнцүү байх ёстой.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">Дурын хэмжээтэй матрицад тодорхойлогч бодогдоно</div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <div class="gc yes" data-why="A⁻¹ оршин байхын ЦОРЫН ГАНЦ нөхцөл бол det(A) ≠ 0. Δ = 0 бол мөрүүд шугаман хамааралтай — систем ганц шийдгүй." role="button" tabindex="0">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">det(A) = 0 бол A матрицын урвуу матриц огт олдохгүй</div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </div>
+    <div class="gc no" data-why="Зөв хэлбэр нь (A·B)ᵀ = Bᵀ · Aᵀ — үржвэрийн хөрвүүлэг нь ЭСРЭГ дараалалтай хөрвүүлгүүдийн үржвэртэй тэнцүү (4.1.6)." role="button" tabindex="0">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">(A · B)ᵀ = Aᵀ · Bᵀ</div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </div>
+  </div>
+  <div class="gamebar">
+    <span id="tfScore">0 / 6 нээгдсэн</span>
+    <button id="tfReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.1.5–4.1.6 · Интерактив</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 11. DIVIDER 4.2 ══════════ -->
+<section class="slide divider dark" data-sec="4.2" data-notes="Гол шилжилт: тэгшитгэлийн системээс матрицын нэг мөр тэгшитгэл рүү. Оюутанд сануул — оновчтой шийд үргэлж оройн цэг дээр байдаг тул ≤-г = болгож болно.">
+  <div class="num">4.2</div>
+  <h2>AX = B тэгшитгэлийн систем</h2>
+  <p class="sub">Хязгаарлалтын шулуунууд огтлолцох цэг дээр оновчтой шийд оршдог. Иймд ≤ хязгаарлалтыг тэгшитгэл болгож, шугаман алгебрын аргаар шууд тайлж болно.</p>
+  <div class="s-foot"><span>Бүлэг 4.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 12. 4.2.2 + 4.2.4 ══════════ -->
+<section class="slide" data-sec="4.2" data-notes="Гурван матриц: A — технологи, X — шийдвэр, B — нөөц. Баруун талд номын гол жишээ. Онцлох: ≤ тэмдгийг = болгосон нь 'бүх нөөцөө үлдэгдэлгүй бүрэн ашиглах' гэсэн утга. Бүлэг 3.5-ын D(20,10) цэг яг хоёр шулууны огтлолцол дээр байсныг сануул.">
+  <div class="s-tag">4.2.2 · 4.2.4 · Систем → матриц</div>
+  <h2 class="title">Систем нь <em>гурван матриц</em> болж задарна</h2>
+  <div class="split wide">
+    <div class="grid" style="gap:10px;margin-top:0">
+      <div class="card accent"><div class="k">A · Коэффициентийн матриц (m × n)</div><p>Хязгаарлалт бүрийн хувьсагчийн өмнөх тоонууд — үйлдвэрийн <strong>технологийн жор</strong>.</p></div>
+      <div class="card accent"><div class="k">X · Хувьсагчийн вектор (n × 1)</div><p>Шийдвэрийн хувьсагчид x₁, x₂, … — бидний олох гэж буй <strong>үйлдвэрлэлийн тоо</strong>.</p></div>
+      <div class="card accent"><div class="k">B · Сул гишүүний вектор (m × 1)</div><p>Баруун талын тоонууд — агуулах дахь <strong>нөөцийн хэмжээ</strong>.</p></div>
+      <div class="mnote" style="font-family:var(--mono);font-size:17px;text-align:center;color:var(--green);font-weight:600;padding:11px">A X = B</div>
+    </div>
+    <div>
+      <div class="mnote" style="margin-bottom:14px">
+        <b>“Модон урлал” ХХК (Бүлэг 2.7):</b> оновчтой цэг дээр хоёр нөөц заавал бүрэн ашиглагдана. Тиймээс ≤ → =
+        <div class="eqbox" style="font-size:15px;margin-top:8px">
+          4x₁ + 2x₂ <span class="op">=</span> 100 &nbsp;<span class="mu">(модны нөөц)</span><br>
+          2x₁ + 4x₂ <span class="op">=</span> 80 &nbsp;<span class="mu">(цагийн нөөц)</span>
+        </div>
+      </div>
+      <div class="mxrow" style="justify-content:flex-start">
+        <div class="mxwrap"><div class="mx"><table><tr><td>4</td><td>2</td></tr><tr><td>2</td><td>4</td></tr></table></div><div class="mxlab">A · Орцын норм</div></div>
+        <div class="mxop">·</div>
+        <div class="mxwrap"><div class="mx"><table><tr><td>x₁</td></tr><tr><td>x₂</td></tr></table></div><div class="mxlab">X · Үйлдвэрлэх тоо</div></div>
+        <div class="mxop">=</div>
+        <div class="mxwrap"><div class="mx"><table><tr><td>100</td></tr><tr><td>80</td></tr></table></div><div class="mxlab">B · Нийт нөөц</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.2.2 · 4.2.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 13. DIVIDER 4.3 ══════════ -->
+<section class="slide divider dark" data-sec="4.3" data-notes="Бүлгийн хамгийн чухал ойлголт. Тодорхойлогч бол зөвхөн тоо биш — систем шийдтэй эсэх, шийд нь 'эрүүл' эсэхийг хэлж өгдөг оношилгооны хэрэгсэл.">
+  <div class="num">4.3</div>
+  <h2>Тодорхойлогч ба эдийн засгийн утга</h2>
+  <p class="sub">Тодорхойлогч бол матрицын арга дахь гол ойлголт бөгөөд систем шийдтэй эсэх, шийд нь “эрүүл” эсэхийг хэлж өгдөг.</p>
+  <div class="s-foot"><span>Бүлэг 4.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 14. 4.3.1–4.3.3 ══════════ -->
+<section class="slide" data-sec="4.3" data-notes="Хоёр аргыг зэрэг үзүүл. Саррюс зөвхөн 3×3-д ажиллана — 4×4-т ажиллахгүй! Алгебрын гүйцээлт бол ерөнхий арга, түүнийг 4.4.5-д урвуу матриц олоход дахин ашиглана. Модон урлалын Δ = 12-ыг цээжлүүл — бүлгийн туршид дахин дахин гарна.">
+  <div class="s-tag">4.3.1–4.3.3 · Тодорхойлогч бодох</div>
+  <h2 class="title">2×2 ба 3×3-ын <em>тодорхойлогч</em></h2>
+  <div class="split wide">
+    <div>
+      <div class="def">
+        <div class="lbl">Тодорхойлолт</div>
+        <p><strong>Тодорхойлогч (Determinant)</strong> — зөвхөн квадрат матрицад тодорхойлогддог, тухайн матрицыг нэг скаляр тоонд буулган илэрхийлэх үзүүлэлт. Тэмдэглэгээ: det(A), |A|, эсвэл Δ.</p>
+      </div>
+      <div class="eqbox" style="margin-top:14px">
+        <span class="mu">2×2:</span> det(A) = a₁₁a₂₂ <span class="op">−</span> a₁₂a₂₁ = ad <span class="op">−</span> bc<br>
+        <span class="mu">“Модон урлал”:</span> Δ = (4 × 4) − (2 × 2) = 16 − 4 = <span class="op">12</span>
+      </div>
+      <div class="mnote" style="margin-top:14px">Гол диагоналийн элементүүдийн үржвэрээс <b>туслах диагоналийн</b> элементүүдийн үржвэрийг хасна.</div>
+    </div>
+    <div>
+      <div class="mnote">
+        <b>Саррюсын дүрэм (Sarrus' Rule) — зөвхөн 3×3</b><br>
+        Матрицын эхний хоёр баганыг баруун талд дахин бичээд, зүүнээс баруун тийш чиглэсэн гурван диагоналийн үржвэрийг <b>нэмж</b>, баруунаас зүүн тийш чиглэсэн гурвыг <b>хасна</b>.
+        <div class="eqbox" style="font-size:15px;margin-top:9px">det(A) = aei + bfg + cdh <span class="op">−</span> ceg <span class="op">−</span> bdi <span class="op">−</span> afh</div>
+      </div>
+      <div class="mnote" style="margin-top:13px">
+        <b>Алгебрын гүйцээлтээр задлах (Cofactor Expansion)</b><br>
+        Илүү ерөнхий — <b>дурын хэмжээтэй</b> квадрат матрицад ажиллана. Эхний мөрөөр задалбал:
+        <div class="eqbox" style="font-size:15px;margin-top:9px">det(A) = a · C(1,1) + b · C(1,2) + c · C(1,3)</div>
+        C(i,j) — тухайн мөр, баганыг арилгасны дараах 2×2 дэд матрицын тодорхойлогч (минор) дээр <b>(−1)<sup>i+j</sup></b> тэмдгийг үржүүлсэн утга.
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.3.1–4.3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 15. ИНТЕРАКТИВ 2 — ТОДОРХОЙЛОГЧ ТООЦООЛУУР ══════════ -->
+<section class="slide" data-sec="4.3" id="detSlide" data-notes="ИНТЕРАКТИВ 2 — 7 минут. Эхлээд 2×2 дээр номын 4, 2, 2, 4-ийг харуулж Δ = 12 гэдгийг батал. Дараа нь оюутнаар нүд өөрчлүүлж det = 0 гаргуулаад улаан анхааруулгыг үзүүл (жишээ: 2, 4, 3, 6 — Дасгал 7-гийн Цех 3). 3×3 дээр 6 диагоналийн товч дээр хулгана аваачиж Саррюсыг өнгөөр үзүүл — анхны утга бол 4.7-гийн кейсийн матриц, Δ = 5.">
+  <div class="s-tag">Интерактив 2 · 4.3.2–4.3.3 · Тодорхойлогч тооцоолуур</div>
+  <h2 class="title">Нүдийг өөрчлөөд <em>det</em>-ийг ажигла</h2>
+  <div class="detbar">
+    <button class="mbtn on" id="detB2">2×2 матриц</button>
+    <button class="mbtn" id="detB3">3×3 матриц</button>
+    <button class="mbtn" id="detReset">↺ Номын жишээ рүү буцах</button>
+    <span class="dethint" style="margin:0 0 0 6px">Нүд бүрд тоо шивж болно</span>
+  </div>
+  <div class="detwrap">
+    <div>
+      <div class="detgrid" id="detGrid"></div>
+      <div class="detres" id="detRes">det(A) = 12</div>
+    </div>
+    <div>
+      <div id="detRight"></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.3 · Интерактив</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 16. 4.3.4 Δ-ИЙН УТГА ══════════ -->
+<section class="slide" data-sec="4.3" data-notes="Бүлгийн хамгийн сонирхолтой хэсэг. Δ < 0 буюу Hawkins–Simon нөхцөл алдагдах парадоксыг заавал дэлгэрэнгүй ярь: нөөц нэмэхэд бүтээгдэхүүн буурдаг! Дасгал 7-д гурван цехийн Δ-г бодуулна: 12 > 0, −10 < 0, 0.">
+  <div class="s-tag">4.3.4 · Тодорхойлогчийн эдийн засгийн утга</div>
+  <h2 class="title">Δ-ийн <em>тэмдэг</em> юу хэлж байна вэ?</h2>
+  <div class="grid g3">
+    <div class="card green"><div class="k">Δ &gt; 0 · эрүүл систем</div><h3>Тогтвортой, төрөлжсөн үйлдвэрлэл</h3><p>Гол диагоналийн үржвэр туслах диагоналийнхаас их — бүтээгдэхүүн бүр <strong>өөрийн үндсэн нөөцөөсөө</strong> хамгийн их хамааралтай. Ширээнд мод (4), сандалд цаг (4) түлхүү ордог.<br><br><strong>Менежерт:</strong> мод нэмбэл шийд “ширээгээ нэм” гэж хэвийн логикоор зөвлөнө. Бизнесээ итгэлтэй тэлж болно.</p></div>
+    <div class="card accent"><div class="k">Δ &lt; 0 · парадокс</div><h3>Hawkins–Simon нөхцөл алдагдав</h3><p>Туслах диагональ гол диагоналиасаа давсан — бүтээгдэхүүнүүдийн <strong>хөндлөн нөлөө</strong>, нэгнийх нь нөөцийг нөгөө нь булаах шинж хэтэрсэн.<br><br><strong>Парадокс:</strong> 10 м.куб мод нэмж авахад ширээний үйлдвэрлэлийг нэмэх биш, харин <strong>хасаж</strong>, оронд нь сандлыг хүчээр нэмэх шаардлагатай болно.</p></div>
+    <div class="card"><div class="k">Δ = 0 · үгүйсгэгдсэн</div><h3>Шугаман хамааралтай систем</h3><p>Мөрүүд (эсвэл багана) хоорондоо шугаман хамааралтай — нэг хязгаарлалт нөгөөгийнхөө <strong>тогтмол үржвэр</strong>.<br><br>A⁻¹ оршин байхын цорын ганц нөхцөл нь det(A) ≠ 0. Систем <strong>огт шийдгүй</strong> (Infeasible), эсвэл <strong>хязгааргүй олон шийдтэй</strong>. Матрицын аргаар цаашид бодох боломжгүй.</p></div>
+  </div>
+  <div class="mnote" style="margin-top:15px"><b>Санамж:</b> Δ &lt; 0 үед “танай бүтээгдэхүүнүүдийн орцын норм хэтэрхий ижилхэн, нөөцөө үр ашиггүй булаацалдаж байна — технологийн жороо дахин хянаж өөрчил!” гэсэн анхааруулга ирж байна гэж ойлго.</div>
+  <div class="s-foot"><span>Бүлэг 4.3.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 17. DIVIDER 4.4 ══════════ -->
+<section class="slide divider dark" data-sec="4.4" data-notes="Гол хэрэглүүр. Онцлох: матрицад ХУВААХ үйлдэл байдаггүй — тиймээс AX = B-г шууд 'хувааж' болохгүй. Урвуу матриц бол матрицын ертөнц дэх хуваахын оронд ирсэн үйлдэл.">
+  <div class="num">4.4</div>
+  <h2>Урвуу матриц (Inverse Matrix)</h2>
+  <p class="sub">Матрицад хуваах үйлдэл байдаггүй тул AX = B системийг шууд “хувааж” болохгүй — X-ийг зөвхөн урвуу матрицын тусламжтайгаар гаргаж авдаг.</p>
+  <div class="s-foot"><span>Бүлэг 4.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 18. 4.4.1–4.4.2 ══════════ -->
+<section class="slide" data-sec="4.4" data-notes="Дөрвөн мөрийн гаргалт бол бүлгийн зүрх. Мөр бүрийн ард ямар шалтгаан байгааг заавал хэл. Санамжийг онцол: ЗҮҮНЭЭС үржүүлэх ёстой — AB ≠ BA учраас баруунаас үржүүлбэл тэгшитгэл алдагдана.">
+  <div class="s-tag">4.4.1–4.4.2 · X-ийг хэрхэн гаргах вэ?</div>
+  <h2 class="title">AX = B-ээс <em>X = A⁻¹B</em> хүртэл</h2>
+  <div class="formula">
+    <div class="fl" style="font-size:20px;line-height:2">
+      AX = B<br>
+      <span class="c">A⁻¹</span> · AX = <span class="c">A⁻¹</span> · B &nbsp;<span style="font-size:15px;color:rgba(255,255,255,.65)">(зүүнээс A⁻¹-ээр үржүүлэв)</span><br>
+      I · X = A⁻¹ · B &nbsp;<span style="font-size:15px;color:rgba(255,255,255,.65)">(A⁻¹A = I учраас)</span><br>
+      <span class="op">X = A⁻¹ · B</span> &nbsp;<span style="font-size:15px;color:rgba(255,255,255,.65)">(I · X = X учраас)</span>
+    </div>
+    <div class="cap">A · A⁻¹ = A⁻¹ · A = I &nbsp;·&nbsp; Урвуу матриц зөвхөн det(A) ≠ 0 үед л оршин байна</div>
+  </div>
+  <div class="def" style="margin-top:16px">
+    <div class="lbl">Санамж — хамгийн түгээмэл алдаа</div>
+    <p>Матрицын үржвэрт байр солих чанар байхгүй тул (AB ≠ BA), A⁻¹-ээр тэгшитгэлийн <strong>хоёр талыг хоёуланг нь адилхан зүүнээс</strong> үржүүлэх ёстой. Хэрэв санамсаргүйгээр баруунаас үржүүлбэл (жишээ нь AX · A⁻¹) тэгшитгэл алдагдана.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.4.1–4.4.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 19. 4.4.3 2×2 УРВУУ ══════════ -->
+<section class="slide" data-sec="4.4" data-notes="Гурван алхамтай товч дүрэм — оюутнууд үүнийг цээжилдэг. Самбар дээр Жишээ 4.8-ыг оюутнаар бодуул. Анхаар: гол диагоналийг СОЛЬДОГ, туслах диагоналийн ТЭМДГИЙГ л сольдог — байрлалыг нь биш.">
+  <div class="s-tag">4.4.3 · 2×2 матрицын урвуу матриц</div>
+  <h2 class="title">Гурван алхамтай <em>товч дүрэм</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">Алхам 1</div><h3>Диагоналийг солих</h3><p>Гол диагоналийн элементүүдийн байрлалыг солино: <strong>a ↔ d</strong>.</p></div>
+    <div class="card accent"><div class="k">Алхам 2</div><h3>Тэмдгийг эсрэгээр</h3><p>Туслах диагоналийн элементүүдийн тэмдгийг өөрчилнө: <strong>b, c → −b, −c</strong>.</p></div>
+    <div class="card accent"><div class="k">Алхам 3</div><h3>Δ-д хуваах</h3><p>Эцэст нь бүхэлд нь тодорхойлогчид хуваана: <strong>A⁻¹ = (1/Δ) · [[d, −b], [−c, a]]</strong>.</p></div>
+  </div>
+  <div class="mxrow" style="margin-top:20px">
+    <div class="mxwrap"><div class="mx"><table><tr><td>3</td><td>1</td></tr><tr><td>2</td><td>2</td></tr></table></div><div class="mxlab">Жишээ 4.8 · A</div></div>
+    <div class="mnote" style="font-family:var(--mono);font-size:14.5px;line-height:1.9;max-width:250px">Δ = 3×2 − 1×2<br>&nbsp;&nbsp;&nbsp;= 6 − 2 = <b style="color:var(--green)">4</b></div>
+    <div class="mxop">→</div>
+    <div class="mxwrap"><div class="mx"><table><tr><td>2</td><td>−1</td></tr><tr><td>−2</td><td>3</td></tr></table></div><div class="mxlab">(1/4) · adj(A)</div></div>
+    <div class="mxop">=</div>
+    <div class="mxwrap"><div class="mx"><table><tr><td>0.5</td><td>−0.25</td></tr><tr><td>−0.5</td><td>0.75</td></tr></table></div><div class="mxlab">A⁻¹</div></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.4.3 · Жишээ 4.8</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 20. 4.4.5 3×3 УРВУУ ══════════ -->
+<section class="slide" data-sec="4.4" data-notes="3×3-д товч дүрэм АЖИЛЛАХГҮЙ. Гурван алхам заавал: гүйцээлт → хөрвүүлэг → хуваах. Жишээ 4.9-д det = 1 гарсан тул A⁻¹ = adj(A) — энэ бол азтай тохиолдол, хуваалт хийх шаардлагагүй. Гэрийн даалгавар: A · A⁻¹ = I болохыг шалгуул.">
+  <div class="s-tag">4.4.5 · 3×3 матрицын урвуу матриц</div>
+  <h2 class="title">Гурван алхам: гүйцээлт → <em>хавсарга</em> → хуваах</h2>
+  <div class="grid g3">
+    <div class="card"><div class="k">Алхам 1 · Cofactor Matrix</div><p>Элемент бүрийн (i, j) байрлалд харгалзах <strong>алгебрын гүйцээлт Cᵢⱼ</strong>-г бодож, тэдгээрээс шинэ C матриц байгуулна.</p></div>
+    <div class="card"><div class="k">Алхам 2 · Adjugate Matrix</div><p>Алгебрын гүйцээлтийн матрицын <strong>хөрвүүлгийг</strong> авна: adj(A) = Cᵀ.</p></div>
+    <div class="card"><div class="k">Алхам 3 · Хуваах</div><p>Тодорхойлогчид хуваана: <strong>A⁻¹ = adj(A) / det(A)</strong>.</p></div>
+  </div>
+  <div class="mxrow" style="margin-top:18px">
+    <div class="mxwrap"><div class="mx"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>0</td><td>1</td><td>4</td></tr><tr><td>5</td><td>6</td><td>0</td></tr></table></div><div class="mxlab">Жишээ 4.9 · A</div></div>
+    <div class="mnote" style="font-family:var(--mono);font-size:12.5px;line-height:1.75;max-width:330px">
+      Саррюсын дүрмээр:<br>
+      det(A) = (1×1×0) + (2×4×5) + (3×0×6)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;− (3×1×5) − (2×0×0) − (1×4×6)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 0 + 40 + 0 − 15 − 0 − 24 = <b style="color:var(--green)">1</b>
+    </div>
+    <div class="mxop">→</div>
+    <div class="mxwrap"><div class="mx"><table><tr><td>−24</td><td>18</td><td>5</td></tr><tr><td>20</td><td>−15</td><td>−4</td></tr><tr><td>−5</td><td>4</td><td>1</td></tr></table></div><div class="mxlab">A⁻¹ = adj(A) / 1</div></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.4.5 · Жишээ 4.9</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 21. 4.5 ЭДИЙН ЗАСГИЙН УТГА ══════════ -->
+<section class="slide" data-sec="4.5" data-notes="Матрицын аргын ГОЛ ДАВУУ ТАЛ: симплекс хүснэгтээр давтан бодохгүйгээр элемент бүрээс менежментийн мэдээлэл шууд уншина. Сөрөг элементийг тайлбарла: нэмэгдсэн цагийг бүрэн ашиглаж, тэнцвэрийг хадгалахын тулд нөөц сандал руу шилждэг.">
+  <div class="s-tag">4.5 · Урвуу матрицын эдийн засгийн утга</div>
+  <h2 class="title">A⁻¹ бол үйлдвэрийн <em>“дотоод жор”</em></h2>
+  <div class="split wide">
+    <div>
+      <div class="def">
+        <div class="lbl">Уншлагын дүрэм</div>
+        <p>A⁻¹ матрицын <strong>(i, j)</strong> элемент нь “хэрэв <strong>j-р нөөц 1 нэгжээр нэмэгдвэл</strong>, <strong>i-р бүтээгдэхүүний хэмжээ хэдээр өөрчлөгдөх вэ?</strong>” гэсэн асуултад хариулдаг.</p>
+      </div>
+      <div class="mxrow" style="justify-content:flex-start;margin-top:16px">
+        <div class="mxwrap"><div class="mx"><table><tr><td>1/3</td><td>−1/6</td></tr><tr><td>−1/6</td><td>1/3</td></tr></table></div><div class="mxlab">A⁻¹ · “Модон урлал”</div></div>
+        <div class="mnote" style="font-size:13px;max-width:250px">Мөр = бүтээгдэхүүн (ширээ, сандал)<br>Багана = нөөц (мод, цаг)</div>
+      </div>
+    </div>
+    <div class="checks">
+      <div class="chk yes"><span class="m">↑</span><span class="tx"><b>A⁻¹[1,1] = 1/3</b> — 1 м.куб мод нэмэгдвэл ширээний үйлдвэрлэл 1/3 нэгжээр <b>нэмэгдэнэ</b></span></div>
+      <div class="chk no"><span class="m">↓</span><span class="tx"><b>A⁻¹[1,2] = −1/6</b> — 1 цаг нэмэгдвэл ширээний үйлдвэрлэл 1/6 нэгжээр <b>буурна</b>: нэмэгдсэн цагийг бүрэн ашиглаж тэнцвэрийг хадгалахын тулд нөөц сандал руу шилжинэ</span></div>
+      <div class="chk no"><span class="m">↓</span><span class="tx"><b>A⁻¹[2,1] = −1/6</b> — 1 м.куб мод нэмэгдвэл сандлын үйлдвэрлэл 1/6 нэгжээр <b>буурна</b></span></div>
+      <div class="chk yes"><span class="m">↑</span><span class="tx"><b>A⁻¹[2,2] = 1/3</b> — 1 цаг нэмэгдвэл сандлын үйлдвэрлэл 1/3 нэгжээр <b>нэмэгдэнэ</b></span></div>
+    </div>
+  </div>
+  <div class="mnote" style="margin-top:14px"><b>Сүүдрийн үнэтэй холбоо:</b> Сүүдрийн үнэ = Σᵢ (A⁻¹[i,j] × cᵢ). Дэлгэрэнгүй тооцоог Бүлэг 5.6 (мэдрэмжийн шинжилгээ) болон Бүлэг 7.4 (хосмог бодлого)-т үзнэ.</div>
+  <div class="s-foot"><span>Бүлэг 4.5.1–4.5.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 22. DIVIDER 4.6 ══════════ -->
+<section class="slide divider dark" data-sec="4.6" data-notes="Бүлгийн оргил. Одоо бүх мэдлэгээ нэгтгэж, номын гол жишээг эхнээс нь дуустал бодно. Дараагийн слайдын интерактивыг оюутнуудтай ХАМТ, алхам алхмаар яв — товчийг оюутнаар даруул.">
+  <div class="num">4.6</div>
+  <h2>Гол жишээ: “Модон урлал” ХХК</h2>
+  <p class="sub">Z = 50,000x₁ + 40,000x₂ → max &nbsp;·&nbsp; 4x₁ + 2x₂ ≤ 100 &nbsp;·&nbsp; 2x₁ + 4x₂ ≤ 80 &nbsp;·&nbsp; x₁, x₂ ≥ 0. Бүлэг 3.5-т графикаар D(20, 10) цэг дээр Z = 1,400,000₮ гэж бодсон. Одоо матрицаар.</p>
+  <div class="s-foot"><span>Бүлэг 4.6</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 23. ИНТЕРАКТИВ 3 — АЛХМААР БОДОГЧ ══════════ -->
+<section class="slide" data-sec="4.6" id="stpSlide" data-notes="ИНТЕРАКТИВ 3 — 10 минут, хичээлийн зүрх. Алхам бүрийг дарахаасаа өмнө 'дараа нь юу болох вэ?' гэж асуу. Алхам 5-д хариу x₁=20, x₂=10 гарахад Бүлэг 3-ын графикийн хариутай яг таарсныг онцол. Буцах товчоор дахин давтаж болно.">
+  <div class="s-tag">Интерактив 3 · 4.6 · AX = B алхам алхмаар</div>
+  <h2 class="title">Таван алхмаар <em>бүрэн шийдэл</em></h2>
+  <div class="stpbar">
+    <button class="mbtn" id="stpPrev">‹ Буцах</button>
+    <button class="mbtn on" data-s="0">1 · AX = B</button>
+    <button class="mbtn" data-s="1">2 · det(A)</button>
+    <button class="mbtn" data-s="2">3 · Гүйцээлт</button>
+    <button class="mbtn" data-s="3">4 · adj → A⁻¹</button>
+    <button class="mbtn" data-s="4">5 · X = A⁻¹B</button>
+    <button class="mbtn" id="stpNext">Дараах ›</button>
+    <span class="stpprog sp" id="stpProg" style="text-align:right">АЛХАМ 1 / 5</span>
+  </div>
+  <div class="stp">
+    <div class="stpp on">
+      <h4>Алхам 1 — Матриц хэлбэрт оруулах</h4>
+      <p>Оновчтой цэг дээр хоёр нөөц заавал бүрэн ашиглагдана (D цэг нь хоёр шулууны огтлолцол дээр). Иймд ≤ хязгаарлалтуудыг тэгшитгэл болгоно:</p>
+      <div class="eqline">4x₁ + 2x₂ <em>=</em> 100 &nbsp;&nbsp;<span style="color:var(--ink-mute);font-size:13px">мод бүрэн ашиглагдана</span><br>2x₁ + 4x₂ <em>=</em> 80 &nbsp;&nbsp;<span style="color:var(--ink-mute);font-size:13px">цаг бүрэн ашиглагдана</span></div>
+      <div class="mxrow" style="justify-content:flex-start;margin-top:12px">
+        <div class="mxwrap"><div class="mx"><table><tr><td>4</td><td>2</td></tr><tr><td>2</td><td>4</td></tr></table></div><div class="mxlab">A</div></div>
+        <div class="mxop">·</div>
+        <div class="mxwrap"><div class="mx"><table><tr><td>x₁</td></tr><tr><td>x₂</td></tr></table></div><div class="mxlab">X</div></div>
+        <div class="mxop">=</div>
+        <div class="mxwrap"><div class="mx"><table><tr><td>100</td></tr><tr><td>80</td></tr></table></div><div class="mxlab">B</div></div>
+      </div>
+    </div>
+    <div class="stpp">
+      <h4>Алхам 2 — Тодорхойлогч бодох</h4>
+      <p>Урвуу матриц олохын өмнө заавал тодорхойлогчийг шалгана. Гол диагоналийн үржвэрээс туслах диагоналийн үржвэрийг хасна:</p>
+      <div class="eqline">det(A) = 4×4 − 2×2 = 16 − 4 = <em>12</em></div>
+      <div class="mnote" style="margin-top:12px"><b>Дүгнэлт:</b> Δ = 12 &gt; 0 → систем <b>эрүүл, тогтвортой</b> бөгөөд ганц оновчтой шийд оршин байна. Энэ нь 4.3.4-т үзсэн эерэг тодорхойлогчийн шинжтэй бүрэн нийцэж байна. det(A) ≠ 0 тул A⁻¹ оршино — цааш үргэлжлүүлж болно.</div>
+    </div>
+    <div class="stpp">
+      <h4>Алхам 3 — Алгебрын гүйцээлтийн матриц</h4>
+      <p>2×2-ын хувьд гүйцээлтүүд нь: C₁₁ = a₂₂ = 4, C₁₂ = −a₂₁ = −2, C₂₁ = −a₁₂ = −2, C₂₂ = a₁₁ = 4.</p>
+      <div class="mxrow" style="justify-content:flex-start;margin-top:12px">
+        <div class="mxwrap"><div class="mx"><table><tr><td>4</td><td>2</td></tr><tr><td>2</td><td>4</td></tr></table></div><div class="mxlab">A</div></div>
+        <div class="mxop">→</div>
+        <div class="mxwrap"><div class="mx"><table><tr><td>4</td><td>−2</td></tr><tr><td>−2</td><td>4</td></tr></table></div><div class="mxlab">C · Гүйцээлтийн матриц</div></div>
+        <div class="mnote" style="font-size:13px;max-width:280px">Гол диагоналийн байрлал солигдож (4 ↔ 4), туслах диагоналийн тэмдэг эсрэгээр өөрчлөгдөв (2 → −2).</div>
+      </div>
+    </div>
+    <div class="stpp">
+      <h4>Алхам 4 — Хавсарга матриц ба A⁻¹</h4>
+      <p>adj(A) = Cᵀ. Энэ матриц тэгш хэмтэй тул хөрвүүлэг нь өөртэйгөө ижил гарлаа. Дараа нь тодорхойлогчид хуваана:</p>
+      <div class="mxrow" style="justify-content:flex-start;margin-top:10px">
+        <div class="mxwrap"><div class="mx"><table><tr><td>4</td><td>−2</td></tr><tr><td>−2</td><td>4</td></tr></table></div><div class="mxlab">adj(A) = Cᵀ</div></div>
+        <div class="mxop">×&nbsp;1/12</div>
+        <div class="mxwrap"><div class="mx"><table><tr><td>1/3</td><td>−1/6</td></tr><tr><td>−1/6</td><td>1/3</td></tr></table></div><div class="mxlab">A⁻¹ = adj(A)/12</div></div>
+      </div>
+      <div class="eqline" style="margin-top:8px">A⁻¹ = (1/12) · [[4, −2], [−2, 4]] <em>=</em> [[1/3, −1/6], [−1/6, 1/3]]</div>
+    </div>
+    <div class="stpp">
+      <h4>Алхам 5 — X = A⁻¹ · B</h4>
+      <div class="mxrow" style="justify-content:flex-start;margin-top:4px">
+        <div class="mxwrap"><div class="mx"><table><tr><td>1/3</td><td>−1/6</td></tr><tr><td>−1/6</td><td>1/3</td></tr></table></div><div class="mxlab">A⁻¹</div></div>
+        <div class="mxop">·</div>
+        <div class="mxwrap"><div class="mx"><table><tr><td>100</td></tr><tr><td>80</td></tr></table></div><div class="mxlab">B</div></div>
+        <div class="mxop">=</div>
+        <div class="mxwrap"><div class="mx"><table><tr><td>20</td></tr><tr><td>10</td></tr></table></div><div class="mxlab">X</div></div>
+      </div>
+      <div class="eqline" style="font-size:14.5px;margin-top:10px">
+        Ширээ (x₁): (1/3 × 100) + (−1/6 × 80) = 200/6 − 80/6 = 120/6 = <em>20</em><br>
+        Сандал (x₂): (−1/6 × 100) + (1/3 × 80) = −100/6 + 160/6 = 60/6 = <em>10</em>
+      </div>
+      <div class="mnote" style="margin-top:8px"><b>Хариу:</b> x₁ = 20 ширээ, x₂ = 10 сандал үйлдвэрлэвэл мод, цагийн нөөц бүрэн, зөрүүгүй дуусна. Z = 50,000 × 20 + 40,000 × 10 = <b>1,400,000₮</b>.</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.6.2–4.6.5 · Интерактив</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 24. 4.6.6–4.6.8 ══════════ -->
+<section class="slide" data-sec="4.6" data-notes="Хоёр огт өөр аргаар ижил хариу гарсан нь тооцоо зөв болсны нотолгоо. Оюутнаас асуу: 'Хэрэв өөр хариу гарвал юу гэсэн үг вэ?' Хариу: аль нэг тооцоо буруу. Сүүлийн менежментийн асуултыг задлан ярилц.">
+  <div class="s-tag">4.6.6–4.6.8 · Үр дүн ба тайлбар</div>
+  <h2 class="title">Хоёр арга — <em>нэг хариу</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:30%">Арга</th><th style="width:16%">x₁ (ширээ)</th><th style="width:16%">x₂ (сандал)</th><th>Зорилгын функц Z</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Бүлэг 3 · Графикийн арга<br><span class="en">Оройн цэгүүдийг харьцуулах</span></td><td style="font-family:var(--mono);font-size:17px">20</td><td style="font-family:var(--mono);font-size:17px">10</td><td style="font-family:var(--mono);font-size:16px">1,400,000₮</td></tr>
+    <tr><td class="k">Бүлэг 4 · Матрицын арга<br><span class="en">X = A⁻¹B</span></td><td style="font-family:var(--mono);font-size:17px">20</td><td style="font-family:var(--mono);font-size:17px">10</td><td style="font-family:var(--mono);font-size:16px">1,400,000₮</td></tr>
+    </tbody>
+  </table>
+  <div class="eqbox" style="margin-top:14px">Z = 50,000 × 20 + 40,000 × 10 = 1,000,000 + 400,000 = <span class="op">1,400,000₮</span></div>
+  <div class="def">
+    <div class="lbl">✓ Ижил хариу — зайлшгүй байх ёстой үзэгдэл</div>
+    <p>Хоёр арга нь ижил тэгшитгэлийн системийн ижил огтлолцлын цэгийг <strong>өөр өөр замаар</strong> олж байна. Ижил хариу гарсан нь тооцооллын математик зөв болсны нотолгоо юм. Бүлэг 5-т симплексээр, Бүлэг 7.6-д хосмог хэлбэрээр дахин бодоход мөн ижил хариу гарна.</p>
+  </div>
+  <div class="mnote" style="margin-top:13px"><b>Менежментийн шийдвэр:</b> нэмэлт нөөц худалдаж авах бол аль нөөцийг — мод уу, цаг уу — нэмэх нь илүү өндөр ашиг өгөхийг урвуу матриц болон ашгийн коэффициентүүдээр (50,000₮, 40,000₮) урьдчилан тооцоолж болно.</div>
+  <div class="s-foot"><span>Бүлэг 4.6.6–4.6.9</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 25. 4.7 КЕЙС 3×3 ══════════ -->
+<section class="slide" data-sec="4.7" data-notes="Матрицын аргын жинхэнэ хүч: 3 хувьсагчтай үед графикийн арга огт ажиллахгүй, харин матрицын арга ЯГ АДИЛХАН алгоритмаар үргэлжилнэ. Зөвхөн тооцооны хэмжээ л өснө. A⁻¹-ийн эхний мөр [1, 0, −2]-ын тайлбарыг заавал уншуул.">
+  <div class="s-tag">4.7 · Кейс: “Гоо мебель” цех — 3 нөөц, 3 бүтээгдэхүүн</div>
+  <h2 class="title">Гурван хувьсагчтай <em>3×3 систем</em></h2>
+  <div class="split wide">
+    <div>
+      <div class="eqbox" style="font-size:15.5px">
+        3x₁ + 2x₂ + 4x₃ <span class="op">=</span> 80 &nbsp;<span class="mu">(мод, м.куб)</span><br>
+        2x₁ + 3x₂ + 1x₃ <span class="op">=</span> 70 &nbsp;<span class="mu">(хөдөлмөр, цаг)</span><br>
+        1x₁ + 1x₂ + 2x₃ <span class="op">=</span> 35 &nbsp;<span class="mu">(метал бэхэлгээ, кг)</span>
+      </div>
+      <div class="mnote" style="margin-top:13px;font-size:13.5px">
+        <b>Орцын норм:</b> ширээ (x₁) — 3 мод, 2 цаг, 1 метал · сандал (x₂) — 2 мод, 3 цаг, 1 метал · шүүгээ (x₃) — 4 мод, 1 цаг, 2 метал.
+      </div>
+      <div class="eqbox" style="font-size:14.5px;margin-top:12px">
+        det(A) = 3(3×2 − 1×1) − 2(2×2 − 1×1) + 4(2×1 − 3×1)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 3(5) − 2(3) + 4(−1) = 15 − 6 − 4 = <span class="op">5</span>
+      </div>
+    </div>
+    <div>
+      <div class="mxrow" style="justify-content:flex-start">
+        <div class="mxwrap"><div class="mx sm"><table><tr><td>1</td><td>0</td><td>−2</td></tr><tr><td>−0.6</td><td>0.4</td><td>1</td></tr><tr><td>−0.2</td><td>−0.2</td><td>1</td></tr></table></div><div class="mxlab">A⁻¹ = (1/5) · adj(A)</div></div>
+        <div class="mxop">·</div>
+        <div class="mxwrap"><div class="mx sm"><table><tr><td>80</td></tr><tr><td>70</td></tr><tr><td>35</td></tr></table></div><div class="mxlab">B</div></div>
+        <div class="mxop">=</div>
+        <div class="mxwrap"><div class="mx sm"><table><tr><td>10</td></tr><tr><td>15</td></tr><tr><td>5</td></tr></table></div><div class="mxlab">X</div></div>
+      </div>
+      <div class="eqbox" style="font-size:13px;margin-top:12px;line-height:1.85">
+        x₁ = 1×80 + 0×70 + (−2)×35 = 80 − 70 = <span class="op">10</span> ширээ<br>
+        x₂ = (−0.6)×80 + 0.4×70 + 1×35 = −48 + 28 + 35 = <span class="op">15</span> сандал<br>
+        x₃ = (−0.2)×80 + (−0.2)×70 + 1×35 = −16 − 14 + 35 = <span class="op">5</span> шүүгээ
+      </div>
+      <div class="def" style="margin-top:12px">
+        <div class="lbl">A⁻¹-ийн эхний мөр [1, 0, −2] юу хэлж байна вэ?</div>
+        <p>1 м.куб мод нэмэгдэхэд ширээний тоо <strong>1-ээр нэмэгдэнэ</strong>, цагийн өөрчлөлт ширээнд <strong>огт нөлөөлөхгүй</strong>, харин 1 кг метал нэмэгдэхэд ширээний тоо <strong>2-оор буурна</strong>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.7.1–4.7.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 26. 4.8 ХЯЗГААРЛАЛТ ══════════ -->
+<section class="slide" data-sec="4.7" data-notes="Шударга бай: матрицын арга практикт хязгаарлагдмал. Гурван нөхцөл зэрэг биелэх ёстой. Бодит бизнесийн бодлого олон, ялгаатай хязгаарлалттай тул симплекс, Big-M хэрэгтэй. Гэхдээ энэ бүлэг бол тэдгээрийн математик суурь — үүнийг онцол.">
+  <div class="s-tag">4.8 · Матрицын аргын хязгаарлалт</div>
+  <h2 class="title">Хэзээ <em>ажиллах</em>, хэзээ ажиллахгүй вэ?</h2>
+  <div class="checks">
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Тэгшитгэл хэлбэр</b> — хязгаарлалтууд бүгд (=) хэлбэртэй, эсвэл оновчтой цэг дээр тэгшитгэл болгож болохуйц байх</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Квадрат систем</b> — хязгаарлалтын тоо (мөр) нь хувьсагчийн тоотой (багана) тэнцүү байх</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>det(A) ≠ 0</b> — урвуу матриц оршин байх цорын ганц нөхцөл</span></div>
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>≤ эсвэл ≥ хэлбэртэй</b> бөгөөд аль хязгаарлалт хүчинтэй (binding) болохыг урьдчилан мэдэхгүй үед</span></div>
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>det(A) = 0</b> — хязгаарлалтууд хоорондоо шугаман хамааралтай үед</span></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Тэгвэл практикт юу ашиглах вэ?</div>
+    <p>Бодит бизнесийн бодлого ихэвчлэн олон, ялгаатай хязгаарлалттай тул матрицын арга нь голчлон <strong>онолын ойлголт өгөх, суурь тавих</strong> зорилготой. Практикт: <strong>симплекс арга → Бүлэг 5</strong> (≤ хязгаарлалттай ерөнхий бодлогод), <strong>Big-M арга → Бүлэг 6</strong> (≥ болон = хязгаарлалттай бодлогод).</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4.8.1–4.8.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 27. ХУРААНГУЙ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Таван гол санаа. Оюутнаар нэг бүрчлэн давтуулж хэлүүл. Дараа нь Дасгал 1–7 руу. Дасгал 7 хамгийн чухал — гурван цехийн Δ-г бодож эдийн засгийн утгыг тайлбарлана.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Таван гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt">Матрицын үржвэрийн <b>гурван шинж</b>: байр солих чанар байхгүй (<b>AB ≠ BA</b>), бүлэглэх чанар ((AB)C = A(BC)), задлах чанар (A(B+C) = AB + AC).</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt">Хязгаарлалтын системийг <b>AX = B</b> хэлбэрт оруулаад X-ийг <b>X = A⁻¹B</b> томьёогоор гаргана — матрицад хуваах үйлдэл байдаггүй тул зөвхөн зүүнээс A⁻¹-ээр үржүүлнэ.</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt">Тодорхойлогчийн тэмдэг системийн “эрүүл мэнд”-ийг хэлнэ: <b>Δ &gt; 0</b> эрүүл, <b>Δ &lt; 0</b> Hawkins–Simon парадокс, <b>Δ = 0</b> урвуу матриц огт байхгүй.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt">A⁻¹-ийн элемент бүр <b>“1 нэгж нөөц нэмэгдвэл бүтээгдэхүүн хэдээр өөрчлөгдөх вэ?”</b> гэсэн эдийн засгийн утгатай — сүүдрийн үнэтэй шууд холбоотой.</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt">“Модон урлал” ХХК-ийн хариу <b>x₁ = 20, x₂ = 10, Z = 1,400,000₮</b> нь Бүлэг 3.5-ын графикийн аргатай яг таарав. 3×3 кейс матрицын арга хоёроос олон хувьсагчид ч ажилладгийг харуулав.</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 4 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 28. ТӨГСГӨЛ ══════════ -->
+<section class="slide closing dark" data-sec="—" data-notes="Дараагийн 1.5 цаг — дадлага, 7 дасгал. Дараагийн долоо хоног Бүлэг 5: симплекс арга. Сүүлийн мессеж: симплекс хүснэгт бүрийн ард яг энэ бүлэгт үзсэн матрицын үржвэр, урвуу хамаарлын логик нуугдаж байдаг.">
+  <h2>Симплекс хүснэгт бүрийн ард<br><em>яг энэ матрицын логик</em> нуугдаж байдаг.</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    Та одоо AX = B системийг урвуу матрицаар бодож, тодорхойлогч ба A⁻¹-ийн элементүүдийн эдийн засгийн утгыг тайлж чадах боллоо. Бүлэг 5-т ижил бодлогыг симплексээр, Бүлэг 7.6-д хосмог хэлбэрээр бодож, гурван арга ижил хариу өгдгийг харуулна.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг · 7 дасгал</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 5.1–5.3</span>
+    <span>🔗 LP Suite → Хичээл → Долоо хоног 6</span>
+  </div>
+</section>
+
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 28</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+window.DECK = {
+  lesson: 'Хичээл 6',
+  course: 'Бүлэг 4 — Матрицын арга',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'4.1',   label:'Матрицын үндэс'},
+    {k:'4.2',   label:'AX = B'},
+    {k:'4.3',   label:'Тодорхойлогч'},
+    {k:'4.4',   label:'Урвуу матриц'},
+    {k:'4.5',   label:'Эдийн засгийн утга'},
+    {k:'4.6',   label:'Гол жишээ'},
+    {k:'4.7',   label:'Кейс ба хязгаар'},
+    {k:'end',   label:'Дүгнэлт'}
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Өнөөдрийн хичээл'},
+    {p:'intro', s:'Сурах зорилт'},
+    {p:'4.1',   s:'4.1 · Матрицын үндэс'},
+    {p:'4.1',   s:'4.1.1–4.1.2 · Матриц ба түүний төрлүүд'},
+    {p:'4.1',   s:'4.1.3–4.1.6 · Үндсэн үйлдлүүд'},
+    {p:'4.1',   s:'4.1.5 · Матрицын үржвэр'},
+    {p:'4.1',   s:'Интерактив · Үржвэрийн задаргаа'},
+    {p:'4.1',   s:'4.1.5 · Үржвэрийн гурван шинж'},
+    {p:'4.1',   s:'Интерактив · Үнэн/худал карт'},
+    {p:'4.2',   s:'4.2 · AX = B систем'},
+    {p:'4.2',   s:'4.2.2–4.2.4 · Гурван матриц'},
+    {p:'4.3',   s:'4.3 · Тодорхойлогч'},
+    {p:'4.3',   s:'4.3.1–4.3.3 · det бодох арга'},
+    {p:'4.3',   s:'Интерактив · Тодорхойлогч тооцоолуур'},
+    {p:'4.3',   s:'4.3.4 · Δ-ийн эдийн засгийн утга'},
+    {p:'4.4',   s:'4.4 · Урвуу матриц'},
+    {p:'4.4',   s:'4.4.1–4.4.2 · X = A⁻¹B'},
+    {p:'4.4',   s:'4.4.3 · 2×2 урвуу матриц'},
+    {p:'4.4',   s:'4.4.5 · 3×3 урвуу матриц'},
+    {p:'4.5',   s:'4.5 · A⁻¹-ийн эдийн засгийн утга'},
+    {p:'4.6',   s:'4.6 · “Модон урлал” ХХК'},
+    {p:'4.6',   s:'Интерактив · AX = B алхмаар бодогч'},
+    {p:'4.6',   s:'4.6.6–4.6.9 · Үр дүн ба харьцуулалт'},
+    {p:'4.7',   s:'4.7 · Кейс: 3×3 систем'},
+    {p:'4.7',   s:'4.8 · Матрицын аргын хязгаарлалт'},
+    {p:'end',   s:'Бүлгийн хураангуй'},
+    {p:'end',   s:''}
+  ]
+};
+</script>
+
+<script>
+/* ═══════ ИНТЕРАКТИВ 1 — Матрицын үржвэрийн задаргаа ═══════ */
+(function(){
+  if(!document.getElementById('mmSlide')) return;
+  var A = [[3,2,4],[2,3,1]];
+  var B = [[10,5],[15,10],[5,8]];
+  var mA = document.getElementById('mmA'),
+      mB = document.getElementById('mmB'),
+      mC = document.getElementById('mmC'),
+      calc = document.getElementById('mmCalc'),
+      dim  = document.getElementById('mmDim'),
+      bad  = document.getElementById('mmBad');
+  var aCells = mA.querySelectorAll('td'),
+      bCells = mB.querySelectorAll('td'),
+      cCells = mC.querySelectorAll('td.pick');
+  var badOn = false, cur = null;
+
+  function clearHl(){
+    for(var i=0;i<aCells.length;i++) aCells[i].className='';
+    for(var j=0;j<bCells.length;j++) bCells[j].className='';
+    for(var k=0;k<cCells.length;k++) cCells[k].className='pick';
+  }
+
+  function show(i,j,cell){
+    clearHl();
+    cell.className = 'pick hx';
+    for(var c=0;c<aCells.length;c++){
+      if(+aCells[c].dataset.r === i) aCells[c].className = 'hr';
+    }
+    for(var d=0;d<bCells.length;d++){
+      if(+bCells[d].dataset.c === j) bCells[d].className = 'hc';
+    }
+    var t1 = A[i][0]*B[0][j], t2 = A[i][1]*B[1][j], t3 = A[i][2]*B[2][j];
+    var sum = t1 + t2 + t3;
+    var pr = ['ширээ','сандал','шүүгээ'];
+    var rn = ['мод (м.куб)','хөдөлмөр (цаг)'];
+    var cn = ['1-р долоо хоног','2-р долоо хоног'];
+    calc.innerHTML =
+      '<b>c' + (i+1) + (j+1) + '</b> = a' + (i+1) + '₁b₁' + (j+1) +
+      ' + a' + (i+1) + '₂b₂' + (j+1) + ' + a' + (i+1) + '₃b₃' + (j+1) + '<br>' +
+      '<span class="eq">= ' + A[i][0] + '×' + B[0][j] + ' + ' + A[i][1] + '×' + B[1][j] +
+      ' + ' + A[i][2] + '×' + B[2][j] + ' = ' + t1 + ' + ' + t2 + ' + ' + t3 +
+      ' = ' + sum + '</span><br>' +
+      '<span style="font-size:13.5px;color:var(--ink-mute)">' + cn[j] + '-т ' +
+      pr[0] + ' ' + B[0][j] + ', ' + pr[1] + ' ' + B[1][j] + ', ' + pr[2] + ' ' + B[2][j] +
+      ' ширхэг хийвэл нийт <b>' + sum + '</b> нэгж ' + rn[i] + ' зарцуулагдана.</span>';
+  }
+
+  for(var k=0;k<cCells.length;k++){
+    (function(cell){
+      cell.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      cell.addEventListener('click', function(){
+        if(badOn) return;
+        var i = +cell.dataset.i, j = +cell.dataset.j;
+        cur = cell; show(i,j,cell);
+      });
+    })(cCells[k]);
+  }
+
+  bad.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  bad.addEventListener('click', function(){
+    badOn = !badOn;
+    bad.classList.toggle('on', badOn);
+    if(badOn){
+      clearHl();
+      dim.className = 'mmdim bad';
+      dim.innerHTML = 'A(2×<b>3</b>) · C(<b>2</b>×2)<br>3 ≠ 2 ✗ → тодорхойлогдохгүй';
+      calc.innerHTML =
+        '<b style="color:var(--rust)">Хэмжээ таарахгүй тохиолдол.</b> A нь 2×3, ' +
+        'C = A·B нь 2×2. A · C гэж үржүүлэхийг оролдвол: ' +
+        '<span class="eq" style="color:var(--rust)">A-ийн баганын тоо = 3, C-ийн мөрийн тоо = 2 → 3 ≠ 2</span>' +
+        '<br><span style="font-size:13.5px;color:var(--ink-mute)">Дүрэм: A(m × p) · B(p × n) — дунд талын хоёр тоо ЗААВАЛ тэнцүү байх ёстой. ' +
+        'Тэнцүү биш бол үржвэр огт тодорхойлогдохгүй — “ойролцоо” гэж байхгүй.</span>';
+      bad.textContent = '↺ Зөв тохиолдол руу буцах';
+    } else {
+      dim.className = 'mmdim';
+      dim.innerHTML = 'A(2×<b>3</b>) · B(<b>3</b>×2)<br>3 = 3 ✓ → үр дүн 2×2';
+      calc.innerHTML = 'Дөрвөн үр дүнгийн нүдний аль нэг дээр товшиж, тухайн элемент хэрхэн бодогдохыг үзнэ үү.';
+      bad.textContent = 'Хэмжээ таарахгүй бол?';
+      clearHl();
+    }
+  });
+})();
+
+/* ═══════ ИНТЕРАКТИВ 2 — Тодорхойлогч тооцоолуур ═══════ */
+(function(){
+  if(!document.getElementById('detSlide')) return;
+  var DEF2 = [[4,2],[2,4]];
+  var DEF3 = [[3,2,4],[2,3,1],[1,1,2]];
+  var n = 2;
+  var v = [[4,2],[2,4]];
+  var grid  = document.getElementById('detGrid'),
+      res   = document.getElementById('detRes'),
+      right = document.getElementById('detRight'),
+      b2    = document.getElementById('detB2'),
+      b3    = document.getElementById('detB3'),
+      br    = document.getElementById('detReset');
+
+  var PLUS = [[[0,0],[1,1],[2,2]], [[0,1],[1,2],[2,0]], [[0,2],[1,0],[2,1]]];
+  var MINUS= [[[0,2],[1,1],[2,0]], [[0,1],[1,0],[2,2]], [[0,0],[1,2],[2,1]]];
+  var PLAB = ['a₁₁a₂₂a₃₃','a₁₂a₂₃a₃₁','a₁₃a₂₁a₃₂'];
+  var MLAB = ['a₁₃a₂₂a₃₁','a₁₂a₂₁a₃₃','a₁₁a₂₃a₃₂'];
+  /* Саррюсын өргөтгөсөн торны багана: 0,1,2,0,1 */
+  var EXT = [0,1,2,0,1];
+
+  function copy(m){ var o=[]; for(var i=0;i<m.length;i++) o.push(m[i].slice()); return o; }
+
+  function det(){
+    if(n===2) return v[0][0]*v[1][1] - v[0][1]*v[1][0];
+    var s=0, i;
+    for(i=0;i<3;i++) s += v[PLUS[i][0][0]][PLUS[i][0][1]]*v[PLUS[i][1][0]][PLUS[i][1][1]]*v[PLUS[i][2][0]][PLUS[i][2][1]];
+    for(i=0;i<3;i++) s -= v[MINUS[i][0][0]][MINUS[i][0][1]]*v[MINUS[i][1][0]][MINUS[i][1][1]]*v[MINUS[i][2][0]][MINUS[i][2][1]];
+    return s;
+  }
+
+  function buildGrid(){
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = 'repeat(' + n + ', 52px)';
+    for(var i=0;i<n;i++){
+      for(var j=0;j<n;j++){
+        var inp = document.createElement('input');
+        inp.type = 'number'; inp.className = 'mxin';
+        inp.value = v[i][j];
+        inp.dataset.i = i; inp.dataset.j = j;
+        inp.addEventListener('input', onEdit);
+        grid.appendChild(inp);
+      }
+    }
+  }
+
+  function onEdit(e){
+    var i = +e.target.dataset.i, j = +e.target.dataset.j;
+    var x = parseFloat(e.target.value);
+    v[i][j] = isNaN(x) ? 0 : x;
+    render();
+  }
+
+  function fmt(x){ return (Math.round(x*1000)/1000); }
+
+  function sarCell(r,c){ return document.getElementById('sar_'+r+'_'+c); }
+
+  function clearSar(){
+    if(n!==3) return;
+    for(var r=0;r<3;r++) for(var c=0;c<5;c++){
+      var el = sarCell(r,c);
+      if(el) el.className = (c>2 ? 'ex' : '');
+    }
+  }
+
+  function hlDiag(kind, idx){
+    if(n!==3) return;
+    clearSar();
+    /* өргөтгөсөн торны баганын индекс */
+    var cols = kind==='p' ? [[0,1,2],[1,2,3],[2,3,4]][idx]
+                          : [[2,1,0],[3,2,1],[4,3,2]][idx];
+    for(var r=0;r<3;r++){
+      var el = sarCell(r, cols[r]);
+      if(el) el.className = (cols[r]>2 ? 'ex ' : '') + (kind==='p' ? 'gh' : 'rh');
+    }
+  }
+
+  function buildRight(){
+    if(n===2){
+      right.innerHTML =
+        '<div class="mnote"><b>2×2-ын дүрэм</b><div class="eqbox" style="font-size:16px;margin-top:8px">' +
+        'det(A) = a₁₁a₂₂ <span class="op">−</span> a₁₂a₂₁ = ad <span class="op">−</span> bc</div>' +
+        'Гол диагоналийн үржвэрээс туслах диагоналийн үржвэрийг хасна.</div>' +
+        '<div class="mnote" id="det2live" style="margin-top:13px;font-family:var(--mono);font-size:15px"></div>' +
+        '<div class="dethint">Туршаад үз: <b>2, 4, 3, 6</b> шивбэл Δ = 0 гарна (Дасгал 7-гийн Цех 3). ' +
+        '<b>1, 4, 3, 2</b> шивбэл Δ = −10 — Hawkins–Simon парадокс (Цех 2).</div>';
+    } else {
+      var h = '<div class="mnote" style="padding:12px 14px"><b>Саррюсын дүрэм — эхний хоёр баганыг баруун талд давтана</b>' +
+              '<div class="sar" style="margin-top:10px">';
+      for(var r=0;r<3;r++) for(var c=0;c<5;c++){
+        h += '<span id="sar_'+r+'_'+c+'" class="'+(c>2?'ex':'')+'"></span>';
+      }
+      h += '</div><div class="sarterms" id="sarTerms"></div>' +
+           '<div class="dethint" style="margin-top:9px">Товч дээр хулгана аваачиж диагоналийг өнгөөр ажигла. ' +
+           '<span style="color:var(--green);font-weight:600">Ногоон = нэмэх</span>, ' +
+           '<span style="color:var(--rust);font-weight:600">улаан = хасах</span>.</div></div>';
+      right.innerHTML = h;
+      var tw = document.getElementById('sarTerms'), i, btn;
+      for(i=0;i<3;i++){
+        btn = document.createElement('button');
+        btn.className = 'p'; btn.dataset.k='p'; btn.dataset.x=i;
+        tw.appendChild(btn);
+      }
+      for(i=0;i<3;i++){
+        btn = document.createElement('button');
+        btn.className = 'm'; btn.dataset.k='m'; btn.dataset.x=i;
+        tw.appendChild(btn);
+      }
+      var btns = tw.querySelectorAll('button');
+      for(i=0;i<btns.length;i++){
+        (function(b){
+          b.addEventListener('mouseenter', function(){ hlDiag(b.dataset.k, +b.dataset.x); });
+          b.addEventListener('mouseleave', clearSar);
+          b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+          b.addEventListener('click', function(){ hlDiag(b.dataset.k, +b.dataset.x); });
+        })(btns[i]);
+      }
+    }
+  }
+
+  function render(){
+    var d = det();
+    if(n===2){
+      var live = document.getElementById('det2live');
+      if(live) live.innerHTML = 'det(A) = ' + fmt(v[0][0]) + '×' + fmt(v[1][1]) + ' − ' +
+        fmt(v[0][1]) + '×' + fmt(v[1][0]) + ' = ' + fmt(v[0][0]*v[1][1]) + ' − ' +
+        fmt(v[0][1]*v[1][0]) + ' = <b style="color:' + (d===0?'var(--rust)':'var(--green)') + '">' + fmt(d) + '</b>';
+    } else {
+      for(var r=0;r<3;r++) for(var c=0;c<5;c++){
+        var el = sarCell(r,c);
+        if(el) el.textContent = fmt(v[r][EXT[c]]);
+      }
+      var tw = document.getElementById('sarTerms');
+      if(tw){
+        var btns = tw.querySelectorAll('button'), i;
+        for(i=0;i<3;i++){
+          var t = v[PLUS[i][0][0]][PLUS[i][0][1]]*v[PLUS[i][1][0]][PLUS[i][1][1]]*v[PLUS[i][2][0]][PLUS[i][2][1]];
+          btns[i].innerHTML = '+ ' + PLAB[i] + ' = ' + fmt(t);
+        }
+        for(i=0;i<3;i++){
+          var u = v[MINUS[i][0][0]][MINUS[i][0][1]]*v[MINUS[i][1][0]][MINUS[i][1][1]]*v[MINUS[i][2][0]][MINUS[i][2][1]];
+          btns[3+i].innerHTML = '− ' + MLAB[i] + ' = ' + fmt(u);
+        }
+      }
+    }
+    if(d === 0){
+      res.className = 'detres bad';
+      res.innerHTML = 'det(A) = 0<small>⚠ Урвуу матриц БАЙХГҮЙ. Мөрүүд шугаман хамааралтай — систем огт шийдгүй, эсвэл хязгааргүй олон шийдтэй. Матрицын аргаар цаашид бодох боломжгүй.</small>';
+    } else if(d < 0){
+      res.className = 'detres bad';
+      res.innerHTML = 'det(A) = ' + fmt(d) + '<small>Δ &lt; 0 — Hawkins–Simon нөхцөл алдагдав. Урвуу хамааралтай, тогтворгүй систем: нөөц нэмэгдэхэд зарим бүтээгдэхүүн буурч болзошгүй. A⁻¹ оршино, гэвч няхуур дүн шинжилгээ шаардана.</small>';
+    } else {
+      res.className = 'detres';
+      res.innerHTML = 'det(A) = ' + fmt(d) + '<small>Δ &gt; 0 — эрүүл, тогтвортой систем. det(A) ≠ 0 тул A⁻¹ оршин байна, ганц оновчтой шийдтэй.</small>';
+    }
+  }
+
+  function setN(k){
+    n = k;
+    v = (k===2) ? copy(DEF2) : copy(DEF3);
+    b2.classList.toggle('on', k===2);
+    b3.classList.toggle('on', k===3);
+    buildGrid(); buildRight(); render();
+  }
+
+  b2.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  b3.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  br.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  b2.addEventListener('click', function(){ setN(2); });
+  b3.addEventListener('click', function(){ setN(3); });
+  br.addEventListener('click', function(){ setN(n); });
+
+  setN(2);
+})();
+
+/* ═══════ ИНТЕРАКТИВ 3 — AX = B алхмаар бодогч ═══════ */
+(function(){
+  var slide = document.getElementById('stpSlide');
+  if(!slide) return;
+  var panes = slide.querySelectorAll('.stpp');
+  var tabs  = slide.querySelectorAll('.stpbar button[data-s]');
+  var prev  = document.getElementById('stpPrev');
+  var next  = document.getElementById('stpNext');
+  var prog  = document.getElementById('stpProg');
+  var cur = 0;
+
+  function go(k){
+    cur = Math.max(0, Math.min(panes.length - 1, k));
+    for(var i=0;i<panes.length;i++) panes[i].classList.toggle('on', i===cur);
+    for(var j=0;j<tabs.length;j++) tabs[j].classList.toggle('on', j===cur);
+    prog.textContent = 'АЛХАМ ' + (cur+1) + ' / ' + panes.length;
+    prev.disabled = (cur === 0);
+    next.disabled = (cur === panes.length - 1);
+  }
+
+  for(var t=0;t<tabs.length;t++){
+    (function(b,k){
+      b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      b.addEventListener('click', function(){ go(k); });
+    })(tabs[t], t);
+  }
+  prev.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  next.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  prev.addEventListener('click', function(){ go(cur - 1); });
+  next.addEventListener('click', function(){ go(cur + 1); });
+  go(0);
+})();
+
+/* ═══════ ИНТЕРАКТИВ 4 — Үнэн/худал карт ═══════ */
+(function(){
+  var grid = document.getElementById('tfGrid');
+  if(!grid) return;
+  var cards = grid.querySelectorAll('.gc');
+  var score = document.getElementById('tfScore');
+  var reset = document.getElementById('tfReset');
+
+  function refresh(){
+    var done = grid.querySelectorAll('.gc.done').length;
+    score.textContent = done + ' / ' + cards.length + ' нээгдсэн';
+  }
+
+  function open(c){
+    if(c.classList.contains('done')) return;
+    c.classList.add('done');
+    var yes = c.classList.contains('yes');
+    c.querySelector('.ic').textContent = yes ? '✓' : '✗';
+    c.querySelector('.lbl').textContent = yes ? 'ҮНЭН' : 'ХУДАЛ';
+    c.querySelector('.ans').textContent = c.dataset.why;
+    refresh();
+  }
+
+  for(var i=0;i<cards.length;i++){
+    (function(c){
+      c.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      c.addEventListener('click', function(){ open(c); });
+      c.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(c); }
+      });
+    })(cards[i]);
+  }
+
+  reset.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  reset.addEventListener('click', function(){
+    for(var i=0;i<cards.length;i++){
+      cards[i].classList.remove('done');
+      cards[i].querySelector('.ic').textContent = '';
+      cards[i].querySelector('.lbl').textContent = '';
+      cards[i].querySelector('.ans').textContent = '';
+    }
+    refresh();
+  });
+  refresh();
+})();
+</script>
+<script src="deck.js"></script>
+</body>
+</html>

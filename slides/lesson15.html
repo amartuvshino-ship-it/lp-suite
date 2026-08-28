@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 15 — Бүхэл тоон программчлал</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ===== Хичээл 15 · зөвхөн энэ хичээлийн интерактивын загвар ===== */
+.iabar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.iabtn{font:500 14px/1 Geist,system-ui,sans-serif;padding:10px 17px;border-radius:9px;border:1px solid var(--green);background:var(--green);color:#fff;cursor:pointer}
+.iabtn:disabled{opacity:.42;cursor:default}
+.iabtn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.iastat{font:400 13.5px/1.45 Geist,system-ui,sans-serif;color:var(--ink-soft);flex:1;min-width:260px}
+.iahint{font:400 13px/1.45 Geist,system-ui,sans-serif;color:var(--ink-mute);margin-top:8px}
+
+/* --- Салбарлан зааглах мод (SVG) --- */
+.bbwrap{position:relative;margin-top:8px}
+.bbpop{position:absolute;z-index:30;display:none;width:280px;padding:11px 13px;border-radius:10px;
+  background:#2C5F2D;color:#fff;font:400 12.3px/1.55 'JetBrains Mono',ui-monospace,monospace;
+  pointer-events:none;box-shadow:0 10px 26px rgba(0,0,0,.28)}
+.bbpop b{font-family:Geist,system-ui,sans-serif;font-size:12.5px;color:#E8D9A0}
+.svgtree{width:100%;height:auto;display:block}
+.svgtree .bx{fill:none;stroke:var(--line);stroke-width:1.5}
+.svgtree .tc{font:600 12px/1 Geist,system-ui,sans-serif;fill:var(--ink-soft)}
+.svgtree .tv{font:500 12.5px/1 'JetBrains Mono',ui-monospace,monospace;fill:var(--ink)}
+.svgtree .tz{font:600 12.5px/1 'JetBrains Mono',ui-monospace,monospace;fill:var(--ink)}
+.svgtree .bbe{fill:none;stroke:var(--line);stroke-width:1.8}
+.svgtree .bbel{font:600 12px/1 'JetBrains Mono',ui-monospace,monospace;fill:var(--indigo)}
+.svgtree .bbn{cursor:pointer}
+.svgtree .st-frac .bx{stroke:var(--gold);stroke-width:2;fill:var(--gold-bg)}
+.svgtree .st-int .bx{stroke:var(--green);stroke-width:2;fill:var(--green-bg)}
+.svgtree .st-wait .bx{stroke:var(--line);stroke-width:1.5;stroke-dasharray:5 4}
+.svgtree .st-wait .tv,.svgtree .st-wait .tz{display:none}
+.svgtree .st-dim{opacity:.34}
+.svgtree .st-best .bx{stroke:var(--green);stroke-width:3.2;fill:var(--green-bg)}
+.svgtree .st-best .tz{fill:var(--green)}
+
+/* --- Дугуйлбал юу болох вэ? --- */
+.rnd-g{display:grid;grid-template-columns:500px 1fr;gap:28px;margin-top:12px;align-items:start}
+.rnd-row{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid var(--line);
+  border-radius:10px;margin-bottom:9px;font:400 13.4px/1.45 Geist,system-ui,sans-serif;color:var(--ink-mute)}
+.rnd-row b{font:600 13.6px/1.45 'JetBrains Mono',ui-monospace,monospace;color:var(--ink);min-width:68px}
+.rnd-row.ok{border-color:var(--green);background:var(--green-bg);color:var(--ink)}
+.rnd-row.no{border-color:var(--rust);background:var(--rust-bg);color:var(--ink)}
+#rndSvg{width:100%;height:auto;display:block}
+#rndSvg .ax{stroke:var(--ink-mute);stroke-width:1.4;fill:none}
+#rndSvg .gl{font:500 10.5px/1 'JetBrains Mono',ui-monospace,monospace;fill:var(--ink-mute)}
+#rndSvg .cl{stroke:var(--indigo);stroke-width:1.6;stroke-dasharray:6 4;fill:none}
+#rndSvg .cll{font:600 10.5px/1 'JetBrains Mono',ui-monospace,monospace;fill:var(--indigo)}
+#rndSvg .reg{fill:var(--green-bg);stroke:var(--green);stroke-width:1.6}
+#rndSvg .cand circle{fill:none;stroke:var(--ink-mute);stroke-width:2;stroke-dasharray:4 3}
+#rndSvg .cand .mk{font:600 12px/1 Geist,system-ui,sans-serif;fill:var(--ink-mute)}
+#rndSvg .cand .cn{font:600 10.5px/1 'JetBrains Mono',ui-monospace,monospace;fill:var(--ink-soft)}
+#rndSvg .cand{cursor:pointer}
+#rndSvg .cand.ok circle{stroke:var(--green);fill:var(--green-bg);stroke-dasharray:none}
+#rndSvg .cand.ok .mk{fill:var(--green)}
+#rndSvg .cand.no circle{stroke:var(--rust);fill:var(--rust-bg);stroke-dasharray:none}
+#rndSvg .cand.no .mk{fill:var(--rust)}
+#rndSvg .lpl{font:600 11px/1 'JetBrains Mono',ui-monospace,monospace;fill:var(--gold)}
+#rndSvg .optl{font:600 11.5px/1 'JetBrains Mono',ui-monospace,monospace;fill:var(--green)}
+
+/* --- Загварчлалын төрөл тааруулах --- */
+.mt-g{display:grid;grid-template-columns:280px 1fr;gap:22px;margin-top:14px}
+.mt-col{display:flex;flex-direction:column;gap:11px}
+.mt-t,.mt-d{text-align:left;border:1px solid var(--line);border-radius:10px;padding:11px 15px;
+  background:transparent;color:var(--ink);cursor:pointer;font:400 13.4px/1.45 Geist,system-ui,sans-serif;transition:.14s}
+.mt-t{font-weight:600;font-size:14.5px;display:flex;align-items:center;min-height:66px}
+.mt-d{min-height:66px;display:flex;align-items:center}
+.mt-t.sel{border-color:var(--gold);background:var(--gold-bg)}
+.mt-t.ok,.mt-d.ok{border-color:var(--green);background:var(--green-bg);cursor:default}
+.mt-t.bad,.mt-d.bad{border-color:var(--rust);background:var(--rust-bg)}
+
+/* --- Түргэн тест --- */
+.qz{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px}
+.qzc{border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.qzq{font:600 15px/1.5 Geist,system-ui,sans-serif;color:var(--ink);margin-bottom:13px}
+.qzo{display:block;width:100%;text-align:left;border:1px solid var(--line);border-radius:8px;
+  padding:10px 13px;margin-bottom:9px;background:transparent;color:var(--ink);cursor:pointer;
+  font:400 13.6px/1.4 Geist,system-ui,sans-serif}
+.qzo.ok{border-color:var(--green);background:var(--green-bg);color:var(--green);font-weight:600}
+.qzo.bad{border-color:var(--rust);background:var(--rust-bg);color:var(--rust)}
+.qze{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
+  font:400 12.8px/1.55 Geist,system-ui,sans-serif;color:var(--ink-soft)}
+
+/* --- Хоёр баганат тусгай байрлал --- */
+.l15two{display:grid;grid-template-columns:1.06fr .94fr;gap:24px;align-items:start;margin-top:14px}
+.l15two.narrow{grid-template-columns:620px 1fr}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+<!-- 1 · НҮҮР -->
+<section class="slide cover" data-sec="—" data-notes="Тавтай морил. Бүлэг 9 бол сурах бичгийн хамгийн бодит амьдралд шууд хэрэглэгддэг хэсэг. Гол мессеж: 0.7 машин гэж байдаггүй. Дөрвөн интерактив байгаа — гол нь 15-р слайдын салбарлан зааглах мод.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Бүхэл тоон <em>программчлал</em></h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 15</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 9</span>
+    <span class="pill">4 интерактив дасгал</span>
+  </div>
+</section>
+
+<!-- 2 · ЮУ ҮЗЭХ ВЭ -->
+<section class="slide" data-sec="intro" data-notes="Өнөөдрийн зургаан блок. Салбарлан зааглах арга (9.3) бол хичээлийн зүрх — үүнд хамгийн их цаг зарцуул. Кейс нь ХААИС-ийн малчны сүрэг.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">9.1–9.2</div><h3>Танилцуулга ба төрлүүд</h3><p>xᵢ ∈ Z гэсэн нэг мөр юу өөрчилдөг вэ? Цэвэр, холимог, хоёртын гурван төрөл.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Дугуйлбал юу болох вэ?</h3><p>Бутархай шийдийг дугуйлаад боломжит муж дотор үлдэх үү? Өөрсдөө товшиж таана.</p></div>
+    <div class="card accent"><div class="k">9.3</div><h3>Салбарлан зааглах арга</h3><p>Excel Solver, CPLEX, Gurobi-гийн цөмд ажилладаг гол алгоритм.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Модыг алхам алхмаар ургуулах</h3><p>Зангилаа, салаа, хязгаар, тайрах — товч дарж мод бүтнээр нь ургана.</p></div>
+    <div class="card accent"><div class="k">9.4–9.5</div><h3>Огтлогч хавтгай ба тусгай бодлого</h3><p>Гоморийн огтлол, үүргэвч, даалгавар, худалдагчийн зам.</p></div>
+    <div class="card accent"><div class="k">9.6–9.7</div><h3>Кейс ба эрсдэл</h3><p>Малчны сүргийн бүрдэл. Дараа нь: хэзээ бодох боломжгүй болох вэ?</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 15 · Бүхэл тоон программчлал</span><span class="pg"></span></div>
+</section>
+
+<!-- 3 · СУРАХ ЗОРИЛТ -->
+<section class="slide" data-sec="intro" data-notes="Дадлагын даалгавар яг эдгээрийг шалгана. Гол чадвар нь 3-р зорилт: гараар мод байгуулж чаддаг болох.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Бодлого <strong>бүхэл тоон нөхцөл</strong> шаардаж байгаа эсэхийг таньж, цэвэр / холимог / хоёртын гэж ангилах</span></li>
+    <li><span class="b">2</span><span><strong>Бүхэл тоон нөхцөлийг чөлөөлөх</strong> (LP Relaxation) гэж юу болох, яагаад бутархай хариуг дугуйлж болохгүйг тайлбарлах</span></li>
+    <li><span class="b">3</span><span><strong>Салбарлан зааглах аргаар</strong> хоёр хувьсагчтай бодлогын модыг гараар байгуулж, оновчтой шийдийг олох</span></li>
+    <li><span class="b">4</span><span><strong>Хязгаарлах (bounding) дүрмээр</strong> аль зангилааг тайрахыг шийдэж, Z_IP ≤ Z_LP зарчмыг ашиглах</span></li>
+    <li><span class="b">5</span><span><strong>Үүргэвчийн, даалгаврын, худалдагчийн замын</strong> бодлогыг таньж, ерөнхий загварыг нь бичих</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 15 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- 4 · ЗААГЛАХ 9.1 -->
+<section class="slide divider dark" data-sec="9.1" data-notes="Эхлэл блок. Гол санаа: бүтэц нь ШП-тэй яг адилхан, ганцхан мөр нэмэгддэг — гэвч тэр мөр бүх арга барилыг өөрчилдөг.">
+  <div class="num">9.1</div>
+  <h2>Бүхэл тоон программчлалын танилцуулга</h2>
+  <p class="sub">«0.7 машин», «3.4 ажилтан», «2.5 онгоц» — практик утгагүй хариу. Яг энэ асуудлыг шийдэхийн тулд зохиогдсон нь бүхэл тоон программчлал.</p>
+  <div class="s-foot"><span>Бүлэг 9.1</span><span class="pg"></span></div>
+</section>
+
+<!-- 5 · 9.1.1 -->
+<section class="slide" data-sec="9.1" data-notes="Онцлон хэл: бүтэц нь ШП-тэй яг адилхан. Зорилгын функц, хязгаарлалт, үл сөрөг нөхцөл бүгд хэвээрээ. Ганцхан xᵢ ∈ Z нэмэгдэнэ — гэхдээ энэ нь симплексийг ажиллахгүй болгодог.">
+  <div class="s-tag">9.1.1 · Бүхэл тоон программчлал гэж юу вэ?</div>
+  <h2 class="title">Ганцхан мөр нэмэгдэхэд <em>бүх зүйл өөрчлөгдөнө</em></h2>
+  <div class="formula">
+    <div class="fl">
+      Z = <span class="c">c₁</span>x₁ + <span class="c">c₂</span>x₂ + … + <span class="c">cₙ</span>xₙ &nbsp;<span class="op">→ max</span> (эсвэл <span class="op">min</span>)<br>
+      <span style="font-size:16px;color:rgba(255,255,255,.7)">хязгаарлалтууд:</span><br>
+      a₁₁x₁ + a₁₂x₂ + … + a₁ₙxₙ <span class="op">≤</span> b₁ &nbsp;&nbsp;…<br>
+      x₁, x₂, …, xₙ <span class="op">≥ 0</span><br>
+      <span class="op">xᵢ ∈ Z</span> &nbsp;&nbsp;← ганцхан энэ мөр нэмэгдэнэ
+    </div>
+    <div class="cap">xᵢ ∈ Z (бүхэл тоонуудын олонлог) &nbsp;·&nbsp; эсвэл xᵢ ∈ {0, 1, 2, 3, …}</div>
+  </div>
+  <p class="lead" style="margin-top:16px;font-size:17.5px">Бүтцийн хувьд энгийн ШП-ийн бодлоготой <strong>яг адилхан</strong>: зорилгын функц, хязгаарлалтын систем, үл сөрөг байх нөхцөл бүгд хэвээрээ. Гэвч энэ нэг мөр нь <strong>бодолтын бүх арга барилыг</strong> өөрчилдөг.</p>
+  <div class="s-foot"><span>Бүлэг 9.1.1</span><span class="pg"></span></div>
+</section>
+
+<!-- 6 · 9.1.2–9.1.3 -->
+<section class="slide" data-sec="9.1" data-notes="Санах дүрмийг заавал давтуул: «хэдэн …» гэж тоолж чадаж байвал бүхэл тоон бодлого. Тоймлохын хоёр аюулыг тод хэл — дараагийн слайд дээр үүнийг өөрсдөө шалгана.">
+  <div class="s-tag">9.1.2–9.1.3 · Хэзээ ашиглах ба яагаад чухал вэ?</div>
+  <h2 class="title">Хэзээ бүхэл тоон нөхцөл <em>зайлшгүй</em> вэ?</h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">1</div><h3>Хуваагдахгүй объект</h3><p>Хүн, машин, онгоц, үйлдвэр, барилга — бодит биет зүйлс.</p></div>
+    <div class="card accent"><div class="k">2</div><h3>«Тийм / үгүй» шийдвэр</h3><p>Төсөл сонгох эсэх, байршил сонгох эсэх, гэрээ байгуулах эсэх.</p></div>
+    <div class="card accent"><div class="k">3</div><h3>Тоолж болох нэгж</h3><p>Малын толгойн тоо, ажилтны тоо, захиалгын тоо.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Санах дүрэм</div>
+    <p>Асуултынхаа хариуг <strong>«хэдэн …»</strong> гэж тоолж чадаж байвал («хэдэн ажилтан», «хэдэн машин», «хэдэн толгой мал») — тэр нь ихэвчлэн бүхэл тоон программчлалын бодлого.</p>
+  </div>
+  <div class="checks">
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>Яагаад тоймлож (round) болохгүй вэ? (а)</b> Тоймлосон хариу <strong>оновчтой шийд байхаа болих</strong> магадлалтай</span></div>
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>(б)</b> Тоймлосон хариу <strong>нөөцийн хязгаараас давж</strong>, огт боломжгүй (infeasible) шийд болж болзошгүй</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.1.2–9.1.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 7 · ИНТЕРАКТИВ 1 -->
+<section class="slide" data-sec="9.1" id="rndSlide" data-notes="6–8 минут. ХАМГИЙН ЧУХАЛ ЗУРАГ. Оюутнаар нэг нэгээр нь товшуул: эхлээд (3,2) — дээш дугуйлсан нь боломжгүй болохыг харуул. Дараа нь (3,1) — боломжтой ч Z=19. Эцэст нь (4,0), Z=20 гарч ирэхэд танхим гайхна: оновчтой цэг нь дугуйлсан цэгүүдийн аль нь ч биш!">
+  <div class="s-tag">Интерактив · 9.1.3-ын гол асуулт</div>
+  <h2 class="title">Дугуйлбал юу <em>болох вэ?</em></h2>
+  <div class="rnd-g">
+    <div>
+      <svg id="rndSvg" viewBox="0 0 430 322" role="img" aria-label="Боломжит муж ба дугуйлсан цэгүүд">
+        <polygon class="reg" points="44,290 316,290 248,197 44,104"/>
+        <line class="cl" x1="135" y1="42" x2="316" y2="290"/>
+        <line class="cl" x1="44" y1="104" x2="384" y2="259"/>
+        <text class="cll" x="140" y="36" text-anchor="start">6x₁ + 4x₂ ≤ 24</text>
+        <text class="cll" x="52" y="96" text-anchor="start">x₁ + 2x₂ ≤ 6</text>
+        <path class="ax" d="M44,30 V290 H404"/>
+        <g class="gl" text-anchor="middle">
+          <text x="44" y="306">0</text><text x="112" y="306">1</text><text x="180" y="306">2</text>
+          <text x="248" y="306">3</text><text x="316" y="306">4</text><text x="384" y="306">5</text>
+          <text x="398" y="284" text-anchor="end" style="font-weight:600">x₁</text>
+        </g>
+        <g class="gl" text-anchor="end">
+          <text x="36" y="294">0</text><text x="36" y="232">1</text><text x="36" y="170">2</text>
+          <text x="36" y="108">3</text><text x="36" y="46">4</text>
+          <text x="52" y="38" text-anchor="start" style="font-weight:600">x₂</text>
+        </g>
+        <g id="rndLat" style="display:none">
+          <g fill="var(--green)">
+            <circle cx="44" cy="290" r="3"/><circle cx="112" cy="290" r="3"/><circle cx="180" cy="290" r="3"/>
+            <circle cx="248" cy="290" r="3"/><circle cx="44" cy="228" r="3"/><circle cx="112" cy="228" r="3"/>
+            <circle cx="180" cy="228" r="3"/><circle cx="44" cy="166" r="3"/><circle cx="112" cy="166" r="3"/>
+            <circle cx="180" cy="166" r="3"/><circle cx="44" cy="104" r="3"/>
+          </g>
+          <circle cx="316" cy="290" r="8.5" fill="var(--green-bg)" stroke="var(--green)" stroke-width="2.6"/>
+          <text class="optl" x="299" y="279" text-anchor="end">★ (4, 0) · Z = 20</text>
+        </g>
+        <circle cx="248" cy="197" r="5.5" fill="var(--gold)"/>
+        <circle cx="248" cy="197" r="10" fill="none" stroke="var(--gold)" stroke-width="1.4" opacity=".6"/>
+        <text class="lpl" x="258" y="192" text-anchor="start">LP: (3, 1.5) · Z = 21</text>
+        <g class="cand" data-i="0"><circle cx="248" cy="166" r="12"/><text class="mk" x="248" y="170" text-anchor="middle">?</text><text class="cn" x="248" y="148" text-anchor="middle">(3, 2)</text></g>
+        <g class="cand" data-i="1"><circle cx="316" cy="166" r="12"/><text class="mk" x="316" y="170" text-anchor="middle">?</text><text class="cn" x="316" y="148" text-anchor="middle">(4, 2)</text></g>
+        <g class="cand" data-i="2"><circle cx="316" cy="228" r="12"/><text class="mk" x="316" y="232" text-anchor="middle">?</text><text class="cn" x="334" y="232" text-anchor="start">(4, 1)</text></g>
+        <g class="cand" data-i="3"><circle cx="248" cy="228" r="12"/><text class="mk" x="248" y="232" text-anchor="middle">?</text><text class="cn" x="230" y="232" text-anchor="end">(3, 1)</text></g>
+      </svg>
+    </div>
+    <div>
+      <p class="lead" style="font-size:15.5px;margin:0 0 12px">Чөлөөлсөн бодлогын шийд <strong>x₁ = 3, x₂ = 1.5, Z = 21</strong>. Одоо x₂-г дугуйлъя. Дөрвөн боломжит хувилбар — аль нь <strong>боломжит муж дотор</strong> байна вэ? Товшиж таана уу.</p>
+      <div class="rnd-row" data-i="0"><b>(3, 2)</b><span id="rr0">дээш дугуйруулав — ?</span></div>
+      <div class="rnd-row" data-i="1"><b>(4, 2)</b><span id="rr1">хоёуланг дээш — ?</span></div>
+      <div class="rnd-row" data-i="2"><b>(4, 1)</b><span id="rr2">x₁ дээш, x₂ доош — ?</span></div>
+      <div class="rnd-row" data-i="3"><b>(3, 1)</b><span id="rr3">доош дугуйруулав — ?</span></div>
+      <div class="def" id="rndDone" style="display:none;margin-top:12px;padding:12px 15px">
+        <div class="lbl">Дүгнэлт</div>
+        <p style="font-size:14px;line-height:1.5">Дөрвөөс гурав нь <strong>боломжгүй</strong>. Үлдсэн (3, 1) боломжтой ч Z = 19. Жинхэнэ оновчтой бүхэл шийд нь <strong>(4, 0), Z = 20</strong> — дугуйлж хэзээ ч олдохгүй цэг!</p>
+      </div>
+    </div>
+  </div>
+  <div class="iabar">
+    <span class="iastat" id="rndStat">Шалгасан: 0 / 4</span>
+    <button class="iabtn ghost" id="rndReset" type="button">↺ Эхнээс</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.1.3 · Яагаад тоймлож болохгүй вэ?</span><span class="pg"></span></div>
+</section>
+
+<!-- 8 · 9.1.4 -->
+<section class="slide" data-sec="9.1" data-notes="Энэ томьёог самбарт бич. Бүлэг 5-ыг сайн эзэмшсэн оюутанд энэ бүлэг хялбар — шинээр сурах цорын ганц зүйл бол бутархай шийдээс бүхэл шийд рүү хэрхэн шилжих арга зүй.">
+  <div class="s-tag">9.1.4 · Симплекс аргатай уялдаа</div>
+  <h2 class="title">Бүхэл тоон программчлал = симплекс + <em>нэг нөхцөл</em></h2>
+  <div class="formula">
+    <div class="fl" style="font-size:22px">
+      Бүхэл тоон программчлал &nbsp;<span class="op">=</span>&nbsp; симплекс арга &nbsp;<span class="op">+</span>&nbsp; «бүхэл тоо байх ёстой» нөхцөл
+    </div>
+    <div class="cap">Бүлэг 5-т сурсан симплекс арга нь бүхэл тоон программчлалын суурь болдог</div>
+  </div>
+  <div class="def">
+    <div class="lbl">Бүхэл тоон нөхцөлийг чөлөөлөх (LP Relaxation)</div>
+    <p>Эхлээд бүхэл тоон нөхцөлийг <strong>түр тавьж орхино</strong>: x ≥ 0 гэдгийг л баримталж, x ∈ Z гэдгийг түр орхиод энгийн ШП-ийн бодлого мэт симплекс аргаар бодно. Дараа нь хариу бүхэл тоо мөн эсэхийг шалгаж, бутархай гарвал Хэсэг 9.3, 9.4-ийн тусгай аргуудаар цэгцлэн бүхэл тоон оновчтой шийд рүү шилжинэ.</p>
+  </div>
+  <p class="lead" style="font-size:17px">↔ Бүлэг 2-ын «Модон урлал» ХХК-д x₁ = 20, x₂ = 10 гэсэн бүхэл хариу гарсан нь <strong>зөвхөн тохиолдлын таарамж</strong> байсан. Ерөнхийдөө симплекс арга x₁ = 2.5, x₂ = 3.7 мэтийн бутархай хариу гаргадаг.</p>
+  <div class="s-foot"><span>Бүлэг 9.1.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 9 · 9.2 ГУРВАН ТӨРӨЛ -->
+<section class="slide" data-sec="9.2" data-notes="Хүснэгтийг мөр мөрөөр нь тайлбарла. Холимог нь практикт хамгийн түгээмэл гэдгийг онцол — бодит бизнесийн бодлого хоёр төрлийн хувьсагчийг зэрэг агуулдаг.">
+  <div class="s-tag">9.2 · Бүхэл тоон программчлалын төрлүүд</div>
+  <h2 class="title">Гурван үндсэн <em>төрөл</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:28%">Төрөл</th><th style="width:26%">Нөхцөл</th><th>Жишээ</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Цэвэр бүхэл тоон программчлал<br><span class="en">Pure IP</span></td><td>Бүх хувьсагч бүхэл тоо:<br>xᵢ ∈ Z, i = 1, …, n</td><td>Хэдэн ажилтан авах вэ? (2, 5, 10) · Хэдэн машин үйлдвэрлэх вэ? (100, 200)</td></tr>
+    <tr><td class="k">Холимог бүхэл тоон программчлал<br><span class="en">Mixed IP</span></td><td>Зөвхөн <strong>зарим</strong> хувьсагч бүхэл, үлдсэн нь тасралтгүй</td><td>Ажилтны тоо (бүхэл) + ажиллах цаг (бутархай) · Үйлдвэрийн тоо (бүхэл) + үйлдвэрлэлийн хэмжээ (бутархай)</td></tr>
+    <tr><td class="k">Хоёртын программчлал<br><span class="en">Binary IP, 0-1 IP</span></td><td>xᵢ ∈ {0, 1}<br>сонгосон / сонгоогүй</td><td>Төсөл сонголт · Байршил сонгох (агуулах барих эсэх) · Даалгавар оноох</td></tr>
+    </tbody>
+  </table>
+  <p class="lead" style="font-size:16.5px">Практикт хамгийн түгээмэл тохиолддог хэлбэр нь <strong>холимог</strong> — учир нь бодит бизнесийн бодлого ихэвчлэн хоёр төрлийн хувьсагчийг зэрэг агуулдаг. Хоёртын хувьсагч нь Хэсэг 9.5-ын <strong>үүргэвчийн</strong> болон <strong>даалгаврын бодлогын</strong> үндсэн бүтцийг бүрдүүлдэг.</p>
+  <div class="s-foot"><span>Бүлэг 9.2.1–9.2.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 10 · ИНТЕРАКТИВ 2 -->
+<section class="slide" data-sec="9.2" id="mtSlide" data-notes="4–5 минут. Эхлээд зүүн талын нэрийг товшоод дараа нь баруун талын тодорхойлолтыг товшино. Буруу бол улаанаар анивчина. Гурав дахь мөрөнд бүгд гацдаг — Даалгавар ба Үүргэвч хоёрын ялгааг тодруул.">
+  <div class="s-tag">Интерактив · Загварчлалын төрөл тааруулах</div>
+  <h2 class="title">Аль загвар нь <em>аль нь</em> вэ?</h2>
+  <div class="mt-g" id="mtWrap">
+    <div class="mt-col">
+      <button class="mt-t" type="button" data-k="pure">Цэвэр бүхэл тоон программчлал</button>
+      <button class="mt-t" type="button" data-k="mixed">Холимог бүхэл тоон программчлал</button>
+      <button class="mt-t" type="button" data-k="bin">Хоёртын программчлал (0-1)</button>
+      <button class="mt-t" type="button" data-k="assign">Даалгаврын бодлого</button>
+      <button class="mt-t" type="button" data-k="knap">Үүргэвчийн бодлого</button>
+    </div>
+    <div class="mt-col">
+      <button class="mt-d" type="button" data-k="knap">max Z = Σⱼ vⱼ·xⱼ &nbsp;·&nbsp; Σⱼ wⱼ·xⱼ ≤ W &nbsp;·&nbsp; xⱼ ∈ {0, 1} — хязгаарлагдмал багтаамжид хамгийн үнэ цэнэтэй багцыг сонгоно.</button>
+      <button class="mt-d" type="button" data-k="pure">Бүх хувьсагч бүхэл тоо: xᵢ ∈ Z, i = 1, …, n. Хамгийн энгийн, стандарт хэлбэр. Жишээ: хэдэн ажилтан авах вэ?</button>
+      <button class="mt-d" type="button" data-k="assign">min Z = Σᵢ Σⱼ cᵢⱼ·xᵢⱼ &nbsp;·&nbsp; ажилтан бүр яг 1 даалгавар, даалгавар бүр яг 1 ажилтанд. Унгарын аргаар хурдан бодогдоно.</button>
+      <button class="mt-d" type="button" data-k="bin">Хувьсагч зөвхөн 0 эсвэл 1 гэсэн хоёр утгын аль нэгийг авна: «сонгосон / сонгоогүй», «тийм / үгүй» логик шийдвэр.</button>
+      <button class="mt-d" type="button" data-k="mixed">Хувьсагчдын зөвхөн зарим нь бүхэл тоо, үлдсэн хэсэг нь бутархай (тасралтгүй) утга авч болно. Практикт хамгийн түгээмэл.</button>
+    </div>
+  </div>
+  <div class="iabar">
+    <span class="iastat" id="mtStat">Тааруулсан: 0 / 5 &nbsp;·&nbsp; эхлээд зүүн талын нэрийг, дараа нь тодорхойлолтыг товшино уу</span>
+    <button class="iabtn ghost" id="mtReset" type="button">↺ Эхнээс</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.2 · 9.5.1–9.5.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 11 · ЗААГЛАХ 9.3 -->
+<section class="slide divider dark" data-sec="9.3" data-notes="Хичээлийн зүрх эхэллээ. Excel Solver, LINGO, CPLEX, Gurobi бүгд яг энэ алгоритмыг ажиллуулдаг гэдгийг онцол — оюутнуудын анхаарал шууд эргэдэг.">
+  <div class="num">9.3</div>
+  <h2>Салбарлан зааглах арга</h2>
+  <p class="sub">Branch and Bound — бүхэл тоон программчлалын хамгийн чухал, хамгийн өргөн хэрэглэгддэг арга. Excel Solver, LINGO, CPLEX, Gurobi зэрэг арилжааны программ хангамжийн цөмд яг энэ алгоритм ажилладаг.</p>
+  <div class="s-foot"><span>Бүлэг 9.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 12 · 9.3.1–9.3.2 -->
+<section class="slide" data-sec="9.3" data-notes="Дөрвөн алхмыг чангаар уншуул. Баруун талын гурван нэр томьёо — зангилаа, салаа, хязгаар — модны интерактив дээр дахин гарч ирнэ тул одоо сайн суулга.">
+  <div class="s-tag">9.3.1–9.3.2 · Үндсэн санаа ба модны бүтэц</div>
+  <h2 class="title">Нэг том бодлогыг <em>хоёр жижиг</em> болгон задлах</h2>
+  <div class="split wide">
+    <div>
+      <ul class="pts">
+        <li><span class="b">1</span><span><strong>Бүхэл тоон нөхцөлийг чөлөөлж</strong> (LP Relaxation), симплекс аргаар бодно</span></li>
+        <li><span class="b">2</span><span>Хариу аль хэдийн <strong>бүхэл тоо</strong> бол — оновчтой шийд тэр дороо олдсон</span></li>
+        <li><span class="b">3</span><span><strong>Бутархай</strong> хариу гарвал тэр хувьсагчаар <strong>салаалуулж</strong>, хоёр дэд бодлого болгон хуваана</span></li>
+        <li><span class="b">4</span><span>Бүхэл тоон оновчтой шийд олдох хүртэл давтана</span></li>
+      </ul>
+    </div>
+    <div class="grid" style="gap:11px;margin-top:0">
+      <div class="card accent"><div class="k">Node</div><h3 style="font-size:16px">Зангилаа</h3><p>Мод дахь цэг бүр — өөрөө бүхэл тоон нөхцөлийг чөлөөлсөн нэг бодлого юм.</p></div>
+      <div class="card accent"><div class="k">Branch</div><h3 style="font-size:16px">Салаа</h3><p>Зангилаанаас гарч буй шугам — шинэ хязгаарлалт нэмэгдсэн шинэ бодлогыг заана.</p></div>
+      <div class="card accent"><div class="k">Bound</div><h3 style="font-size:16px">Хязгаар</h3><p>Зангилааны Z утгын дээд (эсвэл доод) хязгаар — тэр салаагаар цааш шалгах эсэхийг тодорхойлно.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.3.1–9.3.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 13 · 9.3.3 -->
+<section class="slide" data-sec="9.3" data-notes="Гурван нөхцөлийг цээжлүүл. Хоёр дахь нь хамгийн чухал — яг энэ нь алгоритмыг хурдан болгодог. Хосмог онолтой холбоог заавал дурд.">
+  <div class="s-tag">9.3.3 · Хязгаарлах (Bounding) дүрэм</div>
+  <h2 class="title">Хэзээ зангилааг <em>дуусгавар</em> болгох вэ? <span style="font-size:20px;color:var(--ink-mute)">(max бодлого)</span></h2>
+  <div class="checks">
+    <div class="chk"><span class="m">✓</span><span class="tx"><b>(1) Бүхэл тоон шийд.</b> Зангилааны чөлөөлсөн бодлогын шийд аль хэдийн бүхэл тоо бол — <strong>нэр дэвшигч (incumbent)</strong> шийд болно. Одоогийн хамгийн сайнтай харьцуулж, илүү бол шинэчилнэ.</span></div>
+    <div class="chk"><span class="m">✂</span><span class="tx"><b>(2) Доогуур Z утга.</b> Зангилааны LP дээд хязгаар Z нь одоогийн хамгийн сайн бүхэл тоон шийдийн Z-ээс <strong>бага</strong> бол — энэ салаагаар явсан ч илүү сайн хариу гарахгүй тул <strong>тайрч хаяна (pruning)</strong>.</span></div>
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>(3) Шийдгүй (infeasible).</b> Зангилааны чөлөөлсөн бодлого боломжит шийдгүй бол тэр зангилаа <strong>«үхсэн»</strong> — цаашид салаалуулах шаардлагагүй.</span></div>
+  </div>
+  <div class="def">
+    <div class="lbl">↔ Бүлэг 7-той холбоо</div>
+    <p>Энэ дүрмийн онолын үндэс нь <strong>хосмог онол</strong> болон <strong>сүүдрийн үнийн</strong> логиктой шууд холбоотой: чөлөөлсөн бодлогын Z утга нь тухайн салааны <strong>хамгийн өөдрөг (боломжит дээд) үнэлгээ</strong> болдог.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 14 · 9.3.4 -->
+<section class="slide" data-sec="9.3" data-notes="Зургаан алхмыг уншуулаад шууд дараагийн слайд руу ор — тэнд яг эдгээр алхмууд амьдаар ажиллана. ⌊ ⌋ ба ⌈ ⌉ тэмдгийг самбарт бич.">
+  <div class="s-tag">9.3.4 · Алгоритмын алхмууд</div>
+  <h2 class="title">Зургаан <em>алхам</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Бүхэл тоон нөхцөлийг чөлөөлсөн анхны бодлогыг <strong>симплекс аргаар</strong> бод (Бүлэг 5)</span></li>
+    <li><span class="b">2</span><span>Хариу бүхэл тоо эсэхийг шалга. Бүгд бүхэл бол → оновчтой шийд. Бутархай xⱼ байвал → салаалуулна</span></li>
+    <li><span class="b">3</span><span>Бутархай xⱼ = a байвал: <strong>Салаа 1: xⱼ ≤ ⌊a⌋</strong> &nbsp;ба&nbsp; <strong>Салаа 2: xⱼ ≥ ⌈a⌉</strong> &nbsp;(жишээ нь a = 3.7 → x ≤ 3 ба x ≥ 4)</span></li>
+    <li><span class="b">4</span><span>Салаа бүрийн шинэ чөлөөлсөн бодлогыг симплекс аргаар бод</span></li>
+    <li><span class="b">5</span><span>9.3.3-ын <strong>хязгаарлах дүрмээр</strong> аль зангилааг тайрч, аль зангилааг үргэлжлүүлэхээ шийд</span></li>
+    <li><span class="b">6</span><span>Бүх зангилаа <strong>дуусгавар болтол</strong> (fathomed) 3–5-р алхмыг давт. Үлдсэн хамгийн сайн бүхэл тоон шийд нь оновчтой шийд мөн</span></li>
+  </ul>
+  <div class="def" style="padding:12px 16px">
+    <div class="lbl">Тэмдэглэгээ</div>
+    <p style="font-size:14.5px">⌊ ⌋ — «доош нь дугуйруулах» (floor) &nbsp;·&nbsp; ⌈ ⌉ — «дээш нь дугуйруулах» (ceiling)</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.3.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 15 · ИНТЕРАКТИВ 3 (ГОЛ) -->
+<section class="slide" data-sec="9.3" id="bbSlide" data-notes="ЭНЭ БОЛ ХИЧЭЭЛИЙН ЗҮРХ. 10–12 минут. Товч дарахын өмнө оюутнуудаас 'дараа нь юу болох вэ?' гэж асуу. Зангилаа дээр хулгана аваачвал дэд бодлогын томьёолол гарна — заавал үзүүл. Алхам 5-д Z_LP = 21 > Z_IP = 20 болохыг онцол.">
+  <div class="s-tag">Интерактив · 9.3.5 Дэлгэрэнгүй жишээ</div>
+  <h2 class="title">Салбарлан зааглах <em>мод</em> — алхам алхмаар</h2>
+  <div class="bbwrap" id="bbWrap">
+    <svg id="bbSvg" class="svgtree" viewBox="0 0 1080 352" role="img" aria-label="Салбарлан зааглах модны бүтэц"></svg>
+    <div class="bbpop" id="bbPop"></div>
+  </div>
+  <div class="iabar">
+    <button class="iabtn" id="bbNext" type="button">Дараагийн алхам ›</button>
+    <button class="iabtn ghost" id="bbReset" type="button">↺ Эхнээс</button>
+    <span class="iastat" id="bbStat"></span>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.3.5 · Зангилаа дээр хулгана аваачвал дэд бодлогын томьёолол гарна</span><span class="pg"></span></div>
+</section>
+
+<!-- 16 · 9.3.5 ЭЦСИЙН ХАРЬЦУУЛАЛТ -->
+<section class="slide" data-sec="9.3" data-notes="Гурван нэр дэвшигчийг харьцуул. Гол зарчим: Z_IP ≤ Z_LP. Энэ нь санамсаргүй биш — бүхэл тоон нөхцөл нэмэгдэх тусам боломжит муж нарийсдаг. Дараагийн тест яг үүн дээр суурилна.">
+  <div class="s-tag">9.3.5 · Эцсийн харьцуулалт</div>
+  <h2 class="title">Z<span style="font-size:20px">_LP</span> = 21 &nbsp;→&nbsp; Z<span style="font-size:20px">_IP</span> = <em>20</em></h2>
+  <div class="grid g3">
+    <div class="card"><div class="k">Зангилаа 2</div><h3 style="font-size:17px">x₁ = 2, x₂ = 2</h3><p>Z = 18 · эхний нэр дэвшигч (incumbent)</p></div>
+    <div class="card"><div class="k">Зангилаа 3</div><h3 style="font-size:17px">x₁ = 3, x₂ = 1</h3><p>Z = 19 · нэр дэвшигчийг сайжруулав</p></div>
+    <div class="card green"><div class="k">Зангилаа 4 ★</div><h3 style="font-size:17px">x₁ = 4, x₂ = 0</h3><p>Z = 20 · <strong>оновчтой шийд</strong></p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Гол зарчим — номын туршид давтагдана</div>
+    <p>Чөлөөлсөн бодлогын Z = 21 байсан бол бүхэл тоон жинхэнэ оновчтой Z = 20 болж <strong>буурчээ</strong>. Энэ нь санамсаргүй зүйл биш: <strong>бүхэл тоон нөхцөл нэмэгдэх тусам боломжит муж нарийсдаг</strong> тул бүхэл тоон оновчтой шийд нь чөлөөлсөн бодлогын шийдтэй тэнцүү, эсвэл түүнээс дор байна (max бодлогын хувьд) — <strong>хэзээ ч илүү сайжирдаггүй</strong>.</p>
+  </div>
+  <p class="lead" style="font-size:16.5px">Мод дээрх бүх зангилаа дуусгавар болсон (бүгд бүхэл тоон шийд гарсан) тул хайлт дуусна. ★ Оновчтой шийд: <strong>x₁ = 4, x₂ = 0, Z = 20</strong>.</p>
+  <div class="s-foot"><span>Бүлэг 9.3.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 17 · ИНТЕРАКТИВ 4 -->
+<section class="slide" data-sec="9.3" id="qzSlide" data-notes="4 минут. Гурван асуултыг гараа өргүүлж санал асуулга авсны дараа нээ. Хоёр дахь асуулт дээр хамгийн олон нь андуурдаг. Эхний асуултын хариу: Z ≤ 34.">
+  <div class="s-tag">Интерактив · Түргэн тест</div>
+  <h2 class="title">Ойлгосон эсэхээ <em>шалгая</em></h2>
+  <p class="lead" style="font-size:16px;margin-bottom:2px">Гурван асуулт — гурвуулаа салбарлан зааглах аргын гол дүрмүүд дээр. Зөв хариултыг товшвол тайлбар нээгдэнэ.</p>
+  <div class="qz" id="qzWrap">
+    <div class="qzc" data-q="0">
+      <div class="qzq">1. Чөлөөлсөн бодлогын шийд Z<sub>LP</sub> = 34.5 гарлаа. Энэ бол <b>max</b> бодлого, зорилгын коэффициент бүхэл. Бүхэл тоон оновчтой Z ямар байх вэ?</div>
+      <button class="qzo" type="button" data-c="0">Z = 34.5</button>
+      <button class="qzo" type="button" data-c="1">Z ≤ 34</button>
+      <button class="qzo" type="button" data-c="0">Z ≥ 35</button>
+      <div class="qze">Z_IP ≤ Z_LP (9.3.5-ын зарчим), мөн Z бүхэл тоо тул Z ≤ ⌊34.5⌋ = <b>34</b>. Яг 34 гэж батлах аргагүй — түүнээс бага ч байж болно.</div>
+    </div>
+    <div class="qzc" data-q="1">
+      <div class="qzq">2. Нэг зангилааны LP дээд хязгаар Z = 17.2. Одоогийн хамгийн сайн бүхэл тоон шийд Z = 19. Юу хийх вэ?</div>
+      <button class="qzo" type="button" data-c="0">Цааш салаалуулна</button>
+      <button class="qzo" type="button" data-c="1">Тайрч хаяна (pruning)</button>
+      <button class="qzo" type="button" data-c="0">Нэр дэвшигчийг 17.2 болгоно</button>
+      <div class="qze">Хязгаарлах дүрэм (2): дээд хязгаар нь одоогийн хамгийн сайн шийдээс бага тул энэ салаагаар илүү сайн хариу <b>гарах боломжгүй</b> — тайрна.</div>
+    </div>
+    <div class="qzc" data-q="2">
+      <div class="qzq">3. Чөлөөлсөн шийдэд x₁ = 3.7 гарлаа. Ямар хоёр салаа үүсгэх вэ?</div>
+      <button class="qzo" type="button" data-c="1">x₁ ≤ 3 ба x₁ ≥ 4</button>
+      <button class="qzo" type="button" data-c="0">x₁ ≤ 3.7 ба x₁ ≥ 3.7</button>
+      <button class="qzo" type="button" data-c="0">x₁ = 3 ба x₁ = 4</button>
+      <div class="qze">Салаа 1: x₁ ≤ ⌊3.7⌋ = 3 &nbsp;·&nbsp; Салаа 2: x₁ ≥ ⌈3.7⌉ = 4. Ингэснээр 3 &lt; x₁ &lt; 4 муж бүхэлдээ хасагдана.</div>
+    </div>
+  </div>
+  <div class="iabar">
+    <span class="iastat" id="qzStat">Зөв хариулт: 0 / 3</span>
+    <button class="iabtn ghost" id="qzReset" type="button">↺ Эхнээс</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.3.3–9.3.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 18 · 9.4.1–9.4.2 -->
+<section class="slide" data-sec="9.4" data-notes="Хоёр аргын зургийн ялгааг гараараа зур: салбарлан зааглах нь мужийг хуваадаг, огтлогч хавтгай нь мужийг зүсдэг. Гарааны цэг өөр, зорилго ижил.">
+  <div class="s-tag">9.4.1–9.4.2 · Огтлогч хавтгайн арга (Cutting Plane)</div>
+  <h2 class="title">Хуваахын оронд <em>зүсэх</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Чөлөөлсөн бодлогыг симплекс аргаар бодоод хариу <strong>бутархай</strong> гарвал…</span></li>
+    <li><span class="b">2</span><span>Тэрхүү бутархай шийдийг боломжит мужаас <strong>гадуур гаргах шинэ хязгаарлалт (огтлол, cut)</strong> байгуулна</span></li>
+    <li><span class="b">3</span><span>Энэ огтлол нь <strong>бүх бодит бүхэл тоон шийдийг хэвээр үлдээж</strong>, зөвхөн бутархай хэсгийг л тайрч хаядаг байхаар тооцоологдоно</span></li>
+    <li><span class="b">4</span><span>Шинэ, нарийсгасан LP-г дахин бодож, <strong>бүхэл тоон шийд гартал</strong> давтана</span></li>
+  </ul>
+  <div class="def">
+    <div class="lbl">Гоморийн огтлол (Gomory Cut)</div>
+    <p>Хамгийн алдартай, өргөн хэрэглэгддэг хувилбар. 1958 онд америкийн математикч <strong>Ральф Гомори</strong> нээсэн. Чухал давуу тал нь <strong>симплекс хүснэгтээс шууд, механик байдлаар</strong> байгуулагддагт оршино — энэ нь компьютерийн алгоритм болгон хөрвүүлэхэд маш тохиромжтой.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.4.1–9.4.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 19 · 9.4.3–9.4.4 -->
+<section class="slide" data-sec="9.4" data-notes="Алхмуудыг санааны түвшинд өг — нарийн тооцоог гаргах шаардлагагүй. Гол мессеж: хоёр арга өөр өөр замаар явсан ч зорьсон газраа хоёулаа хүрдэг.">
+  <div class="s-tag">9.4.3–9.4.4 · Гоморийн огтлол байгуулах</div>
+  <h2 class="title">Таван <em>алхам</em> ба жижиг жишээ</h2>
+  <div class="l15two">
+    <div>
+      <ul class="pts" style="margin-top:0">
+        <li><span class="b">1</span><span>Чөлөөлсөн бодлогыг симплекс аргаар бод (Бүлэг 5.2–5.4)</span></li>
+        <li><span class="b">2</span><span>Эцсийн симплекс хүснэгтээс <strong>хамгийн их бутархай хэсэгтэй</strong> (0.5-д хамгийн ойрхон) суурь хувьсагчийн мөрийг сонго</span></li>
+        <li><span class="b">3</span><span>Тэр мөрийн коэффициент бүрийг бүхэл ба бутархай хэсэгт задалж, <strong>зөвхөн бутархай хэсгүүдийг</strong> ашиглан огтлол байгуул</span></li>
+        <li><span class="b">4</span><span>Шинэ хязгаарлалтыг нэмээд <strong>хосмог симплексээр</strong> (Dual Simplex) үргэлжлүүлэн бод</span></li>
+        <li><span class="b">5</span><span>Бүх хувьсагч бүхэл тоо болтол 2–4-р алхмыг давт</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="formula" style="margin-top:0">
+        <div class="fl" style="font-size:19px">
+          max Z = 5x₁ + 4x₂<br>
+          6x₁ + 4x₂ <span class="op">≤</span> 24 &nbsp;·&nbsp; x₁ + 2x₂ <span class="op">≤</span> 6<br>
+          <span style="font-size:15px;color:rgba(255,255,255,.7)">чөлөөлсөн шийд: x₁ = 3, x₂ = 1.5</span><br>
+          x₂ + (бутархай коэф.) <span class="op">≤</span> ⌊1.5⌋ = 1
+        </div>
+        <div class="cap">Огтлол нь x₂ = 1.5 цэгийг яг таг тайрч, x₁ = 4, x₂ = 0 зэрэг бүхэл цэгийг хэвээр үлдээнэ</div>
+      </div>
+      <div class="def" style="margin-top:14px;padding:12px 16px">
+        <div class="lbl">Үр дүн</div>
+        <p style="font-size:14.5px">Шинэ, жижигрүүлсэн LP-г дахин бодоход эцэст нь салбарлан зааглах аргатай <strong>яг ижил хариу</strong> — x₁ = 4, x₂ = 0, Z = 20 — руу хүрнэ.</p>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.4.3–9.4.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 20 · 9.4.5–9.4.6 -->
+<section class="slide" data-sec="9.4" data-notes="Хүснэгтийг мөр мөрөөр харьцуул. Төгсгөлд Branch and Cut — өнөөгийн CPLEX, Gurobi-гийн цөм технологи гэдгийг хэл.">
+  <div class="s-tag">9.4.5–9.4.6 · Харьцуулалт ба орчин үеийн хэрэглээ</div>
+  <h2 class="title">Хоёр аргын <em>харьцуулалт</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:24%">Шинж чанар</th><th style="width:38%">Салбарлан зааглах арга</th><th>Огтлогч хавтгайн арга</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Үндсэн санаа</td><td>Мужийг хоёр дэд бодлого болгон хуваадаг</td><td>Мужийг шулуунаар зүсэж жижигрүүлдэг</td></tr>
+    <tr><td class="k">Дүрслэл</td><td>Модны бүтэц (зангилаа, салаа)</td><td>Симплекс хүснэгтэд шинэ мөр нэмэгддэг</td></tr>
+    <tr><td class="k">Ойлгомжтой байдал</td><td>Өндөр — сургалтад тохиромжтой</td><td>Онолын хувьд илүү нарийн</td></tr>
+    <tr><td class="k">Хэрэглээ</td><td>Практикт хамгийн түгээмэл</td><td>Судалгаа, тусгай алгоритмд түгээмэл</td></tr>
+    <tr><td class="k">Тооцооллын хурд</td><td>Олон салааг зэрэг шалгах шаардлагатай</td><td>Нэмэлт огтлол бүр тооцоолол шаарддаг</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Салбарлан зааглаж огтлох (Branch and Cut)</div>
+    <p>Өнөөгийн шийдэгч (solver) программууд хоёр аргыг <strong>хослуулан</strong> ашигладаг: эхлээд Гоморийн төрлийн огтлолуудаар мужийг аль болох жижигрүүлж, дараа нь үлдсэн бутархай хэсгүүд дээр салбарлан зааглах аргыг хэрэглэдэг. Энэ бол <strong>CPLEX, Gurobi, LINGO</strong>-гийн цөм технологи.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.4.5–9.4.6 · Хавсралт Б, В</span><span class="pg"></span></div>
+</section>
+
+<!-- 21 · 9.5.1 ҮҮРГЭВЧ -->
+<section class="slide" data-sec="9.5" data-notes="Гол сургамж: Объект 1 хамгийн сайн харьцаатай (6.0) байсан ч оновчтой шийдэд огт ороогүй. Шунахай (greedy) дүгнэлт бүхэл тоон бодлогод үргэлж зөв байдаггүй — үүнийг заавал онцол.">
+  <div class="s-tag">9.5.1 · Үүргэвчийн бодлого (Knapsack Problem)</div>
+  <h2 class="title">Хязгаарлагдмал багтаамжид <em>хамгийн үнэ цэнэтэй</em> багц</h2>
+  <div class="l15two">
+    <div>
+      <div class="formula" style="margin-top:0">
+        <div class="fl" style="font-size:19px">
+          max Z = Σⱼ <span class="c">vⱼ</span>·xⱼ &nbsp;<span class="op">(нийт үнэ цэнэ)</span><br>
+          Σⱼ <span class="c">wⱼ</span>·xⱼ <span class="op">≤</span> W &nbsp;(хамгийн их багтаамж)<br>
+          xⱼ <span class="op">∈ {0, 1}</span> &nbsp;(сонгосон / сонгоогүй)
+        </div>
+        <div class="cap">vⱼ — үнэ цэнэ &nbsp;·&nbsp; wⱼ — жин &nbsp;·&nbsp; W — үүргэвчийн багтаамж</div>
+      </div>
+      <p class="lead" style="font-size:15px;margin-top:12px">Хэрэглээ: хөрөнгө оруулалтын багц сонголт, ачааны машин ба контейнерийн ачааллын оновчлол, компьютерийн санах ойд файл хадгалах алгоритм, криптографийн зарим системийн онолын үндэс.</p>
+    </div>
+    <div>
+      <table class="t sm" style="margin-top:0">
+        <thead><tr><th>Объект</th><th>Үнэ цэнэ v<br>(мянган ₮)</th><th>Жин w<br>(кг)</th><th>Харьцаа v/w</th></tr></thead>
+        <tbody>
+        <tr><td class="k">1</td><td>60</td><td>10</td><td>6.0</td></tr>
+        <tr><td class="k">2</td><td>100</td><td>20</td><td>5.0</td></tr>
+        <tr><td class="k">3</td><td>120</td><td>30</td><td>4.0</td></tr>
+        </tbody>
+      </table>
+      <p class="lead" style="font-size:14.5px;margin-top:10px">Багтаамж W = 50 кг. Чөлөөлсөн (бутархай уут) шийд: Объект 1, 2-ыг бүтнээр, Объект 3-аас 20/30 = <strong>x₃ = 0.667</strong> &nbsp;→&nbsp; V = 60 + 100 + 80 = <strong>240</strong> (бутархай!)</p>
+    </div>
+  </div>
+  <div class="def">
+    <div class="lbl">★ Салбарлан зааглах аргаар — оновчтой шийд</div>
+    <p>x₁ = 0, x₂ = 1, x₃ = 1 &nbsp;·&nbsp; нийт үнэ цэнэ <strong>V = 220</strong>. Онцлон тэмдэглэх нь: <strong>Объект 1 хамгийн сайн v/w харьцаатай (6.0) байсан ч эцсийн оновчтой шийдэд огт ороогүй</strong> — «хамгийн үр ашигтай нэгжийг эхэлж сонго» гэсэн шунахай (greedy) дүгнэлт үргэлж зөв байдаггүй.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.5.1 · Зураг 9.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 22 · 9.5.2 ДААЛГАВАР -->
+<section class="slide" data-sec="9.5" data-notes="Тээврийн бодлогын тусгай хэлбэр гэдгийг сануул: бүх нийлүүлэлт, эрэлт яг 1. Ногоон нүднүүд нь оновчтой оноолт — 11+6+6+9 = 32.">
+  <div class="s-tag">9.5.2 · Даалгаврын бодлого (Assignment Problem)</div>
+  <h2 class="title">n ажилтан, n даалгавар — <em>яг нэг нэгээр</em></h2>
+  <div class="l15two">
+    <div>
+      <div class="formula" style="margin-top:0">
+        <div class="fl" style="font-size:18px">
+          min Z = Σᵢ Σⱼ <span class="c">cᵢⱼ</span>·xᵢⱼ<br>
+          Σⱼ xᵢⱼ <span class="op">= 1</span>, i = 1,…,n &nbsp;<span style="font-size:14px;color:rgba(255,255,255,.7)">(ажилтан бүр яг 1 даалгавар)</span><br>
+          Σᵢ xᵢⱼ <span class="op">= 1</span>, j = 1,…,n &nbsp;<span style="font-size:14px;color:rgba(255,255,255,.7)">(даалгавар бүр яг 1 ажилтанд)</span><br>
+          xᵢⱼ <span class="op">∈ {0, 1}</span>
+        </div>
+        <div class="cap">↔ Бүлэг 8-ын тээврийн бодлогын тусгай хэлбэр: бүх нийлүүлэлт, эрэлт яг 1</div>
+      </div>
+      <p class="lead" style="font-size:14.5px;margin-top:12px">Тусгайлсан алгоритм: <strong>Унгарын арга</strong> (Hungarian Method). Кёнигийн теорем дээр үндэслэн <strong>Харолд Кун 1955 онд</strong> боловсруулсан — мөр, баганын хамгийн бага элементийг хасах замаар тэг элементүүдийг олно.</p>
+    </div>
+    <div>
+      <table class="t sm" style="margin-top:0">
+        <thead><tr><th>Ажилтан</th><th>Даалг. 1</th><th>Даалг. 2</th><th>Даалг. 3</th><th>Даалг. 4</th></tr></thead>
+        <tbody>
+        <tr><td class="k">A</td><td>9</td><td>11</td><td>14</td><td style="color:var(--green);font-weight:600;background:var(--green-bg)">11</td></tr>
+        <tr><td class="k">B</td><td style="color:var(--green);font-weight:600;background:var(--green-bg)">6</td><td>15</td><td>13</td><td>13</td></tr>
+        <tr><td class="k">C</td><td>12</td><td>13</td><td style="color:var(--green);font-weight:600;background:var(--green-bg)">6</td><td>8</td></tr>
+        <tr><td class="k">D</td><td>11</td><td style="color:var(--green);font-weight:600;background:var(--green-bg)">9</td><td>10</td><td>12</td></tr>
+        </tbody>
+      </table>
+      <p class="lead" style="font-size:14.5px;margin-top:10px">★ Оновчтой оноолт: A → 4 (11), B → 1 (6), C → 3 (6), D → 2 (9). Нийт зардал <strong>Z = 11 + 6 + 6 + 9 = 32</strong> мянган ₮.</p>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.5.2 · Зардлын хүснэгт (мянган ₮)</span><span class="pg"></span></div>
+</section>
+
+<!-- 23 · 9.5.3 TSP -->
+<section class="slide" data-sec="9.5" data-notes="20 хот = 10¹⁷ хувилбар гэдэг тоог самбарт бич — энэ тоо оюутнуудад хамгийн их сэтгэгдэл төрүүлдэг. Дараагийн блок нь яг үүнээс үүдэн эрсдэлийн тухай.">
+  <div class="s-tag">9.5.3 · Худалдагчийн замын бодлого (TSP) — товч</div>
+  <h2 class="title">n хотоор яг <em>нэг удаа</em> — хамгийн богино зам</h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Нэг худалдагч n хотоор дамжин, хот бүрт <strong>яг нэг удаа</strong> зочилж, эцэст нь эхэлсэн хотдоо буцаж ирэхдээ нийт туулах зам хамгийн богино байхаар маршрутаа төлөвлөх ёстой.</p>
+      <div class="formula" style="margin-top:14px">
+        <div class="fl" style="font-size:18px">
+          min Z = Σᵢ Σⱼ <span class="c">dᵢⱼ</span>·xᵢⱼ &nbsp;·&nbsp; xᵢⱼ <span class="op">∈ {0, 1}</span>
+        </div>
+        <div class="cap">нэмэлт «дэд эргэлт арилгах» (subtour elimination) хязгаарлалтууд илүү нарийн бичиглэл шаарддаг</div>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card accent"><div class="k">Хэрэглээ</div><h3 style="font-size:16px">Логистик ба цаашид</h3><p>UPS, DHL, Монголын шуудангийн маршрутын төлөвлөлт · хэвлэлийн машины хөдөлгөөн · ДНХ-ийн дараалал · электрон микросхемийн үйлдвэрлэл.</p></div>
+      <div class="card"><div class="k">NP-хатуу</div><h3 style="font-size:16px">(n−1)! / 2 маршрут</h3><p>Ердөө <strong>20 хот</strong> байхад ойролцоогоор <strong>10¹⁷</strong> хувилбар үүснэ. 100-аас дээш хоттой бодлогыг өнөөгийн хүчирхэг компьютер ч нарийн (exact) аргаар богино хугацаанд бодож чадахгүй — практикт ойролцоо (heuristic) арга ашиглана.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.5.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 24 · 9.6.1–9.6.2 КЕЙС -->
+<section class="slide" data-sec="9.6" data-notes="ХААИС-ийн онцлог кейс. Онцлон хэл: хонь, ямаа, тэмээ нь тогтмол — зөвхөн үлдсэн СУЛ нөөцөд үхэр, адуу нэмнэ. Хадлан бол хүзүүвч биш гэдгийг урьдчилан анхааруул.">
+  <div class="s-tag">9.6.1–9.6.2 · Кейс: Малчны сүргийн бүрдэл (ХААИС)</div>
+  <h2 class="title">Хэдэн үхэр, хэдэн <em>адуу</em> нэмэх вэ?</h2>
+  <p class="lead" style="font-size:16.5px">Малчин хонь, ямаа, тэмээгээ өөрчлөхгүй байхаар шийджээ. Гэвч энэ жил тэрээр <strong>бэлчээр, хадлан, хөдөлмөрийн үлдсэн (сул) нөөцөндөө багтаан</strong> хэдэн үхэр, хэдэн адуу нэмж худалдан авахыг хүсэж байна. «3.5 үхэр» гэж худалдаж авах боломжгүй тул энэ бодлого <strong>заавал бүхэл тоон</strong> байх ёстой.</p>
+  <div class="formula">
+    <div class="fl" style="font-size:20px">
+      x₁ = нэмж авах <span class="c">үхрийн</span> тоо &nbsp;·&nbsp; x₂ = нэмж авах <span class="c">адууны</span> тоо<br>
+      max Z = <span class="c">500,000</span>·x₁ + <span class="c">700,000</span>·x₂ &nbsp;<span class="op">₮/жил</span><br>
+      x₁, x₂ <span class="op">≥ 0</span>, бүхэл тоо
+    </div>
+    <div class="cap">Зорилгын функц — нэмэлт цэвэр ашиг</div>
+  </div>
+  <table class="t sm">
+    <thead><tr><th style="width:40%">Нөөц (үлдсэн сул хэсэг)</th><th>Үхэр (x₁)</th><th>Адуу (x₂)</th><th>Хязгаар</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Бэлчээр (нэгж/жил)</td><td>2</td><td>1</td><td>≤ 30</td></tr>
+    <tr><td class="k">Ажлын хүч (хүн-өдөр/жил)</td><td>2</td><td>5</td><td>≤ 50</td></tr>
+    <tr><td class="k">Хадлан (тонн/жил)</td><td>5</td><td>4</td><td>≤ 200 (сул)</td></tr>
+    </tbody>
+  </table>
+  <div class="s-foot"><span>Бүлэг 9.6.1–9.6.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 25 · 9.6.3–9.6.5 -->
+<section class="slide" data-sec="9.6" data-notes="Модыг зүүнээс баруун тийш дага. Гурван бүхэл нэр дэвшигчийг харьцуулж 9,500,000₮-ийг сонгоно. Хадлангаас 117.5 тонн сул үлдэж байгааг заавал дурд — bottleneck зөвхөн 1–2 нөөц байдаг.">
+  <div class="s-tag">9.6.3–9.6.5 · Бодолт ба эцсийн хариу</div>
+  <h2 class="title">x₁ = 12.5 → <em>салбарлан зааглах</em></h2>
+  <div class="l15two narrow">
+    <div>
+      <svg class="svgtree" viewBox="0 0 620 342" role="img" aria-label="Малчны кейсийн салбарлан зааглах мод">
+        <path class="bbe" d="M310,80 V106 H120 V132"/>
+        <path class="bbe" d="M310,80 V106 H490 V132"/>
+        <path class="bbe" d="M120,204 V228 H95 V254"/>
+        <path class="bbe" d="M120,204 V228 H305 V254"/>
+        <text class="bbel" x="112" y="126" text-anchor="end">x₁ ≤ 12</text>
+        <text class="bbel" x="498" y="126" text-anchor="start">x₁ ≥ 13</text>
+        <text class="bbel" x="87" y="248" text-anchor="end">x₂ ≤ 5</text>
+        <text class="bbel" x="313" y="248" text-anchor="start">x₂ ≥ 6</text>
+        <g class="st-frac"><rect class="bx" x="215" y="8" width="190" height="72" rx="11"/>
+          <text class="tc" x="310" y="30" text-anchor="middle">Үндсэн зангилаа (LP)</text>
+          <text class="tv" x="310" y="50" text-anchor="middle">x₁ = 12.5, x₂ = 5</text>
+          <text class="tz" x="310" y="70" text-anchor="middle">Z = 9,750,000₮</text></g>
+        <g class="st-frac"><rect class="bx" x="25" y="132" width="190" height="72" rx="11"/>
+          <text class="tc" x="120" y="154" text-anchor="middle">Салаа x₁ ≤ 12</text>
+          <text class="tv" x="120" y="174" text-anchor="middle">x₁ = 12, x₂ = 5.2</text>
+          <text class="tz" x="120" y="194" text-anchor="middle">Z = 9,640,000₮</text></g>
+        <g class="st-int"><rect class="bx" x="395" y="132" width="190" height="72" rx="11"/>
+          <text class="tc" x="490" y="154" text-anchor="middle">Салаа x₁ ≥ 13 ●</text>
+          <text class="tv" x="490" y="174" text-anchor="middle">x₁ = 13, x₂ = 4</text>
+          <text class="tz" x="490" y="194" text-anchor="middle">Z = 9,300,000₮</text></g>
+        <g class="st-best"><rect class="bx" x="0" y="254" width="190" height="72" rx="11"/>
+          <text class="tc" x="95" y="276" text-anchor="middle">x₁ ≤ 12, x₂ ≤ 5 ●</text>
+          <text class="tv" x="95" y="296" text-anchor="middle">x₁ = 12, x₂ = 5</text>
+          <text class="tz" x="95" y="316" text-anchor="middle">★ Z = 9,500,000₮</text></g>
+        <g class="st-int"><rect class="bx" x="210" y="254" width="190" height="72" rx="11"/>
+          <text class="tc" x="305" y="276" text-anchor="middle">x₁ ≤ 12, x₂ ≥ 6 ●</text>
+          <text class="tv" x="305" y="296" text-anchor="middle">x₁ = 10, x₂ = 6</text>
+          <text class="tz" x="305" y="316" text-anchor="middle">Z = 9,200,000₮</text></g>
+      </svg>
+    </div>
+    <div>
+      <div class="def" style="margin-top:0">
+        <div class="lbl">9.6.3 · Чөлөөлсөн бодлого</div>
+        <p style="font-size:14.5px">x₁ = 12.5, x₂ = 5, Z = <strong>9,750,000₮</strong>. Бэлчээр (30) ба ажлын хүч (50) хоёулаа бүрэн ашиглагдаж <strong>хүчинтэй хязгаарлалт</strong> болов. Хадлангаас ердөө 82.5 тонн ашиглагдаж, <strong>117.5 тонн сул</strong> үлдэв. Гэвч «12.5 үхэр» бодит утгагүй.</p>
+      </div>
+      <div class="def" style="margin-top:12px">
+        <div class="lbl">★ 9.6.5 · Эцсийн хариу</div>
+        <p style="font-size:14.5px">Малчин энэ жил <strong>12 үхэр, 5 адуу</strong> нэмж авбал бэлчээр, ажлын хүчний нөөцөө бүрэн ашиглаж, жилд нэмэлт <strong>9,500,000₮</strong> цэвэр ашиг олно. Хадлангийн 117.5 тонн сул хэвээр тул сүргээ цаашид өргөтгөх боломжтой.</p>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.6.3–9.6.5 · Зураг 9.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 26 · 9.7 -->
+<section class="slide" data-sec="9.7" data-notes="2³⁰ ≈ 1 тэрбум гаруй. Гэхдээ төгсгөлийн мессежийг заавал хэл: дунд, жижиг хэмжээний бодит бизнесийн бодлогуудын дийлэнх нь энгийн салбарлан зааглах аргаар бүрэн шийдэгддэг.">
+  <div class="s-tag">9.7 · Хязгаарлалт ба эрсдэл</div>
+  <h2 class="title">Хэзээ бодох <em>боломжгүй</em> болох вэ?</h2>
+  <div class="split wide">
+    <div>
+      <div class="formula" style="margin-top:0">
+        <div class="fl" style="font-size:21px">
+          n хоёртын хувьсагч &nbsp;<span class="op">→</span>&nbsp; <span class="c">2ⁿ</span> хослол<br>
+          n = 30 &nbsp;<span class="op">→</span>&nbsp; 2³⁰ ≈ <span class="c">1 тэрбум</span> гаруй
+        </div>
+        <div class="cap">Бүхэл тоон программчлал нь ШП-ээс тооцооллын хувьд мэдэгдэхүйц хүнд</div>
+      </div>
+      <div class="checks" style="margin-top:14px">
+        <div class="chk no"><span class="m">✗</span><span class="tx">Бодлого <b>NP-хатуу</b> ангилалд багтах үед (жишээ нь TSP)</span></div>
+        <div class="chk no"><span class="m">✗</span><span class="tx">Шийдвэр гаргах <b>хугацаа хатуу хязгаарлагдмал</b> үед (бодит цагийн логистик)</span></div>
+        <div class="chk no"><span class="m">✗</span><span class="tx">Хувьсагчийн тоо <b>маш их</b> (хэдэн зуу, мянга) байх үед</span></div>
+      </div>
+    </div>
+    <div class="grid" style="gap:11px;margin-top:0">
+      <div class="card accent"><div class="k">9.7.3</div><h3 style="font-size:16px">Метаэвристик алгоритм</h3><p>Генетик алгоритм, загварчилсан хөргөлт (Simulated Annealing) — биологи, физикийн үзэгдлээс санаа авсан ойролцоо аргууд.</p></div>
+      <div class="card accent"><div class="k">9.7.3</div><h3 style="font-size:16px">Машин сургалттай хослуулах</h3><p>Модны аль салааг эхэлж шалгах вэ гэдгийг машин сургалтын загвараар урьдчилан таамаглах орчин үеийн судалгааны чиглэл.</p></div>
+      <div class="card green"><div class="k">Гэхдээ</div><h3 style="font-size:16px">Дийлэнх нь бүрэн шийдэгдэнэ</h3><p>Дунд, жижиг хэмжээний бодит бизнесийн бодлогуудын дийлэнх нь энгийн салбарлан зааглах болон огтлогч хавтгайн аргаар нарийн шийдэгддэг.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9.7.1–9.7.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 27 · ГОЛ САНАА -->
+<section class="slide" data-sec="end" data-notes="Зургаан гол санааг оюутнаар нэг бүрчлэн давтуулж хэлүүл. Дараа нь дадлага руу — Дасгал 3 ба 8 нь яг өнөөдрийн модны бүтэц.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Зургаан гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt">Бүхэл тоон программчлал бол хувьсагч заавал <b>бүхэл тоо</b> байх ёстой ШП-ийн бодлого — бодит амьдрал дээр хамгийн өргөн хэрэглэгддэг хэсэг.</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt">Гурван үндсэн төрөл: <b>цэвэр</b> (Pure IP), <b>холимог</b> (Mixed IP), <b>хоёртын</b> (Binary IP). Холимог нь практикт хамгийн түгээмэл.</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt"><b>Бүхэл тоон нөхцөлийг чөлөөлөх</b> (LP Relaxation) — бүх бодолтын анхны алхам. Бутархай хариуг зүгээр дугуйлж болохгүй.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt"><b>Салбарлан зааглах арга</b> — зангилаа, салаа, хязгаар; бутархай хувьсагч дээр хоёр салаа болгон хувааж, хязгаарлах дүрмээр тайрч (pruning) хайдаг гол цөм арга.</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt"><b>Огтлогч хавтгайн арга ба Гоморийн огтлол</b> — симплекс хүснэгтээс шинэ хязгаарлалт байгуулан мужийг шууд жижигрүүлдэг. Хоёрын нийлбэр нь Branch and Cut.</span></div>
+    <div class="key"><span class="kn">6</span><span class="kt">Тусгай бодлогууд: <b>үүргэвчийн</b> (Knapsack), <b>даалгаврын</b> (Assignment), <b>худалдагчийн замын</b> (TSP). Том бодлогод NP-хатуу байдал саад болно.</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 9 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- 28 · ТӨГСГӨЛ -->
+<section class="slide closing dark" data-sec="—" data-notes="Дараагийн 1.5 цаг — дадлага. Дасгал 3, 8 нь салбарлан зааглах мод; Дасгал 4 үүргэвч; Дасгал 5 Унгарын арга; Дасгал 7 хоёртын. Дараагийн долоо хоног Бүлэг 10 — дамжин өнгөрөх тээвэр.">
+  <h2>Чөлөөлсөн бодлого Z = <em>21</em> амласан.<br>Бодит хариу нь <em>20</em> байлаа.</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    Бүхэл тоон нөхцөл нэмэгдэх тусам боломжит муж нарийсдаг. Салбарлан зааглах арга бол тэр ялгааг хатуу баталгаатайгаар олох цорын ганц найдвартай зам.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг · Дасгал 3, 4, 5, 8</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 10.1–10.3</span>
+    <span>🔗 LP Suite → Хичээл → Долоо хоног 15</span>
+  </div>
+</section>
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 28</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+window.DECK = {
+  lesson: 'Хичээл 15',
+  course: 'Бүлэг 9 — Бүхэл тоон программчлал',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'9.1',   label:'Танилцуулга'},
+    {k:'9.2',   label:'Төрлүүд'},
+    {k:'9.3',   label:'Салбарлан зааглах'},
+    {k:'9.4',   label:'Огтлогч хавтгай'},
+    {k:'9.5',   label:'Тусгай бодлого'},
+    {k:'9.6',   label:'Кейс'},
+    {k:'9.7',   label:'Эрсдэл'},
+    {k:'end',   label:'Дүгнэлт'}
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Өнөөдрийн хичээл'},
+    {p:'intro', s:'Сурах зорилт'},
+    {p:'9.1',   s:'9.1 · Танилцуулга'},
+    {p:'9.1',   s:'9.1.1 · Бүхэл тоон программчлал гэж юу вэ?'},
+    {p:'9.1',   s:'9.1.2–9.1.3 · Хэзээ ашиглах ба яагаад чухал вэ?'},
+    {p:'9.1',   s:'Интерактив · Дугуйлбал юу болох вэ?'},
+    {p:'9.1',   s:'9.1.4 · Бүхэл тоон нөхцөлийг чөлөөлөх'},
+    {p:'9.2',   s:'9.2 · Гурван үндсэн төрөл'},
+    {p:'9.2',   s:'Интерактив · Загварчлалын төрөл тааруулах'},
+    {p:'9.3',   s:'9.3 · Салбарлан зааглах арга'},
+    {p:'9.3',   s:'9.3.1–9.3.2 · Үндсэн санаа ба модны бүтэц'},
+    {p:'9.3',   s:'9.3.3 · Хязгаарлах дүрэм'},
+    {p:'9.3',   s:'9.3.4 · Алгоритмын алхмууд'},
+    {p:'9.3',   s:'Интерактив · Салбарлан зааглах мод'},
+    {p:'9.3',   s:'9.3.5 · Эцсийн харьцуулалт'},
+    {p:'9.3',   s:'Интерактив · Түргэн тест'},
+    {p:'9.4',   s:'9.4.1–9.4.2 · Огтлогч хавтгай ба Гоморийн огтлол'},
+    {p:'9.4',   s:'9.4.3–9.4.4 · Огтлол байгуулах алхмууд'},
+    {p:'9.4',   s:'9.4.5–9.4.6 · Харьцуулалт ба Branch and Cut'},
+    {p:'9.5',   s:'9.5.1 · Үүргэвчийн бодлого'},
+    {p:'9.5',   s:'9.5.2 · Даалгаврын бодлого'},
+    {p:'9.5',   s:'9.5.3 · Худалдагчийн замын бодлого'},
+    {p:'9.6',   s:'9.6.1–9.6.2 · Кейс: Малчны сүргийн бүрдэл'},
+    {p:'9.6',   s:'9.6.3–9.6.5 · Бодолт ба эцсийн хариу'},
+    {p:'9.7',   s:'9.7 · Хязгаарлалт ба эрсдэл'},
+    {p:'end',   s:'Бүлгийн хураангуй'},
+    {p:'end',   s:''}
+  ]
+};
+</script>
+
+<script>
+/* ============ 1 · Дугуйлбал юу болох вэ? ============ */
+(function(){
+  var svg = document.getElementById('rndSvg');
+  if(!svg) return;
+  var DATA = [
+    {ok:false, t:'✗ Боломжгүй — 6·3 + 4·2 = 26 &gt; 24'},
+    {ok:false, t:'✗ Боломжгүй — 6·4 + 4·2 = 32 &gt; 24'},
+    {ok:false, t:'✗ Боломжгүй — 6·4 + 4·1 = 28 &gt; 24'},
+    {ok:true,  t:'✓ Боломжтой — Z = 5·3 + 4·1 = 19'}
+  ];
+  var LBL = ['дээш дугуйруулав — ?','хоёуланг дээш — ?','x₁ дээш, x₂ доош — ?','доош дугуйруулав — ?'];
+  var cands = svg.querySelectorAll('.cand');
+  var rows  = document.querySelectorAll('#rndSlide .rnd-row');
+  var stat  = document.getElementById('rndStat');
+  var done  = document.getElementById('rndDone');
+  var lat   = document.getElementById('rndLat');
+  var seen  = [false,false,false,false];
+
+  function reveal(i){
+    if(seen[i]) return;
+    seen[i] = true;
+    var d = DATA[i], cls = d.ok ? 'ok' : 'no';
+    cands[i].setAttribute('class', 'cand ' + cls);
+    cands[i].querySelector('.mk').textContent = d.ok ? '✓' : '✗';
+    rows[i].className = 'rnd-row ' + cls;
+    rows[i].querySelector('span').innerHTML = d.t;
+    var n = 0; for(var k=0;k<4;k++) if(seen[k]) n++;
+    stat.textContent = 'Шалгасан: ' + n + ' / 4';
+    if(n === 4){ done.style.display = ''; lat.style.display = ''; }
+  }
+  function reset(){
+    for(var i=0;i<4;i++){
+      seen[i] = false;
+      cands[i].setAttribute('class','cand');
+      cands[i].querySelector('.mk').textContent = '?';
+      rows[i].className = 'rnd-row';
+      rows[i].querySelector('span').textContent = LBL[i];
+    }
+    stat.textContent = 'Шалгасан: 0 / 4';
+    done.style.display = 'none';
+    lat.style.display = 'none';
+  }
+  for(var i=0;i<cands.length;i++){
+    (function(k){
+      cands[k].addEventListener('click', function(){ reveal(k); });
+      rows[k].addEventListener('click', function(){ reveal(k); });
+      rows[k].style.cursor = 'pointer';
+    })(i);
+  }
+  var rb = document.getElementById('rndReset');
+  rb.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  rb.addEventListener('click', reset);
+})();
+
+/* ============ 2 · Загварчлалын төрөл тааруулах ============ */
+(function(){
+  var wrap = document.getElementById('mtWrap');
+  if(!wrap) return;
+  var types = wrap.querySelectorAll('.mt-t');
+  var defs  = wrap.querySelectorAll('.mt-d');
+  var stat  = document.getElementById('mtStat');
+  var HINT  = ' · эхлээд зүүн талын нэрийг, дараа нь тодорхойлолтыг товшино уу';
+  var sel = null, done = 0;
+
+  function setStat(msg){
+    stat.innerHTML = 'Тааруулсан: ' + done + ' / 5' + (msg || HINT);
+  }
+  function clearSel(){
+    for(var i=0;i<types.length;i++) types[i].classList.remove('sel');
+    sel = null;
+  }
+  function flash(a, b){
+    a.classList.add('bad'); if(b) b.classList.add('bad');
+    setTimeout(function(){
+      a.classList.remove('bad'); if(b) b.classList.remove('bad');
+    }, 650);
+  }
+  for(var i=0;i<types.length;i++){
+    (function(t){
+      t.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      t.addEventListener('click', function(){
+        if(t.classList.contains('ok')) return;
+        clearSel(); t.classList.add('sel'); sel = t;
+        setStat(' · одоо баруун талаас тохирох тодорхойлолтыг олоорой');
+      });
+    })(types[i]);
+  }
+  for(var j=0;j<defs.length;j++){
+    (function(d){
+      d.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      d.addEventListener('click', function(){
+        if(d.classList.contains('ok')) return;
+        if(!sel){ flash(d, null); setStat(' · эхлээд зүүн талаас загварын нэрийг сонгоно уу'); return; }
+        if(d.getAttribute('data-k') === sel.getAttribute('data-k')){
+          d.classList.add('ok'); sel.classList.add('ok'); sel.classList.remove('sel');
+          sel = null; done++;
+          setStat(done === 5 ? ' · бүгд зөв ✓ Гайхалтай!' : null);
+        } else {
+          flash(d, sel); clearSel();
+          setStat(' · буруу байна, дахин оролдоно уу');
+        }
+      });
+    })(defs[j]);
+  }
+  var rb = document.getElementById('mtReset');
+  rb.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  rb.addEventListener('click', function(){
+    for(var i=0;i<types.length;i++) types[i].className = 'mt-t';
+    for(var j=0;j<defs.length;j++)  defs[j].className  = 'mt-d';
+    sel = null; done = 0; setStat();
+  });
+  setStat();
+})();
+
+/* ============ 3 · Салбарлан зааглах мод (гол интерактив) ============ */
+(function(){
+  var svg = document.getElementById('bbSvg');
+  if(!svg) return;
+  var W = 212, H = 72;
+  var N = [
+    {k:'n0', cx:540, cy:14,  cap:'Үндсэн зангилаа',        v:'x₁ = 3,  x₂ = 1.5',  z:'Z = 21',
+     pop:'<b>Үндсэн зангилаа</b><br>max Z = 5x₁ + 4x₂<br>6x₁ + 4x₂ ≤ 24<br>x₁ + 2x₂ ≤ 6<br>x₁, x₂ ≥ 0<br>— бүхэл тоон нөхцөл чөлөөлөгдсөн —<br>Шийд: Z = 21, x₂ бутархай'},
+    {k:'n1', cx:300, cy:140, cap:'Зангилаа 1 · x₂ ≤ 1',    v:'x₁ = 3.33,  x₂ = 1', z:'Z = 20.67',
+     pop:'<b>Зангилаа 1</b><br>анхны хязгаарлалтууд<br><b>+ x₂ ≤ 1</b><br>Шийд: x₁ = 3.33, x₂ = 1<br>Z = 20.67 — x₁ бутархай<br>→ цааш x₁ дээр салаална'},
+    {k:'n2', cx:800, cy:140, cap:'Зангилаа 2 · x₂ ≥ 2',    v:'x₁ = 2,  x₂ = 2',    z:'Z = 18  ● бүхэл',
+     pop:'<b>Зангилаа 2</b><br>анхны хязгаарлалтууд<br><b>+ x₂ ≥ 2</b><br>Шийд: x₁ = 2, x₂ = 2<br>Z = 18 — бүхэл тоо<br>→ нэр дэвшигч (incumbent)'},
+    {k:'n3', cx:170, cy:266, cap:'Зангилаа 3 · x₁ ≤ 3',    v:'x₁ = 3,  x₂ = 1',    z:'Z = 19  ● бүхэл',
+     pop:'<b>Зангилаа 3</b><br>анхны хязгаарлалтууд<br><b>+ x₂ ≤ 1, x₁ ≤ 3</b><br>Шийд: x₁ = 3, x₂ = 1<br>Z = 19 — бүхэл тоо<br>→ дуусгавар болов (fathomed)'},
+    {k:'n4', cx:430, cy:266, cap:'Зангилаа 4 · x₁ ≥ 4',    v:'x₁ = 4,  x₂ = 0',    z:'Z = 20  ● бүхэл',
+     zb:'★ Z = 20 · оновчтой',
+     pop:'<b>Зангилаа 4</b><br>анхны хязгаарлалтууд<br><b>+ x₂ ≤ 1, x₁ ≥ 4</b><br>Шийд: x₁ = 4, x₂ = 0<br>Z = 20 — бүхэл тоо<br>→ ★ хамгийн сайн шийд'}
+  ];
+  var E = [
+    {k:'e1', d:'M540,86 V113 H300 V140', lab:'x₂ ≤ 1', lx:292, ly:132, an:'end'},
+    {k:'e2', d:'M540,86 V113 H800 V140', lab:'x₂ ≥ 2', lx:808, ly:132, an:'start'},
+    {k:'e3', d:'M300,212 V239 H170 V266', lab:'x₁ ≤ 3', lx:162, ly:258, an:'end'},
+    {k:'e4', d:'M300,212 V239 H430 V266', lab:'x₁ ≥ 4', lx:438, ly:258, an:'start'}
+  ];
+  var STEPS = [
+    {n:{}, e:[],
+     m:'<b>Бодлого:</b> max Z = 5x₁ + 4x₂ · 6x₁ + 4x₂ ≤ 24 · x₁ + 2x₂ ≤ 6 · x₁, x₂ ≥ 0, бүхэл тоо. «Дараагийн алхам ›» товчийг дарна уу.'},
+    {n:{n0:'frac'}, e:[],
+     m:'<b>Алхам 1.</b> Бүхэл тоон нөхцөлийг чөлөөлж симплекс аргаар бодов: x₁ = 3, x₂ = <b>1.5</b>, Z = 21. x₂ бутархай гарлаа!'},
+    {n:{n0:'frac', n1:'wait', n2:'wait'}, e:['e1','e2'],
+     m:'<b>Алхам 2.</b> x₂ = 1.5 бутархай тул x₂ дээр <b>салаалуулна</b>: x₂ ≤ ⌊1.5⌋ = 1 ба x₂ ≥ ⌈1.5⌉ = 2. Хоёр дэд бодлого үүслээ.'},
+    {n:{n0:'frac', n1:'frac', n2:'int'}, e:['e1','e2'],
+     m:'<b>Алхам 3.</b> Салаа бүрийн Z ба хязгаар: Зангилаа 1 → Z = 20.67 (x₁ бутархай хэвээр). Зангилаа 2 → Z = 18, <b>бүхэл тоо</b> → нэр дэвшигч (incumbent) шийд.'},
+    {n:{n0:'frac', n1:'frac', n2:'int', n3:'int', n4:'int'}, e:['e1','e2','e3','e4'],
+     m:'<b>Алхам 4.</b> Зангилаа 1-ийг x₁ = 3.33 дээр салаалуулав: x₁ ≤ 3 → Z = 19, x₁ ≥ 4 → Z = 20. Хоёулаа бүхэл тоо тул дуусгавар болов.'},
+    {n:{n0:'frac', n1:'dim', n2:'dim', n3:'dim', n4:'best'}, e:['e1','e2','e3','e4'],
+     m:'<b>Алхам 5.</b> Z = 18 ба Z = 19 нь Z = 20-оос бага тул <b>тайрагдана</b> (саарал). ★ Оновчтой шийд: <b>x₁ = 4, x₂ = 0, Z = 20</b> — чөлөөлсөн Z_LP = 21 > бүхэл Z_IP = 20.'}
+  ];
+
+  var html = '';
+  for(var i=0;i<E.length;i++){
+    var e = E[i];
+    html += '<g id="' + e.k + '" style="display:none">'
+         +  '<path class="bbe" d="' + e.d + '"/>'
+         +  '<text class="bbel" x="' + e.lx + '" y="' + e.ly + '" text-anchor="' + e.an + '">' + e.lab + '</text>'
+         +  '</g>';
+  }
+  for(var j=0;j<N.length;j++){
+    var n = N[j], x = n.cx - W/2;
+    html += '<g class="bbn" id="' + n.k + '" data-i="' + j + '" style="display:none">'
+         +  '<rect class="bx" x="' + x + '" y="' + n.cy + '" width="' + W + '" height="' + H + '" rx="11"/>'
+         +  '<text class="tc" x="' + n.cx + '" y="' + (n.cy+22) + '" text-anchor="middle">' + n.cap + '</text>'
+         +  '<text class="tv" x="' + n.cx + '" y="' + (n.cy+43) + '" text-anchor="middle">' + n.v + '</text>'
+         +  '<text class="tz" x="' + n.cx + '" y="' + (n.cy+63) + '" text-anchor="middle">' + n.z + '</text>'
+         +  '</g>';
+  }
+  svg.innerHTML = html;
+
+  var stat = document.getElementById('bbStat');
+  var pop  = document.getElementById('bbPop');
+  var wrap = document.getElementById('bbWrap');
+  var bNext = document.getElementById('bbNext');
+  var bRes  = document.getElementById('bbReset');
+  var step = 0;
+
+  function draw(){
+    var S = STEPS[step];
+    for(var i=0;i<E.length;i++){
+      document.getElementById(E[i].k).style.display = (S.e.indexOf(E[i].k) >= 0) ? '' : 'none';
+    }
+    for(var j=0;j<N.length;j++){
+      var n = N[j], g = document.getElementById(n.k), st = S.n[n.k];
+      if(!st){ g.style.display = 'none'; g.setAttribute('class','bbn'); continue; }
+      g.style.display = '';
+      g.setAttribute('class', 'bbn st-' + st);
+      g.querySelector('.tz').textContent = (st === 'best' && n.zb) ? n.zb : n.z;
+    }
+    stat.innerHTML = S.m;
+    bNext.disabled = (step >= STEPS.length - 1);
+    bNext.textContent = bNext.disabled ? 'Мод бүрэн ✓' : 'Дараагийн алхам ›';
+    pop.style.display = 'none';
+  }
+  svg.addEventListener('mouseover', function(ev){
+    var g = ev.target.closest ? ev.target.closest('.bbn') : null;
+    if(!g || g.style.display === 'none') return;
+    var n = N[+g.getAttribute('data-i')];
+    pop.innerHTML = n.pop;
+    pop.style.display = 'block';
+    var r = g.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+    var left = r.left - w.left + r.width/2 - pop.offsetWidth/2;
+    left = Math.max(4, Math.min(left, w.width - pop.offsetWidth - 4));
+    pop.style.left = left + 'px';
+    var top = (n.cy > 200) ? (r.top - w.top - pop.offsetHeight - 10) : (r.bottom - w.top + 10);
+    pop.style.top = Math.max(2, top) + 'px';
+  });
+  svg.addEventListener('mouseout', function(ev){
+    if(!ev.relatedTarget || !svg.contains(ev.relatedTarget)) pop.style.display = 'none';
+  });
+  bNext.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  bRes.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  bNext.addEventListener('click', function(){
+    if(step < STEPS.length - 1){ step++; draw(); }
+  });
+  bRes.addEventListener('click', function(){ step = 0; draw(); });
+  draw();
+})();
+
+/* ============ 4 · Түргэн тест ============ */
+(function(){
+  var wrap = document.getElementById('qzWrap');
+  if(!wrap) return;
+  var cards = wrap.querySelectorAll('.qzc');
+  var stat  = document.getElementById('qzStat');
+  var right = 0, answered = [];
+
+  function bind(card, idx){
+    var opts = card.querySelectorAll('.qzo');
+    var exp  = card.querySelector('.qze');
+    for(var i=0;i<opts.length;i++){
+      (function(o){
+        o.addEventListener('mousedown', function(e){ e.preventDefault(); });
+        o.addEventListener('click', function(){
+          if(answered[idx]) return;
+          var good = o.getAttribute('data-c') === '1';
+          o.classList.add(good ? 'ok' : 'bad');
+          if(good){
+            answered[idx] = true; right++;
+            exp.style.display = 'block';
+            stat.textContent = 'Зөв хариулт: ' + right + ' / 3' + (right === 3 ? ' · бүгд зөв ✓' : '');
+          } else {
+            stat.textContent = 'Зөв хариулт: ' + right + ' / 3 · дахин оролдоно уу';
+          }
+        });
+      })(opts[i]);
+    }
+  }
+  for(var c=0;c<cards.length;c++) bind(cards[c], c);
+
+  var rb = document.getElementById('qzReset');
+  rb.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  rb.addEventListener('click', function(){
+    right = 0; answered = [];
+    for(var c=0;c<cards.length;c++){
+      var opts = cards[c].querySelectorAll('.qzo');
+      for(var i=0;i<opts.length;i++) opts[i].className = 'qzo';
+      cards[c].querySelector('.qze').style.display = 'none';
+    }
+    stat.textContent = 'Зөв хариулт: 0 / 3';
+  });
+})();
+</script>
+<script src="deck.js"></script>
+</body>
+</html>

@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 3 — Хязгаарлалт, үл сөрөг нөхцөл, стандарт хэлбэр</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ==========================================================================
+   ХИЧЭЭЛ 3-ЫН ӨӨРИЙН ИНТЕРАКТИВУУДЫН ЗАГВАР
+   (deck.css-д байхгүй хэсгүүд л энд бий — үндсэн файлыг заваагүй)
+   ========================================================================== */
+
+/* --- 1. ТЭМДЭГ СОНГОГЧ --- */
+.sgn{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.sgn-row{background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--line-strong);
+  border-radius:11px;padding:10px 13px;transition:border-color .2s var(--ease),background .2s var(--ease)}
+.sgn-top{display:flex;align-items:center;gap:11px}
+.sgn-q{flex:1;font-size:13.5px;line-height:1.42;color:var(--ink)}
+.sgn-b{display:flex;gap:5px;flex:0 0 auto}
+.sgn-b button{font-family:var(--mono);font-size:15px;font-weight:600;width:40px;height:30px;
+  border-radius:8px;border:1.5px solid var(--line-strong);background:var(--muted);color:var(--ink-soft);
+  cursor:pointer;transition:all .16s var(--ease)}
+.sgn-b button:hover{border-color:var(--green);color:var(--green)}
+.sgn-b button.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.sgn-b button.no{background:var(--rust-bg);border-color:var(--rust);color:var(--rust)}
+.sgn-f{display:none;font-size:12px;line-height:1.45;color:var(--ink-soft);margin-top:7px;
+  padding-top:7px;border-top:1px solid var(--line)}
+.sgn-row.done .sgn-f{display:block}
+.sgn-row.done{border-left-color:var(--green);background:var(--green-bg)}
+.sgn-row.miss{border-left-color:var(--rust)}
+.sgn-f b{color:var(--ink)}
+
+/* --- 2. БОДЛОГО УГСРАГЧ --- */
+.bld{display:grid;grid-template-columns:352px 1fr;gap:18px;margin-top:14px;align-items:stretch}
+.bld-data{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:15px 17px}
+.bld-data h4{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--green-ink);
+  font-weight:700;margin-bottom:9px}
+.bld-data table.t{margin:0;font-size:12.5px}
+.bld-data table.t th{padding:7px 9px;font-size:10.5px}
+.bld-data table.t td{padding:6.5px 9px}
+.bld-modes{display:flex;gap:7px;margin-top:11px}
+.bld-modes button{flex:1;font-family:var(--body);font-size:11.5px;font-weight:600;padding:8px 6px;
+  border-radius:8px;border:1.5px solid var(--line-strong);background:var(--muted);
+  color:var(--ink-soft);cursor:pointer}
+.bld-modes button.on{background:var(--green);border-color:var(--green);color:var(--on-accent)}
+.bld-form{background:linear-gradient(135deg,#1B3B1F,#16321A);border-radius:13px;padding:18px 22px;
+  color:#fff;display:flex;flex-direction:column;justify-content:center;gap:9px}
+body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
+.bld-line{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:18px;line-height:1.2}
+.bld-lbl{font-family:var(--body);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,.62);width:74px;flex:0 0 74px}
+.bld-line .op{color:#A8D67E}
+.bld-line .fix{color:rgba(255,255,255,.9)}
+.bcell{width:76px;height:34px;text-align:center;font-family:var(--mono);font-size:16px;font-weight:600;
+  border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);
+  color:#fff;outline:none;transition:all .16s var(--ease)}
+.bcell:focus{border-color:#EFD180;background:rgba(255,255,255,.16)}
+.bcell.ok{border-color:#A8D67E;background:rgba(168,214,126,.22);color:#DFF3C9}
+.bcell.bad{border-color:#F0A184;background:rgba(240,161,132,.22);color:#FFD9CB}
+.bld-bar{display:flex;justify-content:space-between;align-items:center;margin-top:13px;gap:14px;
+  font-size:13px;color:var(--ink-mute)}
+.bld-bar .btns{display:flex;gap:8px}
+.bld-bar button{background:var(--green);color:var(--on-accent);border:none;border-radius:9px;
+  padding:9px 17px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--body)}
+.bld-bar button.ghost{background:var(--muted);color:var(--ink-soft);border:1px solid var(--line-strong)}
+.bld-bar button:hover{opacity:.85}
+.bld-st{font-size:13.5px;font-weight:600;color:var(--ink-soft)}
+.bld-st.good{color:var(--green)}
+.bld-st.bad{color:var(--rust)}
+
+/* --- 3. СТАНДАРТ ХЭЛБЭРИЙН ЭРЭМБЭЛЭГЧ --- */
+.ordr{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.ordr-row{display:flex;align-items:center;gap:13px;background:var(--paper);border:1px solid var(--line);
+  border-left:3px solid var(--line-strong);border-radius:10px;padding:10px 14px;cursor:grab;
+  transition:background .2s var(--ease),border-color .2s var(--ease)}
+.ordr-row.dragging{opacity:.4}
+.ordr-row .hn{font-family:var(--mono);font-size:13px;color:var(--ink-faint);width:16px;flex:0 0 16px}
+.ordr-row .tx{flex:1;font-family:var(--mono);font-size:15px;color:var(--ink)}
+.ordr-row .rl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);
+  flex:0 0 168px;text-align:right}
+.ordr-row .mv{display:flex;gap:4px;flex:0 0 auto}
+.ordr-row .mv button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line-strong);
+  background:var(--muted);color:var(--ink-soft);cursor:pointer;font-size:11px;line-height:1}
+.ordr-row .mv button:hover{border-color:var(--green);color:var(--green)}
+.ordr-row.ok{border-left-color:var(--green);background:var(--green-bg)}
+.ordr-row.no{border-left-color:var(--rust);background:var(--rust-bg)}
+</style>
+</head>
+<body>
+
+<div id="viewport"><div id="stage">
+
+<!-- ══════════ 1. НҮҮР ══════════ -->
+<section class="slide cover" data-sec="—" data-notes="Хичээл 2-т шийдвэрийн хувьсагч, зорилгын функцийг үзсэн. Өнөөдөр загварын үлдсэн хоёр хэсэг — хязгаарлалт, үл сөрөг нөхцөл — дээр стандарт хэлбэрийг нэмж, дөрвөн кейсийг бүрэн тавина. Гурван интерактив дасгал байгаа: 7, 17, 23-р слайд.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Хязгаарлалт, үл сөрөг нөхцөл,<br><em>стандарт хэлбэр</em></h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 3</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 2.4–2.8</span>
+    <span class="pill">3 интерактив дасгал</span>
+  </div>
+</section>
+
+<!-- ══════════ 2. АГУУЛГА ══════════ -->
+<section class="slide" data-sec="—" data-notes="Өнөөдрийн 5 блок. 2.4 ба 2.6 нь онолын гол хэсэг, 2.7 бол бүх номын гол кейс. Интерактив тус бүрд 5–7 минут төлөвлө.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">2.4</div><h3>Хязгаарлалтын систем</h3><p>Ерөнхий хэлбэр, ≤ / ≥ / = гурван төрөл, технологийн коэффициент, сул гишүүн, түгээмэл алдаа.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Тэмдэг сонгогч</h3><p>Үг хэлбэрийн 8 нөхцөлд ≤, ≥, = аль нь тохирохыг өөрөө сонгоно.</p></div>
+    <div class="card accent"><div class="k">2.5</div><h3>Үл сөрөг байх нөхцөл</h3><p>xᵢ ≥ 0 яагаад заавал хэрэгтэй вэ? Хязгааргүй хувьсагч гэж юу вэ?</p></div>
+    <div class="card accent"><div class="k">2.6</div><h3>Стандарт хэлбэр</h3><p>Бүрэн загвар, матриц бичлэг, min → max ба ≥ → ≤ хувиргалтын гурван дүрэм.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Эрэмбэлэгч ба угсрагч</h3><p>Стандарт хэлбэрийн мөрүүдийг дараалалд оруулж, дараа нь коэффициентийг өөрөө бөглөнө.</p></div>
+    <div class="card accent"><div class="k">2.7–2.8</div><h3>Дөрвөн кейс</h3><p>"Модон урлал", "Хиам" ХХК, портфель, тариалалт — бүрэн математик загвар.</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 3 · Бүлэг 2.4–2.8</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 3. СУРАХ ЗОРИЛТ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Хичээлийн эцэст оюутан эдгээрийг хийж чаддаг байх ёстой. Дадлагын даалгавар яг эдгээрийг шалгана — ялангуяа 2 ба 4 дэх зорилт.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Хязгаарлалтын <strong>ерөнхий хэлбэрийг</strong> бичиж, aᵢ, xᵢ, b гурвын үүргийг тайлбарлах</span></li>
+    <li><span class="b">2</span><span>Үг хэлбэрээр өгөгдсөн нөхцөлд <strong>≤, ≥, = аль тэмдэг</strong> тохирохыг зөв сонгох</span></li>
+    <li><span class="b">3</span><span><strong>Үл сөрөг байх нөхцөл</strong> яагаад заавал шаардлагатайг физик ба математик талаас нь тайлбарлах</span></li>
+    <li><span class="b">4</span><span><strong>min → max</strong>, <strong>≥ → ≤</strong> хувиргалт хийж бодлогыг стандарт хэлбэрт оруулах</span></li>
+    <li><span class="b">5</span><span>Бизнесийн нөхцөлөөс <strong>дөрвөн алхмаар</strong> бүрэн математик загвар гаргах</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 3 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 4. ЗААГ 2.4 ══════════ -->
+<section class="slide divider dark" data-sec="2.4" data-notes="Бүлэг 1.5-т хязгаарлалт гэсэн нэр томьёог товч танилцуулсан. Одоо түүний бүтэц, төрөл, эдийн засгийн утгыг бүрэн дэлгэрүүлнэ.">
+  <div class="num">2.4</div>
+  <h2>Хязгаарлалтын систем</h2>
+  <p class="sub">Хязгаарлалт бүр яг ижил бүтэцтэй: коэффициент, хувьсагч, тэмдэг, сул гишүүн.</p>
+  <div class="s-foot"><span>Бүлэг 2.4 · Constraints</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 5. 2.4.1 ЕРӨНХИЙ ХЭЛБЭР ══════════ -->
+<section class="slide" data-sec="2.4" data-notes="Хязгаарлалтын анатоми. Гурван нэр томьёог самбарт бичиж, оюутнаар давтуулж хэлүүл: технологийн коэффициент, шийдвэрийн хувьсагч, сул гишүүн (RHS).">
+  <div class="s-tag">2.4.1 · Хязгаарлалтын ерөнхий хэлбэр</div>
+  <h2 class="title">Хязгаарлалт бүрийн <em>анатоми</em></h2>
+  <div class="formula">
+    <div class="fl">
+      <span class="c">a₁</span>x₁ + <span class="c">a₂</span>x₂ + … + <span class="c">aₙ</span>xₙ &nbsp;<span class="op">(≤, =, ≥)</span>&nbsp; b
+    </div>
+    <div class="cap">aᵢ — технологийн коэффициент &nbsp;·&nbsp; xᵢ — шийдвэрийн хувьсагч &nbsp;·&nbsp; b — сул гишүүн (Right-Hand Side, товчоор RHS)</div>
+  </div>
+  <div class="def">
+    <div class="lbl">Гол зарчим</div>
+    <p>Тэнцэтгэл биш буюу тэнцэтгэлийн тэмдэг (<strong>≤, =, ≥</strong>) нь хязгаарлалтын шинж чанарыг тодорхойлно.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.4.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 6. 2.4.2 ГУРВАН ТӨРӨЛ ══════════ -->
+<section class="slide" data-sec="2.4" data-notes="Гурван төрөл. Түлхүүр асуулт: дээд хязгаар уу, доод хязгаар уу, тэнцвэр үү? Дараагийн слайдын дасгал яг үүнийг шалгана.">
+  <div class="s-tag">2.4.2 · Хязгаарлалтын төрөл</div>
+  <h2 class="title">Гурван <em>төрөл</em>, гурван утга</h2>
+  <div class="grid g3">
+    <div class="card accent">
+      <div class="k">(1) Тэнцэтгэл биш ≤</div><h3>Дээд хязгаар</h3>
+      <p>"Дээшээ хэтрэхгүй". Хамгийн түгээмэл тохиолдол бол нөөцийн хязгаар: агуулах дахь мод 100 м.кубаас хэтрэхгүй тул <strong>4x₁ + 2x₂ ≤ 100</strong>. Мөн үйлдвэрлэлийн дээд чадавхыг илэрхийлэхэд хэрэглэнэ.</p>
+    </div>
+    <div class="card accent">
+      <div class="k">(2) Тэнцэтгэл биш ≥</div><h3>Доод хязгаар</h3>
+      <p>"Доошоо буурахгүй". Гэрээгээр сард хамгийн багадаа 50 нэгж үйлдвэрлэх шаардлагатай бол <strong>x₁ ≥ 50</strong>. Чанарын доод стандарт, шим тэжээлийн доод шаардлагад өргөн хэрэглэгдэнэ.</p>
+    </div>
+    <div class="card accent">
+      <div class="k">(3) Тэгшитгэл =</div><h3>Тэнцвэрт нөхцөл</h3>
+      <p>Яг тодорхой утгатай, өөрчлөгдөх боломжгүй. Нийт ажилчдын тоо яг 100 байх ёстой бол <strong>x₁ + x₂ = 100</strong>. Тээврийн бодлогод нийлүүлэлт, эрэлтийн тэнцвэрт хэрэглэнэ.</p>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.4.2 · Тэгшитгэлийн жишээ → Бүлэг 8</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 7. ИНТЕРАКТИВ 1 — ТЭМДЭГ СОНГОГЧ ══════════ -->
+<section class="slide" data-sec="2.4" id="sgnSlide" data-notes="ИНТЕРАКТИВ 1 — 6 минут. Нөхцөл бүрийг чангаар уншиж, оюутнуудаас гараа өргүүлж санал аваад дараа нь товш. Зөв хариу: ≤, ≥, =, ≤, ≥, ≤, ≥, =. Гол дасгал: 'дээд хязгаар уу, доод хязгаар уу?' гэсэн асуултыг өөрөөсөө асуух.">
+  <div class="s-tag">Интерактив · 2.4.2 → тэмдгийн сонголт</div>
+  <h2 class="title">Аль <em>тэмдэг</em> тохирох вэ?</h2>
+  <div class="sgn" id="sgnGrid">
+    <div class="sgn-row" data-a="le" data-why="<b>≤ дээд хязгаар.</b> Бэлэн байгаа нөөцөөс хэтэрч болохгүй: 4x₁ + 2x₂ ≤ 100.">
+      <div class="sgn-top"><div class="sgn-q">Агуулахад байгаа <b>100 м.куб</b> модноос илүү мод зарцуулж болохгүй</div>
+      <div class="sgn-b"></div></div><div class="sgn-f"></div>
+    </div>
+    <div class="sgn-row" data-a="ge" data-why="<b>≥ доод хязгаар.</b> Захиалгын гэрээгээр тавигдсан доод шаардлага: x₁ ≥ 50.">
+      <div class="sgn-top"><div class="sgn-q">Гэрээгээр сард <b>хамгийн багадаа 50 нэгж</b> бүтээгдэхүүн үйлдвэрлэнэ</div>
+      <div class="sgn-b"></div></div><div class="sgn-f"></div>
+    </div>
+    <div class="sgn-row" data-a="eq" data-why="<b>= тэнцвэрт нөхцөл.</b> Яг тодорхой утгатай, өөрчлөгдөх боломжгүй: x₁ + x₂ = 100.">
+      <div class="sgn-top"><div class="sgn-q">Нийт ажилчдын тоо <b>яг 100</b> байх ёстой</div>
+      <div class="sgn-b"></div></div><div class="sgn-f"></div>
+    </div>
+    <div class="sgn-row" data-a="le" data-why="<b>≤ дээд хязгаар.</b> Мужаадын ажиллах цагийн дээд хязгаар: 2x₁ + 4x₂ ≤ 80.">
+      <div class="sgn-top"><div class="sgn-q">Мужаанууд долоо хоногт <b>ердөө 80 цаг</b> ажиллах боломжтой</div>
+      <div class="sgn-b"></div></div><div class="sgn-f"></div>
+    </div>
+    <div class="sgn-row" data-a="ge" data-why="<b>≥ доод хязгаар.</b> Шим тэжээлийн доод шаардлага (2.8.1): x₁ + 2x₂ ≥ 10.">
+      <div class="sgn-top"><div class="sgn-q">Нэг багц хиамны уургийн агуулга <b>10 нэгжээс багагүй</b> байна</div>
+      <div class="sgn-b"></div></div><div class="sgn-f"></div>
+    </div>
+    <div class="sgn-row" data-a="le" data-why="<b>≤ дээд хязгаар.</b> Эрсдэлийг хязгаарлах дээд хэмжээ (2.8.2): x₂ ≤ 60.">
+      <div class="sgn-top"><div class="sgn-q">Хувьцаанд <b>хамгийн ихдээ 60 сая ₮</b> байршуулна</div>
+      <div class="sgn-b"></div></div><div class="sgn-f"></div>
+    </div>
+    <div class="sgn-row" data-a="ge" data-why="<b>≥ доод хязгаар.</b> Эрсдэлийг тараах бодлогын доод шаардлага (2.8.2): x₁ ≥ 20.">
+      <div class="sgn-top"><div class="sgn-q">Бондод <b>хамгийн багадаа 20 сая ₮</b> байршуулна</div>
+      <div class="sgn-b"></div></div><div class="sgn-f"></div>
+    </div>
+    <div class="sgn-row" data-a="eq" data-why="<b>= тэнцвэрт нөхцөл.</b> Тээврийн бодлогод нийлүүлэлт, эрэлтийн тэнцвэрийг ингэж бичнэ (Бүлэг 8).">
+      <div class="sgn-top"><div class="sgn-q">Агуулахуудын нийт нийлүүлэлт дэлгүүрүүдийн нийт эрэлттэй <b>тэнцүү</b></div>
+      <div class="sgn-b"></div></div><div class="sgn-f"></div>
+    </div>
+  </div>
+  <div class="gamebar">
+    <span id="sgnScore">0 / 8 зөв · 0 оролдлого</span>
+    <button id="sgnReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Товшиж сонгоно уу · "Энэ бол дээд хязгаар уу, доод хязгаар уу?"</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 8. 2.4.3–2.4.4 a ба b ══════════ -->
+<section class="slide" data-sec="2.4" data-notes="Хоёр коэффициентийн эдийн засгийн утга. a нь технологийн жороос, b нь агуулахын бодит үлдэгдлээс гардаг. Оюутнаар 'нэг ширээ = 4 м.куб + 2 цаг' гэдгийг давтуулж хэлүүл.">
+  <div class="s-tag">2.4.3–2.4.4 · Эдийн засгийн утга</div>
+  <h2 class="title">Тоо бүр юуг <em>илэрхийлэх</em> вэ?</h2>
+  <div class="split">
+    <div>
+      <div class="word">aᵢⱼ</div>
+      <div class="word-note">технологийн коэффициент</div>
+      <p class="lead" style="font-size:17px;margin-top:13px">"Нэг нэгж <strong>j</strong>-р бүтээгдэхүүн үйлдвэрлэхэд <strong>i</strong>-р нөөц хэр их ордог вэ?" Энэ нь үйлдвэрлэлийн жор, технологийн процессоос шууд гардаг тогтмол тоо.</p>
+      <div class="card accent" style="margin-top:14px">
+        <p>"Нэг ширээ хийхэд <strong>4 м.куб мод</strong>, <strong>2 цаг</strong> зарцуулагдана" — эдгээр 4 ба 2 нь технологийн коэффициент.</p>
+      </div>
+    </div>
+    <div>
+      <div class="word">b</div>
+      <div class="word-note">сул гишүүн · RHS</div>
+      <p class="lead" style="font-size:17px;margin-top:13px">Хязгаарлалтын баруун гар талд байрлах тогтмол тоо. Ихэвчлэн <strong>бэлэн байгаа нөөцийн нийт хэмжээ</strong> (≤ үед) эсвэл <strong>хүрэх ёстой доод зорилтот түвшин</strong> (≥ үед).</p>
+      <div class="card accent" style="margin-top:14px">
+        <p>Агуулах дахь <strong>100 м.куб</strong> мод, эсвэл сард захиалгаар шаардагдах хамгийн бага <strong>50 нэгж</strong> бүтээгдэхүүн.</p>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.4.3–2.4.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 9. 2.4.5 ТҮГЭЭМЭЛ АЛДАА ══════════ -->
+<section class="slide" data-sec="2.4" data-notes="Гурван алдаа. Гурав дахь нь хамгийн хортой — Unbounded хариу руу хөтөлдөг. Шалгалтын өмнө энэ слайдыг заавал давтуул.">
+  <div class="s-tag">2.4.5 · Түгээмэл алдаанууд</div>
+  <h2 class="title">Гурван түгээмэл <em>алдаа</em></h2>
+  <div class="checks">
+    <div class="chk no"><span class="m">⚠</span><span class="tx"><b>Нэгж холилдох (кг ба литр)</b> — нэг хязгаарлалт дотор өөр өөр нэгжийг шууд нэмж болохгүй. Бүх хувьсагч, коэффициент, сул гишүүн ижил нэгжтэй эсэхийг заавал шалгана.</span></div>
+    <div class="chk no"><span class="m">⚠</span><span class="tx"><b>Хязгаарлалт мартах</b> — мод, цагийн хязгаарыг бичээд гэрээгээр заасан доод захиалгын хэмжээг орхигдуулах гэх мэт. Асуудлын өгүүлбэрийг дахин уншиж, дурдсан тоо бүрийг шалга.</span></div>
+    <div class="chk no"><span class="m">⚠</span><span class="tx"><b>Тэмдгийн буруу сонголт</b> — ≤ ба ≥-ийг андуурах нь хамгийн түгээмэл бөгөөд хамгийн хортой алдаа. Модны хязгаарт ≥ бичвэл "үйлдвэр заавал 100-аас их мод ашиглах ёстой" гэсэн утгатай болж, хязгааргүй том хариу (Unbounded) руу хөтөлнө.</span></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Санах дүрэм</div>
+    <p>Тэмдэг сонгохын өмнө өөрөөсөө "<strong>энэ бол дээд хязгаар уу, доод хязгаар уу?</strong>" гэж асуугаарай.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.4.5</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 10. ЗААГ 2.5 ══════════ -->
+<section class="slide divider dark" data-sec="2.5" data-notes="Хамгийн богино, гэхдээ хамгийн их мартагддаг алхам. Оюутнууд бодлого тавихдаа энэ мөрийг байнга орхигдуулдаг.">
+  <div class="num">2.5</div>
+  <h2>Үл сөрөг байх нөхцөл</h2>
+  <p class="sub">Бодлогын тавилтын дөрөв дэх алхам — нэг мөр, гэхдээ түүнгүйгээр бүх загвар утгагүй болно.</p>
+  <div class="s-foot"><span>Бүлэг 2.5 · Non-negativity</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 11. 2.5.1–2.5.2 ══════════ -->
+<section class="slide" data-sec="2.5" data-notes="Техникийн хувьд энэ бас нэг төрлийн хязгаарлалт боловч бүх бодлогод ижил хэлбэрээр давтагддаг тул тусдаа, дөрөв дэх алхам болгон авч үздэг. Хоёр талаас нь тайлбарла.">
+  <div class="s-tag">2.5.1–2.5.2 · Тодорхойлолт ба үндэслэл</div>
+  <h2 class="title">Яагаад <em>заавал</em> хэрэгтэй вэ?</h2>
+  <div class="formula">
+    <div class="fl">
+      x<span class="c">ᵢ</span> <span class="op">≥ 0</span>, &nbsp; i = 1, 2, …, n
+    </div>
+    <div class="cap">Бүх шийдвэрийн хувьсагч тэг буюу түүнээс их байх ёстой</div>
+  </div>
+  <div class="grid g2">
+    <div class="card accent"><div class="k">Физик утгын үүднээс</div><h3>Сөрөг бараа гэж байхгүй</h3><p>Бодит амьдрал дээр сөрөг тоогоор бараа үйлдвэрлэх, сөрөг тоогоор ажилчин авах, сөрөг тоогоор тээвэрлэх боломжгүй. Математик бол амьдралын логикийг мэддэггүй, зүгээр л тоо боддог хэрэгсэл.</p></div>
+    <div class="card accent"><div class="k">Математикийн үүднээс</div><h3>Боломжит мужийг хашина</h3><p>Үл сөрөг байх нөхцөл нь боломжит шийдийн орон зайг координатын хавтгайн зөвхөн эерэг хэсэгт хязгаарлаж, бодлогыг тодорхой, хязгаарлагдмал мужид оруулдаг. → Бүлэг 3</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.5.1–2.5.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 12. 2.5.3–2.5.5 ══════════ -->
+<section class="slide" data-sec="2.5" data-notes="'−50 сандал' жишээ оюутнуудад маш сайн ойлгогддог: математик логикоор бол −50 сандал хийвэл мод буцаж бий болно гэж ойлгогдоно. Хязгааргүй хувьсагчийг зөвхөн танилцуулах хэмжээнд — задлах арга нь Бүлэг 5.">
+  <div class="s-tag">2.5.3–2.5.5 · Онцгой тохиолдол ба тэмдэглэгээ</div>
+  <h2 class="title">Хэрэв нөхцөл <em>байхгүй</em> бол?</h2>
+  <div class="def" style="border-left-color:var(--rust);background:var(--rust-bg)">
+    <div class="lbl" style="color:var(--rust)">Аюул</div>
+    <p>Алгоритм ашгаа улам өсгөх зорилгоор сөрөг утга руу чөлөөтэй явж, "<strong>−50 ширхэг сандал үйлдвэрлэ</strong>" гэсэн хариу гаргана. Учир нь математик логикоор бол −50 сандал хийснээр үйлдвэрт мод "буцаж бий болно" гэж ойлгогддог.</p>
+  </div>
+  <div class="grid g2">
+    <div class="card accent"><div class="k">2.5.4 · Тусгай тохиолдол</div><h3>Хязгааргүй хувьсагч</h3><p>Заримдаа бодит хувьсагч сөрөг утга авч болдог — ашиг, алдагдлын зөрүү, температурын өөрчлөлт, нөөцийн өөрчлөлт. Ийм хувьсагчийг <strong>хязгааргүй хувьсагч</strong> (Unrestricted variable) гэж нэрлэх бөгөөд xᵢ ≥ 0 нөхцөл түүнд тавигдахгүй. → Бүлэг 5</p></div>
+    <div class="card accent"><div class="k">2.5.5 · Бусад тэмдэглэгээ</div><h3>x₁, x₂ юу? x, y юу?</h3><p>Зарим сурах бичигт, ялангуяа хоёр хувьсагчтай энгийн жишээнд <strong>x, y</strong> гэсэн ердийн тэмдэглэгээг ашигладаг. Энэ сурах бичигт бид тогтвортой байдлын үүднээс <strong>x₁, x₂, …</strong> хэлбэрийг барина.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.5.3–2.5.5</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 13. ЗААГ 2.6 ══════════ -->
+<section class="slide divider dark" data-sec="2.6" data-notes="Дөрвөн бүрэлдэхүүн хэсэг нэгдэж загвар болох мөч. Энэ хэлбэр Бүлэг 3, 5, 7-д байнга хэрэглэгдэнэ.">
+  <div class="num">2.6</div>
+  <h2>Стандарт хэлбэр</h2>
+  <p class="sub">2.2–2.5-д үзсэн дөрвөн бүрэлдэхүүн хэсгийг нэгтгэвэл нэг цэгцтэй загвар болно.</p>
+  <div class="s-foot"><span>Бүлэг 2.6 · Standard Form</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 14. 2.6.1 БҮРЭН ЗАГВАР ══════════ -->
+<section class="slide" data-sec="2.6" data-notes="Бүрэн загвар. m — хязгаарлалтын тоо, n — хувьсагчийн тоо. Стандарт хэлбэрийн тодорхойлолтоор бүх хязгаарлалт ≤ тэмдэгтэй байх ёстой — үүнийг онцол.">
+  <div class="s-tag">2.6.1 · Стандарт хэлбэрийн бүрэн загвар</div>
+  <h2 class="title">Дөрвөн хэсэг нэг <em>загварт</em></h2>
+  <div class="formula">
+    <div class="fl" style="font-size:21px;line-height:1.75">
+      <span class="op">max</span> (эсвэл <span class="op">min</span>) &nbsp;Z = <span class="c">c₁</span>x₁ + <span class="c">c₂</span>x₂ + … + <span class="c">cₙ</span>xₙ<br>
+      <span style="font-size:15px;color:rgba(255,255,255,.7)">хязгаарлалт:</span><br>
+      a₁₁x₁ + a₁₂x₂ + … + a₁ₙxₙ <span class="op">≤</span> b₁<br>
+      a₂₁x₁ + a₂₂x₂ + … + a₂ₙxₙ <span class="op">≤</span> b₂ &nbsp;&nbsp;⋮<br>
+      aₘ₁x₁ + aₘ₂x₂ + … + aₘₙxₙ <span class="op">≤</span> bₘ<br>
+      x₁, x₂, …, xₙ <span class="op">≥ 0</span>
+    </div>
+    <div class="cap">m — хязгаарлалтын тоо &nbsp;·&nbsp; n — хувьсагчийн тоо</div>
+  </div>
+  <p class="lead" style="margin-top:16px;font-size:17px">Стандарт хэлбэрийн тодорхойлолтоор <strong>бүх хязгаарлалт ≤ тэмдэгтэй</strong> байх ёстойг анхаарна уу — 2.6.3-т энэ хэлбэр рүү хэрхэн шилжихийг үзнэ.</p>
+  <div class="s-foot"><span>Бүлэг 2.6.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 15. 2.6.2 МАТРИЦ ХЭЛБЭР ══════════ -->
+<section class="slide" data-sec="2.6" data-notes="Хувьсагчийн тоо ихсэх үед мөр мөрөөр бичихийн оронд матрицаар товчилно. Матрицын үйлдэл, AX = B системийг Бүлэг 4-т үзнэ.">
+  <div class="s-tag">2.6.2 · Матриц хэлбэрээр</div>
+  <h2 class="title">Бүх системийг <em>нэг мөрөнд</em></h2>
+  <div class="formula">
+    <div class="fl">
+      <span class="op">max</span> Z = <span class="c">c</span>ᵀx &nbsp;&nbsp;&nbsp;&nbsp; хязгаарлалт: &nbsp;<span class="c">A</span>x <span class="op">≤</span> b, &nbsp; x <span class="op">≥ 0</span>
+    </div>
+    <div class="cap">Хувьсагчийн тоо ихсэх үед мөр мөрөөр бичихийн оронд матрицаар товчлон бичих нь илүү тохиромжтой</div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><div class="k">A</div><h3>Технологийн коэффициентийн матриц</h3><p>m × n хэмжээст — мөр бүр нэг хязгаарлалт, багана бүр нэг хувьсагч.</p></div>
+    <div class="card"><div class="k">x</div><h3>Хувьсагчийн багана матриц</h3><p>Бидний олох ёстой шийдвэрийн хувьсагчид.</p></div>
+    <div class="card"><div class="k">b</div><h3>Сул гишүүний багана матриц</h3><p>Бэлэн нөөц эсвэл зорилтот түвшний тоонууд.</p></div>
+    <div class="card"><div class="k">c</div><h3>Зорилгын функцийн вектор</h3><p>Нэгж бүрийн ашиг эсвэл зардлын коэффициент.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.6.2 · AX = B-г шийдэх арга → Бүлэг 4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 16. 2.6.3 ГУРВАН ДҮРЭМ ══════════ -->
+<section class="slide" data-sec="2.6" data-notes="Гурван дүрэм — шалгалтад заавал орно. Дүрэм 1-д хариуг буцаагаад (−1)-ээр үржүүлж жинхэнэ утгыг гаргана гэдгийг мартуулж болохгүй. Дүрэм 3-ыг практикт ховор хэрэглэдэг.">
+  <div class="s-tag">2.6.3 · Стандарт хэлбэрт оруулах алхмууд</div>
+  <h2 class="title">Гурван <em>хувиргалтын дүрэм</em></h2>
+  <div class="grid g3">
+    <div class="numcard"><div class="n">1</div><h3>min → max</h3><p>Зорилгын функцийн бүх коэффициентийг (−1)-ээр үржүүлнэ: <strong>min Z = −max (−Z)</strong>.<br><span style="font-family:var(--mono);font-size:13.5px;color:var(--green)">Z = 2x₁ − 5x₂ → min<br>Z′ = −2x₁ + 5x₂ → max</span><br>Эцэст гарсан хариуг буцаагаад (−1)-ээр үржүүлж жинхэнэ утгыг гаргана.</p></div>
+    <div class="numcard"><div class="n">2</div><h3>≥ → ≤</h3><p>Тэнцэтгэл бишийн хоёр талыг (−1)-ээр үржүүлж тэмдгийг эргүүлнэ.<br><span style="font-family:var(--mono);font-size:13.5px;color:var(--green)">3x₁ − x₂ ≥ 10<br>−3x₁ + x₂ ≤ −10</span></p></div>
+    <div class="numcard"><div class="n">3</div><h3>= → хос ≤ ба ≥</h3><p>Тэгшитгэлийг хоёр тэнцэтгэл биш болгон задалж болно. Практикт Симплекс арга тэгшитгэлийг шууд каноник хэлбэрт шилжүүлдэг тул энэ хувиргалтыг <strong>ховор</strong> хэрэглэдэг.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Хязгааргүй хувьсагчийг задлах</div>
+    <p style="font-size:17px">2.5.4-т дурдсан хязгааргүй хувьсагч xᵢ-г хоёр эерэг хувьсагчийн зөрүүгээр орлуулна: <strong>xᵢ = xᵢ⁺ − xᵢ⁻</strong>, &nbsp;xᵢ⁺, xᵢ⁻ ≥ 0.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.6.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 17. ИНТЕРАКТИВ 3 — ЭРЭМБЭЛЭГЧ ══════════ -->
+<section class="slide" data-sec="2.6" id="ordrSlide" data-notes="ИНТЕРАКТИВ 2 — 4 минут. Мөрүүдийг чирж эсвэл ▲▼ товчоор зөв дараалалд оруулна. Зөв дараалал: шийдвэрийн хувьсагч → зорилгын функц → хязгаарлалт (мод, цаг) → үл сөрөг нөхцөл. Оюутнаар яагаад ийм дараалалтай болохыг тайлбарлуул.">
+  <div class="s-tag">Интерактив · 2.6.1 → зөв дараалал</div>
+  <h2 class="title">Стандарт хэлбэрийг <em>эрэмбэлнэ үү</em></h2>
+  <div class="ordr" id="ordrList"></div>
+  <div class="gamebar">
+    <span id="ordrScore">Мөрүүдийг чирж эсвэл ▲ ▼ товчоор байрлуулна уу</span>
+    <span style="display:flex;gap:8px">
+      <button id="ordrCheck">Шалгах</button>
+      <button id="ordrReset">Дахин холих</button>
+    </span>
+  </div>
+  <div class="s-foot"><span>"Модон урлал" ХХК-ийн стандарт хэлбэр · Бүлэг 2.6.1 → 2.7.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 18. ГУРВАН ХЭЛБЭРИЙН ХАРЬЦУУЛАЛТ ══════════ -->
+<section class="slide" data-sec="2.6" data-notes="Гурван хэлбэрийн ялгаа — энэ хүснэгтийг цээжлүүл. Каноник хэлбэр рүү шилжихдээ бүх тэнцэтгэл бишийг тэгшитгэл болгодог: нэмэлт, илүүдэл, зохиомол хувьсагч — Бүлэг 5, 6.">
+  <div class="s-tag">2.6.3 · Гурван хэлбэрийн ялгаа</div>
+  <h2 class="title">Ерөнхий · Стандарт · <em>Каноник</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:25%">Шинж чанар</th><th>Ерөнхий хэлбэр</th><th>Стандарт хэлбэр</th><th>Каноник хэлбэр</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Зорилго</td><td>Max / Min</td><td>Max</td><td>Max / Min</td></tr>
+    <tr><td class="k">Хязгаарлалт</td><td class="sym">=, ≤, ≥</td><td class="sym">Зөвхөн ≤</td><td class="sym">Зөвхөн =</td></tr>
+    <tr><td class="k">Хувьсагч</td><td>Дурын</td><td class="sym">x ≥ 0</td><td class="sym">x ≥ 0</td></tr>
+    <tr><td class="k">Хэрэглээ</td><td>Бодлогын тавилт</td><td>Графикийн арга, хосмог онол</td><td>Симплекс арга</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Цааш нь</div>
+    <p style="font-size:17px">Каноник хэлбэрт оруулахдаа бүх тэнцэтгэл бишийг тэгшитгэл болгоно — нэмэлт (slack), илүүдэл (surplus), зохиомол (artificial) хувьсагчийн дэлгэрэнгүйг <strong>Бүлэг 5, 6</strong>-аас үзнэ үү.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.6.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 19. ЗААГ 2.7 ══════════ -->
+<section class="slide divider dark" data-sec="2.7" data-notes="Номын гол кейс. Энэ жишээг Бүлэг 3, 4, 5, 7-д дахин дахин ашиглана — тиймээс өгөгдлийг энд нэг мөр стандартчилж, нэг удаа тодорхой гаргана.">
+  <div class="num">2.7</div>
+  <h2>Кейс 1: "Модон урлал" ХХК</h2>
+  <p class="sub">Бүлэг 3, 4, 5, 7-д дахин дахин бодогдох гол жишээ. Одоо түүнийг эхнээс нь бүрэн задална.</p>
+  <div class="s-foot"><span>Бүлэг 2.7 · Гол жишээ</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 20. 2.7.1 БИЗНЕСИЙН НӨХЦӨЛ ══════════ -->
+<section class="slide" data-sec="2.7" data-notes="Эхлээд оюутнуудаас 'дандаа ширээ хийвэл яах вэ?' гэж асуу. Тэд ихэвчлэн тийм гэж хариулна. Дараа нь 30 цаг сул суух тооцоог хамт хий.">
+  <div class="s-tag">2.7.1 · Бизнесийн нөхцөл байдал</div>
+  <h2 class="title">Захирлын <em>асуулт</em></h2>
+  <div class="split wide">
+    <div>
+      <div class="def">
+        <div class="lbl">Нөхцөл байдал</div>
+        <p style="font-size:16.5px">"Модон урлал" ХХК нь <strong>ширээ, сандал</strong> гэсэн хоёр төрлийн бүтээгдэхүүн үйлдвэрлэдэг. Агуулахад дээд тал нь <strong>100 м.куб</strong> хатаасан мод байгаа бөгөөд мужаанууд нийлээд долоо хоногт ердөө <strong>80 цаг</strong> ажиллах боломжтой.</p>
+      </div>
+      <div class="card green" style="margin-top:14px">
+        <p style="color:var(--green);font-weight:500;font-size:15.5px">"Хязгаарлагдмал нөөцөө ашиглаад хэдэн ширээ, хэдэн сандал хийвэл хамгийн өндөр ашигтай ажиллах вэ?"</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card accent"><div class="k">Анхны таамаг</div><h3 style="font-size:17px">"Дандаа ширээ хийчихье"</h3><p>Ширээ илүү ашигтай юм чинь…</p></div>
+      <div class="card"><p style="font-size:14.5px;line-height:1.7">Мод хурдан дуусна: <strong>100 ÷ 4 = 25 ширээ</strong>.<br>Гэвч цаг илүүдэнэ: <strong>25 × 2 = 50 цаг</strong>.<br>Мужаанууд <strong>30 цаг сул суух</strong> болно.</p></div>
+      <div class="card green"><p style="color:var(--green);font-weight:500;font-size:14.5px">Энэ бол нөөцийн үр ашиггүй хуваарилалт. Зорилго нь аль нэгийг нь ч сул зогсоохгүйгээр хамгийн өндөр ашиг авчрах тэнцвэрийг олох.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.7.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 21. 2.7.2 ӨГӨГДЛИЙН ХҮСНЭГТ ══════════ -->
+<section class="slide" data-sec="2.7" data-notes="Энэ хүснэгтийг оюутан цээжилнэ — Бүлэг 3, 4, 5, 7-д ижил тоо гарна. Мөр = бүтээгдэхүүн, багана = нөөц гэсэн уншлагыг заа.">
+  <div class="s-tag">2.7.2 · Өгөгдлийн хүснэгт</div>
+  <h2 class="title">Бүтээгдэхүүн бүрийн <em>орц ба ашиг</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:34%">Бүтээгдэхүүн</th><th>Мод (м.куб)</th><th>Ажлын цаг</th><th>Нэгжийн ашиг (₮)</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Ширээ (x₁)</td><td class="sym">4</td><td class="sym">2</td><td class="sym">50,000</td></tr>
+    <tr><td class="k">Сандал (x₂)</td><td class="sym">2</td><td class="sym">4</td><td class="sym">40,000</td></tr>
+    <tr><td class="k">Нийт бэлэн нөөц</td><td class="sym">100 м.куб</td><td class="sym">80 цаг</td><td class="sym">—</td></tr>
+    </tbody>
+  </table>
+  <div class="grid g2">
+    <div class="card accent"><div class="k">Мөр бүр</div><h3>Нэг бүтээгдэхүүний жор</h3><p>Нэг ширээ = 4 м.куб мод + 2 цаг хөдөлмөр. Эдгээр нь <strong>технологийн коэффициент aᵢⱼ</strong>.</p></div>
+    <div class="card accent"><div class="k">Сүүлийн мөр</div><h3>Бэлэн нөөц = сул гишүүн b</h3><p>100 ба 80 нь хязгаарлалтын баруун гар талд ороход бэлэн <strong>сул гишүүн</strong> болно.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.7.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 22. 2.7.3 ДӨРВӨН АЛХАМ ══════════ -->
+<section class="slide" data-sec="2.7" data-notes="Дөрвөн алхмын дараалал — бодлого тавих бүх удаад ижил. Оюутнаар алхам бүрийн нэрийг давтуулж хэлүүл, дараа нь дараагийн слайдын угсрагч дасгал руу ор.">
+  <div class="s-tag">2.7.3 · Дөрвөн алхмаар бодлогын тавилт</div>
+  <h2 class="title">Дөрвөн <em>алхам</em></h2>
+  <div class="grid g2">
+    <div class="numcard"><div class="n">1</div><h3>Асуудлыг ойлгох</h3><p>Хэдэн ширээ, хэдэн сандал хийх вэ? Ашгаа хамгийн их болгох.</p></div>
+    <div class="numcard"><div class="n">2</div><h3>Шийдвэрийн хувьсагч</h3><p style="font-family:var(--mono);font-size:14.5px;color:var(--green)">x₁ = хийх ширээний тоо<br>x₂ = хийх сандлын тоо</p></div>
+    <div class="numcard"><div class="n">3</div><h3>Зорилгын функц</h3><p style="font-family:var(--mono);font-size:14.5px;color:var(--green)">Z = 50000x₁ + 40000x₂ → max</p><p style="margin-top:6px">Ширээний ашиг + сандлын ашиг.</p></div>
+    <div class="numcard"><div class="n">4</div><h3>Хязгаарлалтын систем</h3><p style="font-family:var(--mono);font-size:14.5px;color:var(--green)">Мод: 4x₁ + 2x₂ ≤ 100<br>Цаг: 2x₁ + 4x₂ ≤ 80<br>Үл сөрөг: x₁, x₂ ≥ 0</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.7.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 23. ИНТЕРАКТИВ 2 — БОДЛОГО УГСРАГЧ ══════════ -->
+<section class="slide" data-sec="2.7" id="bldSlide" data-notes="ИНТЕРАКТИВ 3 — 7 минут, хичээлийн зүрх. Оюутан хүснэгтээс уншиж нүд бүрийг бөглөнө; алдаатай нүд шууд улаан болно. Эхлээд 'Модон урлал' горимоор, 2.8.1-ийг үзсэний дараа 'Хиам' горимд шилжиж дахин угсруул. Санамж: Хиам нь min бөгөөд ≥ тэмдэгтэй.">
+  <div class="s-tag">Интерактив · 2.7.4 → өөрөө угсрах</div>
+  <h2 class="title">Стандарт хэлбэрийг <em>өөрөө угсарна уу</em></h2>
+  <div class="bld">
+    <div class="bld-data">
+      <h4 id="bldTitle">"Модон урлал" ХХК · өгөгдөл</h4>
+      <table class="t sm" id="bldTbl"></table>
+      <div class="bld-modes">
+        <button data-m="wood" class="on">"Модон урлал" (max)</button>
+        <button data-m="meat">"Хиам" ХХК (min)</button>
+      </div>
+    </div>
+    <div class="bld-form">
+      <div class="bld-line"><span class="bld-lbl" id="bldObjL">зорилго</span>
+        <span class="op" id="bldDir">max</span><span class="fix">Z =</span>
+        <input class="bcell" id="c1" inputmode="numeric" autocomplete="off"><span class="fix">x₁ +</span>
+        <input class="bcell" id="c2" inputmode="numeric" autocomplete="off"><span class="fix">x₂</span>
+      </div>
+      <div class="bld-line"><span class="bld-lbl" id="r1L">мод</span>
+        <input class="bcell" id="a11" inputmode="numeric" autocomplete="off"><span class="fix">x₁ +</span>
+        <input class="bcell" id="a12" inputmode="numeric" autocomplete="off"><span class="fix">x₂</span>
+        <span class="op" id="s1o">≤</span>
+        <input class="bcell" id="b1" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="bld-line"><span class="bld-lbl" id="r2L">цаг</span>
+        <input class="bcell" id="a21" inputmode="numeric" autocomplete="off"><span class="fix">x₁ +</span>
+        <input class="bcell" id="a22" inputmode="numeric" autocomplete="off"><span class="fix">x₂</span>
+        <span class="op" id="s2o">≤</span>
+        <input class="bcell" id="b2" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="bld-line"><span class="bld-lbl">үл сөрөг</span><span class="fix">x₁, x₂ </span><span class="op">≥ 0</span></div>
+    </div>
+  </div>
+  <div class="bld-bar">
+    <span class="bld-st" id="bldSt">Хүснэгтээс уншиж 8 нүдийг бөглөнө үү</span>
+    <span class="btns">
+      <button id="bldCheck">Шалгах</button>
+      <button id="bldShow" class="ghost">Хариу харуулах</button>
+      <button id="bldClear" class="ghost">Цэвэрлэх</button>
+    </span>
+  </div>
+  <div class="s-foot"><span>Алдаатай нүд улаан, зөв нүд ногоон болно</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 24. 2.7.4–2.7.5 ЭЦСИЙН ЗАГВАР ══════════ -->
+<section class="slide" data-sec="2.7" data-notes="Эцсийн загвар. Энэ гурван мөрийг оюутан цээжээр бичиж чаддаг байх ёстой. Эдийн засгийн тайлбарыг заавал хамт хэлүүл — 50,000 нь нэмэлт нэг ширээний ашиг.">
+  <div class="s-tag">2.7.4–2.7.5 · Эцсийн математик загвар</div>
+  <h2 class="title">"Модон урлал" ХХК-ийн <em>загвар</em></h2>
+  <div class="formula">
+    <div class="fl" style="font-size:22px;line-height:1.8">
+      <span class="op">max</span> Z = <span class="c">50000</span>x₁ + <span class="c">40000</span>x₂<br>
+      <span style="font-size:15px;color:rgba(255,255,255,.7)">хязгаарлалт:</span><br>
+      4x₁ + 2x₂ <span class="op">≤</span> 100<br>
+      2x₁ + 4x₂ <span class="op">≤</span> 80<br>
+      x₁, x₂ <span class="op">≥ 0</span>
+    </div>
+    <div class="cap">x₁ — ширээний тоо &nbsp;·&nbsp; x₂ — сандлын тоо</div>
+  </div>
+  <div class="grid g2">
+    <div class="card accent"><div class="k">Зорилгын функцийн коэффициент</div><p>50,000 ба 40,000 нь нэгжийн ашиг: нэмэлт нэг ширээ компанид <strong>50,000₮</strong>, нэмэлт нэг сандал <strong>40,000₮</strong> ашиг авчирна.</p></div>
+    <div class="card accent"><div class="k">≤ тэмдгийн утга</div><p>Зарцуулах нийт мод 100 м.кубаас, нийт ажлын цаг 80-аас <strong>хэтэрч болохгүй</strong> — эдгээр нь дээд хязгаар буюу бэлэн байгаа хамгийн их нөөц.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.7.4–2.7.5 · Цааш → Бүлэг 3, 4.5, 5, 7.6</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 25. 2.8.1 ХИАМ ХХК ══════════ -->
+<section class="slide" data-sec="2.8" data-notes="Эсрэг чиглэлтэй бодлого: min зорилго, ≥ хязгаарлалт. Угсрагч дасгал руу буцаж очоод 'Хиам' горимыг сонгож давтуулж болно. Big-M арга Бүлэг 6-д.">
+  <div class="s-tag">2.8.1 · Кейс 2 — "Хиам" ХХК-ийн диетийн бодлого</div>
+  <h2 class="title">Эсрэг чиглэлтэй бодлого: <em>min ба ≥</em></h2>
+  <div class="split wide">
+    <div>
+      <table class="t sm">
+        <thead><tr><th>Орц</th><th>Үнэ (₮/кг)</th><th>Уураг</th><th>Төмөр</th></tr></thead>
+        <tbody>
+        <tr><td class="k">Үхрийн мах (x₁)</td><td class="sym">5,000</td><td class="sym">1</td><td class="sym">2</td></tr>
+        <tr><td class="k">Тахианы цээж мах (x₂)</td><td class="sym">3,000</td><td class="sym">2</td><td class="sym">1</td></tr>
+        <tr><td class="k">Стандартын доод шаардлага</td><td class="sym">—</td><td class="sym">10 нэгж</td><td class="sym">8 нэгж</td></tr>
+        </tbody>
+      </table>
+      <div class="card accent" style="margin-top:13px"><p>Тэнд бид хязгаарлагдмал нөөцөөр <strong>ашгаа өсгөхийг</strong> эрмэлзсэн бол энд стандартыг хангахын тулд <strong>зардлаа бууруулахыг</strong> эрмэлзэж байна. x₁, x₂ — нэг багц хиаманд орох махны хэмжээ (кг).</p></div>
+    </div>
+    <div>
+      <div class="formula" style="padding:20px 22px">
+        <div class="fl" style="font-size:18px;line-height:1.75">
+          <span class="op">min</span> Z = <span class="c">5000</span>x₁ + <span class="c">3000</span>x₂<br>
+          <span style="font-size:14px;color:rgba(255,255,255,.7)">хязгаарлалт:</span><br>
+          x₁ + 2x₂ <span class="op">≥</span> 10 &nbsp;<span style="font-size:13px;color:rgba(255,255,255,.6)">(уураг)</span><br>
+          2x₁ + x₂ <span class="op">≥</span> 8 &nbsp;<span style="font-size:13px;color:rgba(255,255,255,.6)">(төмөр)</span><br>
+          x₁, x₂ <span class="op">≥ 0</span>
+        </div>
+      </div>
+      <div class="def" style="margin-top:13px;border-left-color:var(--rust);background:var(--rust-bg)">
+        <div class="lbl" style="color:var(--rust)">⚠ Анхаарах</div>
+        <p style="font-size:16px">≥ хязгаарлалттай min бодлогыг энгийн Симплекс аргаар шууд бодох боломжгүй тул тусгай арга шаардлагатай. → <strong>Big-M арга, Бүлэг 6</strong></p>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.8.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 26. 2.8.2 ПОРТФЕЛЬ ══════════ -->
+<section class="slide" data-sec="2.8" data-notes="Энэ кейс нэг бодлого дотор ≤ ба ≥ хоёр өөр төрлийн хязгаарлалт хэрхэн зэрэг орж ирдгийг сайн харуулна. Эрсдэлийн дээд хязгаар, тараалтын доод шаардлага хоёулаа нэгэн зэрэг хангагдана.">
+  <div class="s-tag">2.8.2 · Кейс 3 — Портфелийн менежмент</div>
+  <h2 class="title">Нэг бодлогод <em>≤ ба ≥ хамт</em></h2>
+  <div class="split wide">
+    <div>
+      <p class="lead" style="font-size:16.5px">Хөрөнгө оруулагч нийт <strong>100 сая ₮</strong>-ийг А компанийн бонд (жилийн <strong>8%</strong> өгөөж) ба Б компанийн хувьцаа (жилийн <strong>14%</strong> өгөөж) хоёрт байршуулна. x₁, x₂ — байршуулах хөрөнгийн хэмжээ (сая ₮).</p>
+      <ul class="pts" style="margin-top:14px">
+        <li><span class="b">1</span><span>Нийт хөрөнгө оруулалт <strong>100 сая ₮-өөс хэтрэхгүй</strong></span></li>
+        <li><span class="b">2</span><span>Эрсдэлийг хязгаарлах үүднээс хувьцаанд <strong>хамгийн ихдээ 60 сая ₮</strong></span></li>
+        <li><span class="b">3</span><span>Эрсдэлийг тараах бодлогын дагуу бондод <strong>хамгийн багадаа 20 сая ₮</strong></span></li>
+      </ul>
+    </div>
+    <div class="formula" style="padding:22px">
+      <div class="fl" style="font-size:19px;line-height:1.8">
+        <span class="op">max</span> Z = <span class="c">0.08</span>x₁ + <span class="c">0.14</span>x₂<br>
+        <span style="font-size:14px;color:rgba(255,255,255,.7)">хязгаарлалт:</span><br>
+        x₁ + x₂ <span class="op">≤</span> 100<br>
+        x₂ <span class="op">≤</span> 60<br>
+        x₁ <span class="op">≥</span> 20<br>
+        x₁, x₂ <span class="op">≥ 0</span>
+      </div>
+      <div class="cap">Дээд хязгаар ба доод шаардлага хоёулаа нэгэн зэрэг хангагдана</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.8.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 27. 2.8.3 ТАРИАЛАЛТ ══════════ -->
+<section class="slide" data-sec="2.8" data-notes="Гурван хувьсагчтай бодлого. Гол мессеж: графикийн аргаар шийдэх боломжгүй (зөвхөн хоёр хувьсагчтай үед боломжтой) — тиймээс Симплекс арга хэрэгтэй.">
+  <div class="s-tag">2.8.3 · Кейс 4 — Тариалалтын хуваарь</div>
+  <h2 class="title">Гурван хувьсагчтай <em>бодлого</em></h2>
+  <div class="split wide">
+    <div>
+      <table class="t sm">
+        <thead><tr><th>Ургамал</th><th>Ус (мян. л/га)</th><th>Хөдөлмөр (цаг/га)</th><th>Ашиг (₮/га)</th></tr></thead>
+        <tbody>
+        <tr><td class="k">Улаанбуудай (x₁)</td><td class="sym">3</td><td class="sym">5</td><td class="sym">300,000</td></tr>
+        <tr><td class="k">Төмс (x₂)</td><td class="sym">5</td><td class="sym">8</td><td class="sym">500,000</td></tr>
+        <tr><td class="k">Хүнсний ногоо (x₃)</td><td class="sym">8</td><td class="sym">12</td><td class="sym">800,000</td></tr>
+        <tr><td class="k">Нийт бэлэн нөөц</td><td class="sym">300 мян. л</td><td class="sym">500 цаг</td><td class="sym">—</td></tr>
+        </tbody>
+      </table>
+      <div class="card accent" style="margin-top:12px"><p>Тариаланч нийт <strong>60 га</strong> талбайтай. xᵢ — тухайн ургамал тарих талбайн хэмжээ (га).</p></div>
+    </div>
+    <div class="formula" style="padding:22px">
+      <div class="fl" style="font-size:16.5px;line-height:1.8">
+        <span class="op">max</span> Z = <span class="c">300000</span>x₁ + <span class="c">500000</span>x₂ + <span class="c">800000</span>x₃<br>
+        <span style="font-size:14px;color:rgba(255,255,255,.7)">хязгаарлалт:</span><br>
+        x₁ + x₂ + x₃ <span class="op">≤</span> 60 &nbsp;<span style="font-size:12.5px;color:rgba(255,255,255,.6)">(талбай)</span><br>
+        3x₁ + 5x₂ + 8x₃ <span class="op">≤</span> 300 &nbsp;<span style="font-size:12.5px;color:rgba(255,255,255,.6)">(ус)</span><br>
+        5x₁ + 8x₂ + 12x₃ <span class="op">≤</span> 500 &nbsp;<span style="font-size:12.5px;color:rgba(255,255,255,.6)">(хөдөлмөр)</span><br>
+        x₁, x₂, x₃ <span class="op">≥ 0</span>
+      </div>
+      <div class="cap">Гурван хувьсагчтай тул графикийн аргаар шийдэх боломжгүй → Симплекс арга, Бүлэг 5</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.8.3 · Яагаад графикаар болохгүй вэ? → Бүлэг 3.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 28. ХУРААНГУЙ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Таван гол санаа. Оюутнаар нэг бүрчлэн давтуулж хэлүүл, ялангуяа 2 ба 4-ийг. Дараа нь дадлага руу.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Таван гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt">Хязгаарлалт бүр <b>a₁x₁ + … + aₙxₙ (≤, =, ≥) b</b> бүтэцтэй: aᵢ — технологийн коэффициент, b — сул гишүүн (RHS).</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt"><b>≤ дээд хязгаар</b>, <b>≥ доод хязгаар</b>, <b>= тэнцвэрт нөхцөл</b>. Тэмдгийг андуурах нь хамгийн хортой алдаа — Unbounded хариу руу хөтөлнө.</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt"><b>xᵢ ≥ 0</b> нөхцөлгүй бол алгоритм "−50 сандал" гэсэн утгагүй хариу гаргана. Сөрөг утга авч болох хувьсагчийг <b>хязгааргүй хувьсагч</b> гэнэ.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt">Стандарт хэлбэрт <b>зорилго max</b>, <b>бүх хязгаарлалт ≤</b>, <b>x ≥ 0</b>. Гурван дүрэм: min → max, ≥ → ≤, = → хос тэнцэтгэл биш.</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt">"Модон урлал" ХХК: <b>max Z = 50000x₁ + 40000x₂</b>; 4x₁ + 2x₂ ≤ 100; 2x₁ + 4x₂ ≤ 80; x₁, x₂ ≥ 0 — цээжлэх загвар.</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.4–2.8 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 29. ХААЛТ ══════════ -->
+<section class="slide closing dark" data-sec="—" data-notes="Загвар бэлэн боллоо — дараагийн алхам бол бодох. Бүлэг 3-т яг энэ загварыг график дээр зурж, оройн цэгүүдээр оптимум олно. Дадлага 1.5 цаг: сайт дээр Хичээл 3 → Дадлага таб.">
+  <h2>Загвар <em>бэлэн</em> боллоо.<br>Одоо түүнийг яаж <em>бодох</em> вэ?</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    Графикийн аргаар оройн цэгүүдээр оптимум олохыг Бүлэг 3, матрицаар AX = B хэлбэрт оруулахыг Бүлэг 4.5, Симплекс хүснэгтээр алхам алхмаар оновчлохыг Бүлэг 5, сүүдрийн үнийн тайлбарыг Бүлэг 7.6-аас үзнэ.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 3.1–3.3</span>
+    <span>🔗 LP Suite → Хичээл → Долоо хоног 3</span>
+  </div>
+</section>
+
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 29</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+/* ── Энэ хичээлийн бүтэц (толгой/хөлийн зурвас) ───────────────────── */
+window.DECK = {
+  lesson: 'Хичээл 3',
+  course: 'Бүлэг 2 — Бодлогын тавилт',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'2.4',   label:'Хязгаарлалт'},
+    {k:'2.5',   label:'Үл сөрөг нөхцөл'},
+    {k:'2.6',   label:'Стандарт хэлбэр'},
+    {k:'2.7',   label:'Кейс 1'},
+    {k:'2.8',   label:'Нэмэлт кейс'},
+    {k:'end',   label:'Дүгнэлт'},
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Хичээлийн агуулга'},
+    {p:'intro', s:'Сурах зорилт'},
+    {p:'2.4',   s:'Хязгаарлалтын систем'},
+    {p:'2.4',   s:'2.4.1 · Ерөнхий хэлбэр'},
+    {p:'2.4',   s:'2.4.2 · Хязгаарлалтын төрөл'},
+    {p:'2.4',   s:'Интерактив · Тэмдэг сонгогч'},
+    {p:'2.4',   s:'2.4.3–2.4.4 · a ба b'},
+    {p:'2.4',   s:'2.4.5 · Түгээмэл алдаанууд'},
+    {p:'2.5',   s:'Үл сөрөг байх нөхцөл'},
+    {p:'2.5',   s:'2.5.1–2.5.2 · Яагаад хэрэгтэй вэ?'},
+    {p:'2.5',   s:'2.5.3–2.5.5 · Хязгааргүй хувьсагч'},
+    {p:'2.6',   s:'Стандарт хэлбэр'},
+    {p:'2.6',   s:'2.6.1 · Бүрэн загвар'},
+    {p:'2.6',   s:'2.6.2 · Матриц хэлбэр'},
+    {p:'2.6',   s:'2.6.3 · Гурван дүрэм'},
+    {p:'2.6',   s:'Интерактив · Эрэмбэлэгч'},
+    {p:'2.6',   s:'Гурван хэлбэрийн ялгаа'},
+    {p:'2.7',   s:'Кейс 1 · "Модон урлал" ХХК'},
+    {p:'2.7',   s:'2.7.1 · Бизнесийн нөхцөл'},
+    {p:'2.7',   s:'2.7.2 · Өгөгдлийн хүснэгт'},
+    {p:'2.7',   s:'2.7.3 · Дөрвөн алхам'},
+    {p:'2.7',   s:'Интерактив · Бодлого угсрагч'},
+    {p:'2.7',   s:'2.7.4–2.7.5 · Эцсийн загвар'},
+    {p:'2.8',   s:'2.8.1 · Кейс 2 · "Хиам" ХХК'},
+    {p:'2.8',   s:'2.8.2 · Кейс 3 · Портфель'},
+    {p:'2.8',   s:'2.8.3 · Кейс 4 · Тариалалт'},
+    {p:'end',   s:'Бүлгийн хураангуй'},
+    {p:'end',   s:''},
+  ],
+};
+</script>
+<script>
+/* ==========================================================================
+   0. Нүдэнд бичиж байхад слайд солигдохоос сэргийлнэ
+   (deck.js-ийн keydown нь document дээр bubble фазад сонсдог тул
+    энд capture фазад таслана — үндсэн файлыг засах шаардлагагүй.)
+   ========================================================================== */
+document.addEventListener('keydown', function(e){
+  const t = e.target;
+  if(t && t.tagName === 'INPUT' && t.classList.contains('bcell')){
+    if(e.key === 'Escape'){ t.blur(); return; }
+    e.stopPropagation();
+  }
+}, true);
+
+/* ==========================================================================
+   1. ТЭМДЭГ СОНГОГЧ — үг хэлбэрийн нөхцөл → ≤ / ≥ / =   (Бүлэг 2.4.2)
+   ========================================================================== */
+(function(){
+  const grid = document.getElementById('sgnGrid');
+  if(!grid) return;
+  const SIGNS = [['le','≤'],['ge','≥'],['eq','=']];
+  const rows = Array.from(grid.querySelectorAll('.sgn-row'));
+  let tries = 0;
+
+  rows.forEach(row=>{
+    const box = row.querySelector('.sgn-b');
+    SIGNS.forEach(([k,ch])=>{
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = ch; b.dataset.k = k;
+      b.addEventListener('mousedown', e=>e.preventDefault());
+      b.addEventListener('click', ()=>pick(row, b));
+      box.appendChild(b);
+    });
+  });
+
+  function pick(row, btn){
+    if(row.classList.contains('done')) return;
+    tries++;
+    const ok = btn.dataset.k === row.dataset.a;
+    btn.classList.add(ok ? 'ok' : 'no');
+    if(ok){
+      row.classList.add('done');
+      row.classList.remove('miss');
+      row.querySelector('.sgn-f').innerHTML = '✓ Зөв. ' + row.dataset.why;
+    } else {
+      row.classList.add('miss');
+    }
+    refresh();
+  }
+  function refresh(){
+    const n = rows.filter(r=>r.classList.contains('done')).length;
+    document.getElementById('sgnScore').textContent =
+      n + ' / ' + rows.length + ' зөв · ' + tries + ' оролдлого';
+  }
+  const rst = document.getElementById('sgnReset');
+  rst.addEventListener('mousedown', e=>e.preventDefault());
+  rst.addEventListener('click', ()=>{
+    tries = 0;
+    rows.forEach(r=>{
+      r.classList.remove('done','miss');
+      r.querySelector('.sgn-f').innerHTML = '';
+      r.querySelectorAll('.sgn-b button').forEach(b=>b.classList.remove('ok','no'));
+    });
+    refresh();
+  });
+  refresh();
+})();
+
+/* ==========================================================================
+   2. БОДЛОГО УГСРАГЧ — стандарт хэлбэрийн коэффициентийг бөглөх
+   "Модон урлал" (Бүлэг 2.7.2/2.7.4) ба "Хиам" ХХК (Бүлэг 2.8.1)
+   ========================================================================== */
+(function(){
+  const form = document.getElementById('bldSlide');
+  if(!form) return;
+
+  const DATA = {
+    wood: {
+      title: '"Модон урлал" ХХК · өгөгдөл',
+      dir: 'max', s1: '≤', s2: '≤',
+      objL: 'зорилго', r1L: 'мод', r2L: 'цаг',
+      ans: {c1:50000, c2:40000, a11:4, a12:2, b1:100, a21:2, a22:4, b2:80},
+      tbl: '<thead><tr><th>Бүтээгдэхүүн</th><th>Мод</th><th>Цаг</th><th>Ашиг (₮)</th></tr></thead>' +
+           '<tbody>' +
+           '<tr><td class="k">Ширээ (x₁)</td><td class="sym">4</td><td class="sym">2</td><td class="sym">50,000</td></tr>' +
+           '<tr><td class="k">Сандал (x₂)</td><td class="sym">2</td><td class="sym">4</td><td class="sym">40,000</td></tr>' +
+           '<tr><td class="k">Нийт нөөц</td><td class="sym">100</td><td class="sym">80</td><td class="sym">—</td></tr>' +
+           '</tbody>',
+      hint: 'Хүснэгтээс уншиж 8 нүдийг бөглөнө үү'
+    },
+    meat: {
+      title: '"Хиам" ХХК · өгөгдөл',
+      dir: 'min', s1: '≥', s2: '≥',
+      objL: 'зардал', r1L: 'уураг', r2L: 'төмөр',
+      ans: {c1:5000, c2:3000, a11:1, a12:2, b1:10, a21:2, a22:1, b2:8},
+      tbl: '<thead><tr><th>Орц</th><th>Үнэ (₮/кг)</th><th>Уураг</th><th>Төмөр</th></tr></thead>' +
+           '<tbody>' +
+           '<tr><td class="k">Үхрийн мах (x₁)</td><td class="sym">5,000</td><td class="sym">1</td><td class="sym">2</td></tr>' +
+           '<tr><td class="k">Тахианы мах (x₂)</td><td class="sym">3,000</td><td class="sym">2</td><td class="sym">1</td></tr>' +
+           '<tr><td class="k">Доод шаардлага</td><td class="sym">—</td><td class="sym">10</td><td class="sym">8</td></tr>' +
+           '</tbody>',
+      hint: 'min бодлого · доод шаардлага тул ≥ тэмдэгтэй'
+    }
+  };
+  const IDS = ['c1','c2','a11','a12','b1','a21','a22','b2'];
+  const cell = {}; IDS.forEach(id => cell[id] = document.getElementById(id));
+  const st = document.getElementById('bldSt');
+  let mode = 'wood';
+
+  function paintCell(id){
+    const el = cell[id];
+    const raw = el.value.trim().replace(/[\s,]/g,'');
+    el.classList.remove('ok','bad');
+    if(raw === '') return null;
+    const v = Number(raw);
+    const good = !isNaN(v) && v === DATA[mode].ans[id];
+    el.classList.add(good ? 'ok' : 'bad');
+    return good;
+  }
+  function liveState(){
+    let ok = 0, bad = 0, empty = 0;
+    IDS.forEach(id=>{
+      const r = paintCell(id);
+      if(r === null) empty++; else if(r) ok++; else bad++;
+    });
+    return {ok, bad, empty};
+  }
+  function setStatus(txt, cls){
+    st.textContent = txt;
+    st.className = 'bld-st' + (cls ? ' ' + cls : '');
+  }
+
+  IDS.forEach(id=>{
+    cell[id].addEventListener('input', ()=>{
+      const r = liveState();
+      if(r.ok === IDS.length) setStatus('✓ Бүх коэффициент зөв — стандарт хэлбэр бүрэн угсарлаа!', 'good');
+      else if(r.bad) setStatus(r.ok + ' / 8 зөв · улаан нүдийг хүснэгтээс дахин шалгана уу', 'bad');
+      else setStatus(r.ok + ' / 8 зөв · ' + r.empty + ' нүд хоосон байна', '');
+    });
+  });
+
+  function render(){
+    const d = DATA[mode];
+    document.getElementById('bldTitle').textContent = d.title;
+    document.getElementById('bldTbl').innerHTML = d.tbl;
+    document.getElementById('bldDir').textContent = d.dir;
+    document.getElementById('s1o').textContent = d.s1;
+    document.getElementById('s2o').textContent = d.s2;
+    document.getElementById('bldObjL').textContent = d.objL;
+    document.getElementById('r1L').textContent = d.r1L;
+    document.getElementById('r2L').textContent = d.r2L;
+    IDS.forEach(id=>{ cell[id].value = ''; cell[id].classList.remove('ok','bad'); });
+    setStatus(d.hint, '');
+  }
+
+  document.querySelectorAll('.bld-modes button').forEach(b=>{
+    b.addEventListener('mousedown', e=>e.preventDefault());
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.bld-modes button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      mode = b.dataset.m;
+      render();
+    });
+  });
+
+  const bChk = document.getElementById('bldCheck'),
+        bShow = document.getElementById('bldShow'),
+        bClr = document.getElementById('bldClear');
+  [bChk,bShow,bClr].forEach(b=>b.addEventListener('mousedown', e=>e.preventDefault()));
+
+  bChk.addEventListener('click', ()=>{
+    const r = liveState();
+    IDS.forEach(id=>{ if(cell[id].value.trim()==='') cell[id].classList.add('bad'); });
+    if(r.ok === IDS.length) setStatus('✓ Бүх коэффициент зөв — стандарт хэлбэр бүрэн угсарлаа!', 'good');
+    else setStatus(r.ok + ' / 8 зөв · ' + (r.bad + r.empty) + ' нүд буруу эсвэл хоосон', 'bad');
+  });
+  bShow.addEventListener('click', ()=>{
+    IDS.forEach(id=>{ cell[id].value = DATA[mode].ans[id]; });
+    liveState();
+    setStatus('Хариу харуулав — өөрийн бөглөсөнтэй жишиж үзнэ үү', '');
+  });
+  bClr.addEventListener('click', render);
+
+  render();
+})();
+
+/* ==========================================================================
+   3. СТАНДАРТ ХЭЛБЭРИЙН ЭРЭМБЭЛЭГЧ  (Бүлэг 2.6.1 → 2.7.4)
+   ========================================================================== */
+(function(){
+  const list = document.getElementById('ordrList');
+  if(!list) return;
+
+  const ROWS = [
+    {t:'x₁ = ширээний тоо, x₂ = сандлын тоо', r:'Шийдвэрийн хувьсагч'},
+    {t:'max Z = 50000x₁ + 40000x₂',           r:'Зорилгын функц'},
+    {t:'4x₁ + 2x₂ ≤ 100',                     r:'Хязгаарлалт · мод'},
+    {t:'2x₁ + 4x₂ ≤ 80',                      r:'Хязгаарлалт · цаг'},
+    {t:'x₁, x₂ ≥ 0',                          r:'Үл сөрөг байх нөхцөл'}
+  ];
+  const START = [2, 4, 0, 3, 1];   // зориудаар холисон эхний дараалал
+  let order = START.slice();
+  let dragFrom = null;
+
+  function draw(){
+    list.innerHTML = '';
+    order.forEach((idx, pos)=>{
+      const d = ROWS[idx];
+      const el = document.createElement('div');
+      el.className = 'ordr-row';
+      el.draggable = true;
+      el.dataset.pos = pos;
+      el.innerHTML =
+        '<span class="hn">' + (pos+1) + '</span>' +
+        '<span class="tx"></span>' +
+        '<span class="rl"></span>' +
+        '<span class="mv"><button type="button" data-d="-1">▲</button>' +
+        '<button type="button" data-d="1">▼</button></span>';
+      el.querySelector('.tx').textContent = d.t;
+      el.querySelector('.rl').textContent = d.r;
+      el.querySelectorAll('.mv button').forEach(b=>{
+        b.addEventListener('mousedown', e=>e.preventDefault());
+        b.addEventListener('click', e=>{
+          e.stopPropagation();
+          move(pos, pos + (+b.dataset.d));
+        });
+      });
+      el.addEventListener('dragstart', e=>{
+        dragFrom = pos; el.classList.add('dragging');
+        if(e.dataTransfer){ e.dataTransfer.effectAllowed='move'; try{e.dataTransfer.setData('text/plain',String(pos));}catch(_){} }
+      });
+      el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); dragFrom = null; });
+      el.addEventListener('dragover', e=>{ e.preventDefault(); if(e.dataTransfer) e.dataTransfer.dropEffect='move'; });
+      el.addEventListener('drop', e=>{
+        e.preventDefault();
+        if(dragFrom === null || dragFrom === pos) return;
+        const it = order.splice(dragFrom, 1)[0];
+        order.splice(pos, 0, it);
+        dragFrom = null;
+        draw();
+        status('Дараалал өөрчлөгдлөө — "Шалгах" товчийг дарна уу', '');
+      });
+      list.appendChild(el);
+    });
+  }
+  function move(a, b){
+    if(b < 0 || b >= order.length) return;
+    const t = order[a]; order[a] = order[b]; order[b] = t;
+    draw();
+    status('Дараалал өөрчлөгдлөө — "Шалгах" товчийг дарна уу', '');
+  }
+  function status(txt){ document.getElementById('ordrScore').textContent = txt; }
+
+  document.getElementById('ordrCheck').addEventListener('mousedown', e=>e.preventDefault());
+  document.getElementById('ordrCheck').addEventListener('click', ()=>{
+    let n = 0;
+    list.querySelectorAll('.ordr-row').forEach((el, pos)=>{
+      const good = order[pos] === pos;
+      el.classList.toggle('ok', good);
+      el.classList.toggle('no', !good);
+      if(good) n++;
+    });
+    status(n === ROWS.length
+      ? '✓ Зөв! Шийдвэрийн хувьсагч → зорилгын функц → хязгаарлалт → үл сөрөг нөхцөл'
+      : n + ' / ' + ROWS.length + ' мөр зөв байрлалд байна — улаан мөрүүдийг зөөнө үү');
+  });
+  document.getElementById('ordrReset').addEventListener('mousedown', e=>e.preventDefault());
+  document.getElementById('ordrReset').addEventListener('click', ()=>{
+    order = START.slice();
+    draw();
+    status('Мөрүүдийг чирж эсвэл ▲ ▼ товчоор байрлуулна уу');
+  });
+
+  draw();
+})();
+</script>
+<script src="deck.js"></script>
+</body>
+</html>

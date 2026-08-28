@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 2 — Шийдвэрийн хувьсагч ба зорилгын функц</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ── Зөвхөн Хичээл 2-ын интерактивт нэмэгдсэн жижиг класс ───────────── */
+.zbdir{display:flex;gap:9px;margin-top:2px}
+.zbb{flex:1;background:var(--muted);border:1.5px solid var(--line-strong);border-radius:9px;
+     padding:10px 0;font-family:var(--mono);font-size:15px;font-weight:600;
+     color:var(--ink-soft);cursor:pointer;transition:all .18s var(--ease)}
+.zbb.on{background:var(--green);border-color:var(--green);color:var(--on-accent)}
+.zbcol{display:flex;flex-direction:column;gap:13px}
+.zbars{display:flex;flex-direction:column;gap:11px}
+.zrow{display:grid;grid-template-columns:186px 1fr 112px;align-items:center;gap:12px}
+.zrow .zl{font-size:13px;color:var(--ink-soft);font-weight:500;line-height:1.35}
+.zrow .ztrack{height:12px;background:var(--subtle);border-radius:6px;overflow:hidden}
+.zrow .zfill{height:100%;border-radius:6px;width:0;transition:width .25s var(--ease);
+     background:linear-gradient(90deg,var(--green-lite),var(--green))}
+.zrow.b2 .zfill{background:linear-gradient(90deg,#E0C77C,var(--gold))}
+.zrow .zv{font-family:var(--mono);font-size:13px;text-align:right;color:var(--ink)}
+.zpresets{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.zp{background:var(--muted);border:1px solid var(--line);border-radius:11px;padding:11px 14px;
+    text-align:left;cursor:pointer;font-family:inherit;color:var(--ink-soft);
+    transition:transform .18s var(--ease),border-color .18s var(--ease)}
+.zp:hover{border-color:var(--gold);transform:translateY(-2px)}
+.zp b{display:block;font-size:12.5px;color:var(--ink);margin-bottom:3px;font-weight:600}
+.zp span{font-family:var(--mono);font-size:11px;color:var(--ink-mute);letter-spacing:-.01em}
+/* Алдаа агнах */
+.chk.hunt{cursor:pointer}
+.chk.hunt .tap2{display:block;font-size:11.5px;color:var(--ink-mute);margin-top:5px;letter-spacing:.05em}
+.chk.hunt .fix{display:none;margin-top:8px;padding-top:8px;font-size:14px;line-height:1.55;
+     color:var(--ink-soft);border-top:1px dashed var(--line-strong)}
+.chk.hunt .fix b{color:var(--green)}
+.chk.hunt.done .fix{display:block;animation:fadein .35s ease}
+.chk.hunt.done .tap2{display:none}
+.chk.hunt.done{border-color:var(--green)}
+.zbb:focus-visible,.zp:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+/* Нээгдсэн үедээ ч 720px-д багтахаар нягтруулсан хоёр дасгал */
+#varGrid{gap:11px}
+#varGrid .gc{padding:15px 17px}
+#varGrid .gc .q{font-size:14px;line-height:1.5}
+#varGrid .gc .ans{font-size:13px;line-height:1.5;margin-top:8px;padding-top:8px}
+#huntList .chk{padding:12px 16px}
+#huntList .chk .tx{font-size:15.5px}
+#huntList .chk.hunt .fix{font-size:13.2px;line-height:1.5;margin-top:7px;padding-top:7px}
+</style>
+</head>
+<body>
+
+<div id="viewport"><div id="stage">
+
+<!-- ══════════ 1. НҮҮР ══════════ -->
+<section class="slide cover" data-sec="—" data-notes="Тавтай морил. Өнгөрсөн долоо хоногт та бүхэн 20 ширээ, 10 сандал гэсэн хариуг ТААМАГЛАЖ олсон. Өнөөдөр түүнийг математик хэл рүү хөрвүүлж эхэлнэ. Бүлэг 2.1–2.3: тавилтын дөрвөн алхам, шийдвэрийн хувьсагч, зорилгын функц. Дөрвөн интерактив дасгал бий — 13, 16, 20, 22-р слайдууд.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Шийдвэрийн хувьсагч ба <em>зорилгын функц</em></h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 2</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 2.1–2.3</span>
+    <span class="pill">4 интерактив дасгал</span>
+  </div>
+</section>
+
+<!-- ══════════ 2. АГУУЛГА ══════════ -->
+<section class="slide" data-sec="—" data-notes="Өнөөдрийн гурван блок. 2.1 — 20 минут, 2.2 — 30 минут, 2.3 — 30 минут. Интерактив дасгал бүр 5–7 минут. Хязгаарлалт (2.4) болон стандарт хэлбэр (2.6) нь дараагийн хичээлд орно.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">2.1</div><h3>Тавилтын дөрвөн алхам</h3><p>GIGO зарчим, буруу тавилтын үр дагавар, өгөгдлийн эх сурвалж ба чанар.</p></div>
+    <div class="card accent"><div class="k">2.2</div><h3>Шийдвэрийн хувьсагч</h3><p>Юуг олох вэ? Хэрхэн сонгох, ямар үсгээр тэмдэглэх, ямар алдаа гардаг вэ?</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Хувьсагчаа тодорхойл</h3><p>Дөрвөн хувилбараас зөвийг нь сонгож, бусдын алдааг задлана.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Алдаа агнах</h3><p>Буруу тодорхойлсон хувьсагчаас алдааг нь олж, зөв хэлбэрийг харна.</p></div>
+    <div class="card accent"><div class="k">2.3</div><h3>Зорилгын функц</h3><p>Z = c₁x₁ + c₂x₂ + … бүтэц, max/min сонголт, cᵢ-ийн эдийн засгийн утга.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Угсрагч + max/min</h3><p>Зорилгын функцээ гараар угсарч, зургаан нөхцөлд чиглэлийг таана.</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 2 · Шийдвэрийн хувьсагч ба зорилгын функц</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 3. СУРАХ ЗОРИЛТ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Хичээлийн эцэст оюутан эдгээрийг хийж чаддаг байх ёстой. Дадлагын даалгавар яг эдгээрийг шалгана. Ялангуяа 2, 3-р зорилтыг онцол.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Бодлогын тавилтын <strong>дөрвөн алхмыг</strong> дарааллын хамт нэрлэж, яагаад эрэмбийг өөрчилж болохгүйг тайлбарлах</span></li>
+    <li><span class="b">2</span><span>Үгээр өгөгдсөн бодлогоос <strong>шийдвэрийн хувьсагчийг</strong> бүтээгдэхүүн, нэгж, цаг хугацааны хамт нэг утгатай тодорхойлох</span></li>
+    <li><span class="b">3</span><span><strong>Зорилгын функцийг</strong> Z = c₁x₁ + c₂x₂ + … + cₙxₙ хэлбэрээр байгуулж, max эсвэл min чиглэлийг зөв сонгох</span></li>
+    <li><span class="b">4</span><span>cᵢ коэффициентийг <strong>нэгжийн ашгаар</strong> (үнэ хасах нь хувьсах өртөг) зөв тооцоолж, үнэ ба ашгийг андуурахаас сэргийлэх</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 2 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 4. ЗААГ 2.1 ══════════ -->
+<section class="slide divider dark" data-sec="2.1" data-notes="Эхний блок. Гол санаа: хамгийн мундаг алгоритм ч буруу тавьсан бодлогыг аварч чадахгүй. Оюутнууд симплекс сурахаас өмнө энэ сэтгэлгээг эзэмших ёстой.">
+  <div class="num">2.1</div>
+  <h2>Бодит асуудлыг математик хэл рүү хөрвүүлэх</h2>
+  <p class="sub">Тавилт бол эхний бөгөөд хамгийн чухал алхам. Энд гаргасан алдааг цаашид ямар ч арга засаж чадахгүй.</p>
+  <div class="s-foot"><span>Бүлэг 2.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 5. GIGO ══════════ -->
+<section class="slide" data-sec="2.1" data-notes="GIGO зарчмыг заавал англиар нь бичиж өг — программ хангамжийн салбарын нэр томьёо. Гол мессеж: Симплекс шударга ажилладаг тул алдаа гарвал ЗӨВХӨН таны тэгшитгэлээс болно.">
+  <div class="s-tag">2.1.1 · Яагаад бодлогын тавилт чухал вэ?</div>
+  <h2 class="title">Оролт нь хог бол <em>гаралт нь ч хог</em></h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Бодлогын тавилт бол үгээр өгөгдсөн асуудлыг математик хэл рүү хөрвүүлэх эхний бөгөөд хамгийн чухал алхам юм. Бодлогыг буруу тавьбал ямар ч мундаг аргаар бодсон буруу л хариу гарна.</p>
+      <div class="def">
+        <div class="lbl">GIGO зарчим</div>
+        <p>Garbage In, Garbage Out — <strong>оролт нь хог бол гаралт нь ч хог байна.</strong> Шугаман программчлалд энэ зарчим яг таг үйлчилдэг.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card"><h3 style="font-size:17px">Симплекс арга бол алдаагүй</h3><p>Математикийн хувьд шударга ажилладаг алгоритм — түүнд ямар тэгшитгэл өгнө, яг тэр тэгшитгэлийн хамгийн оновчтой хариуг олж өгнө.</p></div>
+      <div class="card" style="border-left:3px solid var(--rust)"><p style="color:var(--rust);font-weight:500;font-size:15px">Гэвч таны өгсөн тэгшитгэл бодит асуудлыг буруу дүрсэлж байвал «математикийн хувьд төгс» хариу бодит амьдрал дээр утгагүй, бүр хортой ч байж болно.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.1.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 6. БУРУУ ТАВИЛТЫН ҮР ДАГАВАР ══════════ -->
+<section class="slide" data-sec="2.1" data-notes="Гурван сонгодог үр дагавар. Эдгээр гурав нь тус тусдаа өнөөдрийн болон дараагийн хичээлийн сэдэв: 1 → 2.2, 2 → 2.4, 3 → 2.3.2. Оюутнаас асуу: аль нь хамгийн аюултай вэ? Хариу: эхнийх, учир нь огт мэдэгдэхгүй өнгөрдөг.">
+  <div class="s-tag">2.1.1 · Практикт хэрхэн илэрдэг вэ?</div>
+  <h2 class="title">Буруу тавилтын <em>гурван үр дагавар</em></h2>
+  <div class="grid g3">
+    <div class="numcard"><div class="n">1</div><h3>Хувьсагчаа буруу тодорхойлох</h3><p>Загвар огт хамааралгүй асуултад хариулдаг болно. «Хэдэн ширээ хийх вэ?» гэж асуух ёстой байтал бодлого <strong>«хэдэн м.куб мод хэрэглэх вэ?»</strong> гэсэн хариу өгнө.</p></div>
+    <div class="numcard"><div class="n">2</div><h3>Тэмдгийг андуурах</h3><p>≤ оронд ≥ бичсэнээр бодит байдалд байхгүй нөөцийг <strong>«хязгааргүй»</strong> гэж ойлгож, шийдгүй буюу хязгааргүй том хариу гаргана.</p></div>
+    <div class="numcard" style="border-left:3px solid var(--gold);background:var(--gold-bg)"><div class="n" style="color:rgba(200,169,81,.4)">3</div><h3>Чиглэлийг андуурах</h3><p>max оронд min бичсэнээр компанийн жинхэнэ зорилгын эсрэг хариу (жишээ нь <strong>«0 ширхэг үйлдвэрлэ»</strong>) гарч ирнэ.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Дүгнэлт</div>
+    <p>Бодлогын тавилт бол зүгээр нэг эхлэлийн алхам биш, харин <strong>цаашдын бүх ажлын (график, матриц, симплекс) чанар, үнэн зөвийг тодорхойлдог суурь</strong> юм.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.1.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 7. ДӨРВӨН АЛХАМ ══════════ -->
+<section class="slide" data-sec="2.1" data-notes="ХИЧЭЭЛИЙН БҮТЭЦ ЭНЭ ХҮСНЭГТЭД БАЙНА. Дараалал санамсаргүй биш — алхам бүр өмнөхийнхөө үр дүнд тулгуурладаг. Өнөөдөр 1, 2, 3-р алхмыг үзнэ; 4-р алхам буюу хязгаарлалт нь 2.4-т орно.">
+  <div class="s-tag">2.1.2 · Бодлогын тавилтын дөрвөн алхам</div>
+  <h2 class="title">Дөрвөн алхам, <em>хатуу дараалал</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:9%">Алхам</th><th style="width:40%">Нэр</th><th>Гол асуулт</th></tr></thead>
+    <tbody>
+    <tr><td class="sym">1</td><td class="k">Асуудлыг ойлгож, зорилгыг тодорхойлох</td><td>Компани юуг хамгийн их буюу хамгийн бага байлгахыг хүсэж байна вэ?</td></tr>
+    <tr style="background:var(--green-bg)"><td class="sym">2</td><td class="k">Шийдвэрийн хувьсагчийг тодорхойлох</td><td>Бид юуны талаар шийдвэр гаргах ёстой вэ? <strong>→ 2.2</strong></td></tr>
+    <tr style="background:var(--green-bg)"><td class="sym">3</td><td class="k">Зорилгын функцийг байгуулах</td><td>Хувьсагч зорилгод хэрхэн нөлөөлдөг вэ? <strong>→ 2.3</strong></td></tr>
+    <tr><td class="sym">4</td><td class="k">Хязгаарлалтын системийг байгуулах</td><td>Бидний шийдвэрийг юу хязгаарлаж байна вэ?</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Анхаар</div>
+    <p>Энэ дараалал <strong>санамсаргүй биш</strong> — алхам бүр өмнөхийнхөө үр дүнд тулгуурладаг тул алгасах, эсвэл эрэмбийг өөрчлөх нь алдаанд хүргэдэг. Бүрэн жишээ → Бүлэг 2.7 «Модон урлал» ХХК.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.1.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 8. ӨГӨГДЛИЙН ЭХ СУРВАЛЖ ══════════ -->
+<section class="slide" data-sec="2.1" data-notes="Оюутнууд ихэвчлэн тоог бэлэн авдаг. Бодит амьдрал дээр тоог өөрөө олох ёстой. Оюутнаас асуу: танай гэр бүлийн бизнесийн нэгжийн өртгийг хаанаас олох вэ? Сүүлийн мөрийг онцол — өгөгдөл дутуу үед мэргэжилтний үнэлгээ ашиглана.">
+  <div class="s-tag">2.1.3 · Загварын эх сурвалж</div>
+  <h2 class="title">Тоо <em>хаанаас</em> гарч ирдэг вэ?</h2>
+  <ul class="pts">
+    <li><span class="b">◆</span><span><strong>Санхүү, нягтлан бодох бүртгэлийн тайлан</strong> — нэгжийн өртөг, ашгийн хэмжээ</span></li>
+    <li><span class="b">◆</span><span><strong>Үйлдвэрлэлийн норм, технологийн жор</strong> — нэг нэгж бүтээгдэхүүнд орох түүхий эд, хөдөлмөрийн зарцуулалт</span></li>
+    <li><span class="b">◆</span><span><strong>Агуулахын бүртгэл, нөөцийн тооллого</strong> — бэлэн байгаа нөөцийн хэмжээ</span></li>
+    <li><span class="b">◆</span><span><strong>Зах зээлийн судалгаа, захиалгын гэрээ</strong> — эрэлтийн доод ба дээд хэмжээ, стандартын шаардлага</span></li>
+    <li><span class="b">◆</span><span><strong>Мэргэжилтний үнэлгээ</strong> — түүхэн өгөгдөл дутмаг үед туршлагатай ажилтны тооцоолол</span></li>
+  </ul>
+  <div class="s-foot"><span>Бүлэг 2.1.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 9. ӨГӨГДЛИЙН ЧАНАР ══════════ -->
+<section class="slide" data-sec="2.1" data-notes="Гурван шалгуурыг цээжлүүл. Нэгжийн нийцтэй байдал нь 2.2.4 ба 2.4.5-д дахин гарна. Түгээмэл алдааны хайрцгийг заавал уншиж өг — борлуулалтын үнээс зардлыг хасалгүй ашиг гэж нэрлэх нь 2.3.3-ын гол сэдэв.">
+  <div class="s-tag">2.1.3 · Өгөгдлийн чанар</div>
+  <h2 class="title">Гурван зүйлийг <em>заавал шалга</em></h2>
+  <div class="checks">
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Хугацааны нийцтэй байдал</b> — жилийн ашгийн дүнг сарын нөөцтэй хольж болохгүй</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Нэгжийн нийцтэй байдал</b> — м.куб, кг, литр зэрэг нэгжийг ижил байлгах (2.2.4, 2.4.5-д дэлгэрэнгүй)</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Дундаж ба ганц тохиолдлын ялгаа</b> — нэг удаагийн онцгой захиалгын үнийг бүх цаг үеийн жишиг болгож болохгүй</span></div>
+  </div>
+  <div class="def" style="border-left-color:var(--rust);background:var(--rust-bg)">
+    <div class="lbl" style="color:var(--rust)">⚠ Түгээмэл алдаа</div>
+    <p style="font-size:17px">Оюутнууд эхний өгөгдлөө шалгалгүй шууд тэгшитгэлдээ тавьдаг: борлуулалтын үнээс зардлыг хасалгүйгээр шууд «ашиг» гэж ашиглах, эсвэл өөр өөр цаг үеийн тоог хольж хэрэглэх нь <strong>эцсийн загварыг бүхэлд нь буруу болгодог</strong>.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.1.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 10. ЗААГ 2.2 ══════════ -->
+<section class="slide divider dark" data-sec="2.2" data-notes="Хичээлийн гол блок. Бүлэг 1.5-т нэр томьёог товч танилцуулсан — одоо бүрэн дэлгэрүүлнэ. Энд хоёр интерактив дасгал байгаа.">
+  <div class="num">2.2</div>
+  <h2>Шийдвэрийн хувьсагч</h2>
+  <p class="sub">Decision Variables · Бид юуны талаар бодит шийдвэр гаргах ёстой вэ? Тавилтын хоёрдугаар алхам.</p>
+  <div class="s-foot"><span>Бүлэг 2.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 11. ТОДОРХОЙЛОЛТ ══════════ -->
+<section class="slide" data-sec="2.2" data-notes="ХОЁР ӨНЦГИЙГ ЗААВАЛ ЯЛГА. Математикийн үүднээс — ердийн үл мэдэгдэгч. Бизнесийн үүднээс — удирдаж чадах зүйл. Шалгах асуулт: үүнийг компани өөрөө сонгож чадах уу? Үгүй бол параметр.">
+  <div class="s-tag">2.2.1 · Дэлгэрэнгүй тодорхойлолт</div>
+  <h2 class="title">Хоёр <em>өнцгөөс</em> харах нь</h2>
+  <div class="split">
+    <div>
+      <div class="word">Математикийн</div>
+      <div class="word-note">үүднээс</div>
+      <p class="lead" style="font-size:17px;margin-top:13px">Бодлогын шийдэлд утга нь <strong>тодорхойгүй</strong>, бидний олох гэж буй <strong>үл мэдэгдэгч</strong> хэмжигдэхүүн: x₁, x₂, …, xₙ. Эдгээр нь тэгшитгэлийн систем дэх ердийн үл мэдэгдэгчтэй адил.</p>
+    </div>
+    <div>
+      <div class="word">Бизнесийн</div>
+      <div class="word-note">үүднээс</div>
+      <p class="lead" style="font-size:17px;margin-top:13px">Хувьсагч бүр «Бид юуны талаар бодит шийдвэр гаргах ёстой вэ?» гэсэн асуултын хариу — захирал, менежер, төлөвлөгчийн <strong>удирдаж, өөрчилж чадах</strong> зүйл.</p>
+    </div>
+  </div>
+  <div class="def">
+    <div class="lbl">Шалгах асуулт</div>
+    <p>Хэрэв тухайн хэмжигдэхүүнийг компани өөрөө сонгож, өөрчилж чадахгүй бол (жишээ нь <strong>зах зээлийн үнэ, цаг агаар</strong>) тэр нь шийдвэрийн хувьсагч биш, харин <strong>параметр буюу тогтмол коэффициент</strong> байх ёстой.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.2.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 12. ХЭРХЭН СОНГОХ ══════════ -->
+<section class="slide" data-sec="2.2" data-notes="Гурван зарчим — дараагийн интерактив дасгалын түлхүүр. Хоёр дахийг жишээгээр тайлбарла: нийт үйлдвэрлэл = ширээ + сандал тул тусдаа хувьсагч хэрэггүй. Гурав дахийг онцол — нэгжгүй хувьсагч бол дутуу хувьсагч.">
+  <div class="s-tag">2.2.2 · Хувьсагчийг хэрхэн сонгох вэ?</div>
+  <h2 class="title">Гурван <em>зарчим</em></h2>
+  <div class="grid g3">
+    <div class="numcard"><div class="n">1</div><h3>«Юуг олох вэ?» гэж асуу</h3><p>Бодлогын өгүүлбэрт байгаа асуултыг олж, тэрхүү асуултад <strong>шууд хариулах</strong> хэмжигдэхүүнийг л хувьсагч болгоно. «Модон урлал» ХХК: захирлын асуулт «хэдэн ширээ, хэдэн сандал?» → хувьсагч нь ширээний тоо ба сандлын тоо.</p></div>
+    <div class="numcard"><div class="n">2</div><h3>Хамгийн цөөн хувьсагч</h3><p>Шаардлагагүй, хамааралгүй хувьсагч нэмэх тусам бодлого төвөгтэй, ойлгомжгүй болно. Нэг хувьсагчийг нөгөөгөөс нь <strong>шууд тооцоолж болох</strong> бол (нийт үйлдвэрлэл = ширээ + сандал) тусад нь хувьсагч болгох шаардлагагүй.</p></div>
+    <div class="numcard" style="border-left:3px solid var(--gold);background:var(--gold-bg)"><div class="n" style="color:rgba(200,169,81,.4)">3</div><h3>Нэгжийг заавал заа</h3><p>Хувьсагч бүрийн нэгжийг (ширхэг, кг, литр, цаг, төгрөг) <strong>тодорхой, нэг утгатай</strong> заана. «x₁ = сүүний хэмжээ» гэдэг дутуу — литрээр үү, тонноор уу? Эс тэгвээс 2.3, 2.4-т коэффициентийн нэгж таарахгүй.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.2.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 13. ИНТЕРАКТИВ 1 — ХУВЬСАГЧАА ТОДОРХОЙЛ ══════════ -->
+<section class="slide" data-sec="2.2" id="varSlide" data-notes="ИНТЕРАКТИВ 1 · 5–7 минут. Эхлээд оюутнуудаас гараа өргүүлж санал асуулга ав, дараа нь карт бүрийг товшиж нээ. Зөв хариу нь В хувилбар. Бусад гурвын алдааг заавал нэрлүүл: А — үр дүнг хувьсагч болгосон, Б — 2.1.1-ийн сонгодог алдаа, Г — бүрхэг тодорхойлолт (2.2.4).">
+  <div class="s-tag">Интерактив · 2.2.2 → 2.7</div>
+  <h2 class="title">Хувьсагчаа <em>тодорхойл</em></h2>
+  <div class="def" style="margin:14px 0 4px;padding:14px 20px">
+    <div class="lbl">Кейс</div>
+    <p style="font-size:16.5px">«Модон урлал» ХХК ширээ, сандал үйлдвэрлэдэг. Захирлын асуулт: <strong>«Долоо хоногт хэдэн ширээ, хэдэн сандал хийвэл хамгийн өндөр ашигтай ажиллах вэ?»</strong> — Аль нь зөв шийдвэрийн хувьсагч вэ?</p>
+  </div>
+  <div class="game" id="varGrid" style="grid-template-columns:repeat(2,1fr);margin:0">
+    <button class="gc no" data-why="Ашиг бол бидний ОЛОХ гэж буй эцсийн үр дүн — өөрөөр хэлбэл зорилгын функц Z. Захирал ашгаа шууд «сонгож» чадахгүй, зөвхөн үйлдвэрлэлээрээ дамжуулан нөлөөлнө.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q"><b>А.</b> x₁ = долоо хоногт олох ашгийн хэмжээ (₮)</div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc yes" data-why="Захирлын асуултад ШУУД хариулж байна. Бүтээгдэхүүн (ширээ / сандал), нэгж (ширхэг), цаг хугацаа (долоо хоног) — гурвуулаа тодорхой. 2.2.2-ын гурван зарчмыг бүрэн хангасан.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q"><b>Б.</b> x₁ = долоо хоногт үйлдвэрлэх ширээний тоо (ш)<br>x₂ = долоо хоногт үйлдвэрлэх сандлын тоо (ш)</div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc no" data-why="2.1.1-д дурдсан сонгодог алдаа: «хэдэн ширээ хийх вэ?» гэж асуух ёстой байтал загвар «хэдэн м.куб мод хэрэглэх вэ?» гэсэн огт өөр асуултад хариулна.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q"><b>В.</b> x₁ = үйлдвэрлэлд зарцуулах модны хэмжээ (м³)</div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc no" data-why="Бүрхэг тодорхойлолт (2.2.4): аль бүтээгдэхүүний, ямар нэгжийн, ямар цаг үеийн хэмжээг хэлж байгаа нь тодорхойгүй. Хувьсагчийг бүтээгдэхүүн, нэгж, цаг хугацааны хамт нэг утгатай тодорхойлно.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q"><b>Г.</b> x₁ = үйлдвэрлэлийн хэмжээ</div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+  </div>
+  <div class="gamebar">
+    <span id="varScore">0 / 4 нээгдсэн</span>
+    <button id="varReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.2.2 · Зөв хариу нэг л байна</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 14. ЯМАР ҮСЭГ ══════════ -->
+<section class="slide" data-sec="2.2" data-notes="Тэмдэглэгээний стандарт. xᵢⱼ-г самбар дээр зурж үзүүл: i — эх сурвалж, j — хүрэх цэг. Бүлэг 8-д энэ тэмдэглэгээ бүхэл бүтэн хүснэгт болно.">
+  <div class="s-tag">2.2.3 · Ямар үсэг ашиглах вэ?</div>
+  <h2 class="title">Тэмдэглэгээний <em>стандарт</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">Академик стандарт</div><h3>x₁, x₂, x₃, …, xₙ</h3><p>Хамгийн түгээмэл, ерөнхий тэмдэглэгээ. Хувьсагчийн тоо олон байсан ч (x₁-ээс <strong>x₅₀</strong> хүртэл) системтэй хэвээр үлддэг давуу талтай.</p></div>
+    <div class="card"><div class="k">Сэдэвтэй холбоотой</div><h3>q, p …</h3><p>Тодорхой салбарт сэдэвтэйгээ илүү холбоотой үсэг ойлгомжтой: <strong>q</strong> (quantity — тоо хэмжээ), <strong>p</strong> (price — үнэ) гэх мэт.</p></div>
+    <div class="card"><div class="k">Хоёр индекстэй</div><h3>xᵢⱼ · Бүлэг 8</h3><p>Тээврийн бодлогод: <strong>i</strong> — эх сурвалж (i-р үйлдвэр), <strong>j</strong> — хүрэх цэг (j-р дэлгүүр). xᵢⱼ = «i-ээс j хүртэл тээвэрлэх хэмжээ».</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Энэ сурах бичигт</div>
+    <p>Бид <strong>x₁, x₂, …</strong> хэлбэрийг үндсэн тэмдэглэгээ болгон ашиглана. Тусгай нөхцөлд (тээвэр, портфель) харгалзах индекслэсэн тэмдэглэгээг тухай бүрд нь тодорхой зааж өгнө.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.2.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 15. ТҮГЭЭМЭЛ АЛДАА ══════════ -->
+<section class="slide" data-sec="2.2" data-notes="Гурван алдаа. Эдгээрийг дараагийн слайдын дасгалд шууд хэрэглэнэ, тиймээс энд удаан бүү сууж бай. Хоёрдугаар алдааг онцол: нэгжээ хувьсагч тодорхойлох ШАТАНДАА тогтооно, хожим биш.">
+  <div class="s-tag">2.2.4 · Түгээмэл алдаанууд</div>
+  <h2 class="title">Гурван <em>алдаа</em>, гурван засвар</h2>
+  <div class="checks">
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>Хувьсагчийг бүрхэг сонгох</b> — «x₁ = үйлдвэрлэлийн хэмжээ» гэх мэт тодорхойгүй тодорхойлолт нь аль бүтээгдэхүүний, ямар нэгжийн, ямар цаг үеийн хэмжээг хэлж байгааг тодорхойгүй үлдээдэг</span></div>
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>Нэгж холилдох</b> — нэг хувьсагчийг ширхэгээр, нөгөөг нь килограммаар тодорхойлоод хязгаарлалтдаа хольж бичих нь 2.4-т үзэх коэффициентийг буруу тооцоход хүргэдэг</span></div>
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>Хамааралгүй хувьсагч оруулах</b> — зорилгын функц болон хязгаарлалтын аль алинд нь оролцдоггүй хувьсагч бол шийдэлд ямар ч нөлөө үзүүлэхгүй «хог» хувьсагч</span></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Санах дүрэм</div>
+    <p>Хувьсагчийг <strong>бүтээгдэхүүн + нэгж + цаг хугацаа</strong> гурвын хамт нэг утгатай тодорхойлно. Гурвын нэг нь дутвал тодорхойлолт дутуу.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.2.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 16. ИНТЕРАКТИВ 2 — АЛДАА АГНАХ ══════════ -->
+<section class="slide" data-sec="2.2" id="huntSlide" data-notes="ИНТЕРАКТИВ 2 · 5 минут. Мөр бүрийг оюутнаар уншуулаад «энд ямар алдаа байна?» гэж асуу. Дараа нь товшиж нээ. Дөрвүүлээ 2.2.2 ба 2.2.4-ийн өөр өөр дүрмийг зөрчсөн — аль дүрмийг зөрчсөнийг нэрлүүл.">
+  <div class="s-tag">Интерактив · 2.2.2 ба 2.2.4</div>
+  <h2 class="title">Алдаа <em>агнах</em></h2>
+  <p class="lead" style="font-size:16.5px;margin-top:4px">Дөрвөн тодорхойлолт бүгд алдаатай. Мөр бүрийг товшиж алдаа болон зөв хэлбэрийг харна уу.</p>
+  <div class="checks" id="huntList" style="margin:12px 0 0;gap:11px">
+    <div class="chk no hunt"><span class="m">✗</span><span class="tx"><b>x₁ = сүүний хэмжээ</b>
+      <span class="tap2">▸ товшиж алдааг харах</span>
+      <span class="fix"><b>Алдаа:</b> нэгж заагаагүй — литрээр үү, тонноор уу? (2.2.2). <b>Зөв:</b> x₁ = өдөрт боловсруулах сүүний хэмжээ (литр).</span></span></div>
+    <div class="chk no hunt"><span class="m">✗</span><span class="tx"><b>x₁ = үйлдвэрлэлийн хэмжээ</b>
+      <span class="tap2">▸ товшиж алдааг харах</span>
+      <span class="fix"><b>Алдаа:</b> бүрхэг сонголт (2.2.4) — аль бүтээгдэхүүний, ямар нэгжийн, ямар цаг үеийн хэмжээ нь тодорхойгүй. <b>Зөв:</b> x₁ = долоо хоногт үйлдвэрлэх ширээний тоо (ш).</span></span></div>
+    <div class="chk no hunt"><span class="m">✗</span><span class="tx"><b>x₁ = эрэгтэй гутлын тоо (хос) · x₂ = эмэгтэй гутлын жин (кг)</b>
+      <span class="tap2">▸ товшиж алдааг харах</span>
+      <span class="fix"><b>Алдаа:</b> нэгж холилдсон (2.2.4) — нэгийг ширхэгээр, нөгөөг килограммаар авсан тул хязгаарлалтын коэффициент буруу гарна. <b>Зөв:</b> хоёуланг нь хосоор тодорхойлно.</span></span></div>
+    <div class="chk no hunt"><span class="m">✗</span><span class="tx"><b>x₃ = нийт үйлдвэрлэл (ширээ + сандал)</b>
+      <span class="tap2">▸ товшиж алдааг харах</span>
+      <span class="fix"><b>Алдаа:</b> нөгөө хувьсагчдаас шууд тооцоологдох тул илүүц (2.2.2), зорилго, хязгаарлалтад бие даан оролцохгүй бол «хог» хувьсагч (2.2.4). <b>Зөв:</b> x₃-ыг огт оруулахгүй.</span></span></div>
+  </div>
+  <div class="gamebar">
+    <span id="huntScore">0 / 4 нээгдсэн</span>
+    <button id="huntReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.2.2 ба 2.2.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 17. ЖИЖИГ ЖИШЭЭ ══════════ -->
+<section class="slide" data-sec="2.2" data-notes="Дөрвөн салбар, дөрвөн өөр нэгж. Мөр бүрийн нэгжийг чангаар уншуул: хос, рейс, сая төгрөг, ширхэг. Оюутнаас нэмэлт жишээ асуу — өөрсдийн салбараас.">
+  <div class="s-tag">2.2.5 · Жижиг жишээнүүд</div>
+  <h2 class="title">Дөрвөн салбар, дөрвөн <em>нэгж</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:20%">Салбар</th><th style="width:40%">x₁</th><th>x₂</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Үйлдвэрлэл<br><span class="en">гутлын үйлдвэр</span></td><td>долоо хоногт үйлдвэрлэх <strong>эрэгтэй</strong> гутлын тоо (хос)</td><td>долоо хоногт үйлдвэрлэх <strong>эмэгтэй</strong> гутлын тоо (хос)</td></tr>
+    <tr><td class="k">Ложистик<br><span class="en">тээврийн компани</span></td><td><strong>ачааны</strong> машинаар хийх рейсийн тоо</td><td><strong>чиргүүлтэй</strong> машинаар хийх рейсийн тоо</td></tr>
+    <tr><td class="k">Санхүү<br><span class="en">хөрөнгө оруулагч</span></td><td><strong>А компанийн бондод</strong> байршуулах хөрөнгийн хэмжээ (сая ₮)</td><td><strong>Б компанийн хувьцаанд</strong> байршуулах хөрөнгийн хэмжээ (сая ₮)</td></tr>
+    <tr><td class="k">Хүнсний үйлдвэр<br><span class="en">жимсний шүүс</span></td><td><strong>1 литрийн</strong> савтай шүүсний өдөрт үйлдвэрлэх тоо</td><td><strong>0.5 литрийн</strong> савтай шүүсний өдөрт үйлдвэрлэх тоо</td></tr>
+    </tbody>
+  </table>
+  <div class="s-foot"><span>Бүлэг 2.2.5</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 18. ЗААГ 2.3 ══════════ -->
+<section class="slide divider dark" data-sec="2.3" data-notes="Тавилтын гуравдугаар алхам. Хувьсагч бэлэн болсон — одоо тэдгээр нь зорилгод хэрхэн нөлөөлдгийг тоогоор илэрхийлнэ.">
+  <div class="num">2.3</div>
+  <h2>Зорилгын функц</h2>
+  <p class="sub">Objective Function · Хувьсагч зорилгод хэрхэн нөлөөлдөг вэ? Тавилтын гуравдугаар алхам.</p>
+  <div class="s-foot"><span>Бүлэг 2.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 19. ТОМЬЁО ══════════ -->
+<section class="slide" data-sec="2.3" data-notes="Гурван бүрэлдэхүүнийг тус тусад нь заа: Z — юуг хэмжиж байна, x — 2.2-т тодорхойлсон хувьсагч, c — нэг нэгжийн хувь нэмэр. Дараагийн слайдад оюутнууд үүнийг өөрсдөө угсарна.">
+  <div class="s-tag">2.3.1 · Дэлгэрэнгүй тодорхойлолт</div>
+  <h2 class="title">Шийдвэрийн хувьсагчийн <em>шугаман хослол</em></h2>
+  <div class="formula">
+    <div class="fl">
+      Z = <span class="c">c₁</span>x₁ + <span class="c">c₂</span>x₂ + … + <span class="c">cₙ</span>xₙ &nbsp;<span class="op">→ max</span> (эсвэл <span class="op">min</span>)
+    </div>
+    <div class="cap">Z — зорилгын хэмжигдэхүүн (нийт ашиг, нийт зардал, нийт орлого) &nbsp;·&nbsp; x₁ … xₙ — 2.2-т тодорхойлсон шийдвэрийн хувьсагч &nbsp;·&nbsp; c₁ … cₙ — коэффициент</div>
+  </div>
+  <p class="lead" style="margin-top:18px;font-size:18px">Зорилгын функц нь шийдвэрийн хувьсагчийн шугаман хослолоор илэрхийлэгдэх, бидний <strong>хамгийн их эсвэл хамгийн бага байлгахыг хүсэж буй нэгдсэн үзүүлэлт</strong> юм.</p>
+  <div class="def">
+    <div class="lbl">cᵢ гэж юу вэ?</div>
+    <p>Хувьсагч бүрийн <strong>нэг нэгж</strong> зорилгод оруулах «хувь нэмрийг» илэрхийлнэ.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.3.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 20. ИНТЕРАКТИВ 3 — ЗОРИЛГЫН ФУНКЦ УГСРАГЧ ══════════ -->
+<section class="slide" data-sec="2.3" id="zbSlide" data-notes="ИНТЕРАКТИВ 3 · 6–8 минут. Гулсуураар c₁, c₂-оо сонгож, max/min товчийг дараад Z шууд угсрагдаж байгааг харуул. Доод талын дөрвөн товч бол номын бодит жишээ — эхлээд Модон урлалыг дар (50,000 / 40,000 → max). Оюутнуудаас асуу: c₂-ыг c₁-ээс их болговол юу өөрчлөгдөх вэ?">
+  <div class="s-tag">Интерактив · 2.3.1 → 2.3.4</div>
+  <h2 class="title">Зорилгын функц <em>угсрагч</em></h2>
+  <div class="sim" style="grid-template-columns:328px 1fr;margin-top:14px">
+    <div class="sim-panel">
+      <h4>Коэффициент ба чиглэл</h4>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">c₁ · 1-р бүтээгдэхүүн</span><span class="cv" id="zbV1">50,000</span></div>
+        <input type="range" id="zb1" min="0" max="300000" step="100" value="50000">
+      </div>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">c₂ · 2-р бүтээгдэхүүн</span><span class="cv" id="zbV2">40,000</span></div>
+        <input type="range" id="zb2" min="0" max="300000" step="100" value="40000">
+      </div>
+      <div class="zbdir">
+        <button class="zbb on" id="zbMax" data-dir="max">→ max</button>
+        <button class="zbb" id="zbMin" data-dir="min">→ min</button>
+      </div>
+    </div>
+    <div class="zbcol">
+      <div class="formula" style="padding:22px 26px;margin:0">
+        <div class="fl" style="font-size:27px;line-height:1.4">Z = <span class="c" id="zbF1">50,000</span>x₁ + <span class="c" id="zbF2">40,000</span>x₂ &nbsp;<span class="op" id="zbFd">→ max</span></div>
+        <div class="cap" id="zbCap">Нэг нэгж 1-р бүтээгдэхүүн Z-г 50,000-аар өсгөнө.</div>
+      </div>
+      <div class="zbars">
+        <div class="zrow"><span class="zl">c₁ — нэгжийн хувь нэмэр</span><div class="ztrack"><div class="zfill" id="zbB1"></div></div><span class="zv" id="zbT1">50,000</span></div>
+        <div class="zrow b2"><span class="zl">c₂ — нэгжийн хувь нэмэр</span><div class="ztrack"><div class="zfill" id="zbB2"></div></div><span class="zv" id="zbT2">40,000</span></div>
+      </div>
+      <div class="def" id="zbBox" style="margin:0;padding:14px 20px">
+        <div class="lbl" id="zbLbl">Таних</div>
+        <p style="font-size:16px" id="zbMsg">—</p>
+      </div>
+    </div>
+  </div>
+  <div class="zpresets">
+    <button class="zp" data-c1="50000" data-c2="40000" data-dir="max"><b>«Модон урлал» ХХК</b><span>50,000 / 40,000 · max</span></button>
+    <button class="zp" data-c1="25000" data-c2="20000" data-dir="max"><b>Гутлын үйлдвэр</b><span>25,000 / 20,000 · max</span></button>
+    <button class="zp" data-c1="150000" data-c2="300000" data-dir="min"><b>Тээврийн компани</b><span>150,000 / 300,000 · min</span></button>
+    <button class="zp" data-c1="3000" data-c2="1800" data-dir="max"><b>Жимсний шүүс</b><span>3,000 / 1,800 · max</span></button>
+  </div>
+  <div class="s-foot"><span>Гулсуур ба товчийг ашиглана уу · Тоо бүр номын жишээнээс</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 21. MAX ЭСВЭЛ MIN ══════════ -->
+<section class="slide" data-sec="2.3" data-notes="Чиглэл бол тэмдэглэгээний асуудал БИШ — бизнесийн мөн чанараас урган гардаг. Доод хэсгийг онцол: симплекс зөвхөн max дээр ажилладаг тул min бодлогыг хувиргана — механизм нь 2.6.3-т.">
+  <div class="s-tag">2.3.2 · Max эсвэл min — сонголт</div>
+  <h2 class="title">Чиглэлээ <em>хэрхэн</em> сонгох вэ?</h2>
+  <table class="t">
+    <thead><tr><th style="width:22%">Чиглэл</th><th style="width:48%">Хэзээ ашиглах вэ</th><th>Жишээ Z</th></tr></thead>
+    <tbody>
+    <tr><td class="k" style="color:var(--green)">max<br><span class="en">их байлгах</span></td><td>Ашиг, орлого, үр дүн, хэрэглэгчийн ханамжийг хамгийн их болгох зорилготой үед</td><td>Ашгаа хамгийн их болгох</td></tr>
+    <tr><td class="k" style="color:var(--rust)">min<br><span class="en">бага байлгах</span></td><td>Зардал, алдагдал зэрэг зайлсхийх ёстой хэмжигдэхүүнийг хамгийн бага болгох зорилготой үед</td><td>Зардлаа хамгийн бага болгох</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Анхаар</div>
+    <p>Зорилгын функцийн чиглэл нь <strong>зөвхөн тэмдэглэгээний асуудал биш</strong> — тухайн бодлогын бизнесийн мөн чанараас шууд урган гардаг. Заримдаа бодлогыг min хэлбэрээр өгсөн ч алгоритм зөвхөн max дээр ажилладаг (Симплекс арга — Бүлэг 5). Ийм үед min бодлогыг max руу хувиргана → <strong>2.6.3 «Стандарт хэлбэрт оруулах алхмууд»</strong>.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.3.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 22. ИНТЕРАКТИВ 4 — MAX УУ, MIN ҮҮ? ══════════ -->
+<section class="slide" data-sec="2.3" id="mmSlide" data-notes="ИНТЕРАКТИВ 4 · 5 минут. Карт бүрийг эхлээд оюутнаар таамаглуулж, дараа нь товшиж нээ. Зөв хариу: 1 max, 2 min, 3 max, 4 min, 5 max, 6 min. Санамж — асуулт үргэлж нэг: энэ хэмжигдэхүүн бол хүсдэг үр дүн үү, зайлсхийдэг зардал уу?">
+  <div class="s-tag">Интерактив · 2.3.2 ба 2.3.4</div>
+  <h2 class="title">max уу, <em>min үү?</em></h2>
+  <div class="game" id="mmGrid">
+    <button class="gc yes" data-why="Ашиг бол компанийн хүсдэг үр дүн — 2.3.2-ын дагуу max. Жишээ 1: Z = 25000x₁ + 20000x₂ → max.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">Гутлын үйлдвэрийн нийт <b>ашиг</b></div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc no" data-why="Зардал бол зайлсхийх ёстой хэмжигдэхүүн — 2.3.2-ын дагуу min. Жишээ 2: Z = 150000x₁ + 300000x₂ → min.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">Тээврийн компанийн нийт <b>зардал</b></div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc yes" data-why="Өгөөж бол хүсдэг үр дүн — max. Жишээ 3: А бондын өгөөж 8%, Б хувьцааны өгөөж 12% бол Z = 0.08x₁ + 0.12x₂ → max.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">Хөрөнгө оруулалтын хүлээгдэж буй <b>өгөөж</b></div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc no" data-why="Алдагдал бол зайлсхийх ёстой хэмжигдэхүүн — 2.3.2-ын хүснэгтэд шууд min гэж заасан.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">Үйлдвэрлэлийн <b>алдагдал</b></div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc yes" data-why="Хэрэглэгчийн ханамж нь 2.3.2-ын хүснэгтэд max-ын жагсаалтад ашиг, орлого, үр дүнтэй хамт орсон.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">Үйлчилгээний <b>хэрэглэгчийн ханамж</b></div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc no" data-why="Нийт орлого бол max байтал энд яригдаж буй нь ЗАРДАЛ — нэгжийн хувьсах өртөг. Зайлсхийх ёстой тул min.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">Нэг нэгж бүтээгдэхүүнд ноогдох нийт <b>хувьсах өртөг</b></div>
+      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="ans"></div>
+    </button>
+  </div>
+  <div class="gamebar">
+    <span id="mmScore">0 / 6 нээгдсэн</span>
+    <button id="mmReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.3.2 · Ногоон = max, улаан = min</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 23. КОЭФФИЦИЕНТИЙН УТГА ══════════ -->
+<section class="slide" data-sec="2.3" data-notes="ГОЛ ӨГҮҮЛБЭР: c₁ = 50,000₮ гэдэг нь нэг ширээ НЭМЖ хийх бүрд нийт ашиг яг 50,000-аар өснө гэсэн үг. Энэ бол шугаман байдлын мөн чанар — Бүлэг 1.3-ын дөрөв дэх шинжтэй холбо.">
+  <div class="s-tag">2.3.3 · Коэффициентийн (cᵢ) эдийн засгийн утга</div>
+  <h2 class="title">c₁ = 50,000₮ гэдэг <em>яг юу гэсэн үг вэ?</em></h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Зорилгын функц дэх коэффициент cᵢ нь <strong>«нэг нэгж хувьсагчид ноогдох ашиг эсвэл зардал»</strong> гэсэн тодорхой эдийн засгийн утгатай.</p>
+      <div class="def">
+        <div class="lbl">«Модон урлал» ХХК</div>
+        <p>c₁ = 50,000₮ гэдэг нь <strong>«нэг ширээ нэмж хийх бүрд компанийн нийт ашиг яг 50,000 төгрөгөөр өснө»</strong> гэсэн үг юм.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card green"><div class="k">Хэрхэн олох вэ?</div><h3 style="font-size:19px">Нэгжийн ашиг</h3><p style="font-size:15px">cᵢ-г олохдоо <strong>нэгжийн ашгийг</strong> ашиглана: борлуулах үнээс хувьсах өртгийг хассан дүн.</p></div>
+      <div class="card" style="border-left:3px solid var(--rust)"><p style="color:var(--rust);font-weight:500;font-size:15px">Зөвхөн борлуулах үнийг л авч ашиглах нь түгээмэл алдаа юм.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 24. ҮНЭ vs АШИГ ══════════ -->
+<section class="slide" data-sec="2.3" data-notes="Хамгийн их оноо алддаг алдаа. Ялгааг самбар дээр тоогоор гарга: үнэ 120,000, өртөг 70,000 бол c = 50,000. Хэрэв 120,000-ыг тавьвал загвар хамгийн их ОРЛОГОТОЙ шийдийг олох тул алдагдалтай бүтээгдэхүүн рүү түлхэж мэднэ.">
+  <div class="s-tag">2.3.3 · ⚠ Түгээмэл алдаа</div>
+  <h2 class="title">Үнэ ба ашгийг <em>андуурах</em></h2>
+  <div class="checks">
+    <div class="chk no"><span class="m">✗</span><span class="tx"><b>Буруу:</b> зорилгын функцэд бүтээгдэхүүний <strong>борлуулах үнийг</strong> шууд коэффициент болгон ашиглах</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Зөв:</b> cᵢ нь <strong>нэгжийн ашиг</strong> — үнэ хасах нь өртөг</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Зөв:</b> cᵢ-г тооцохдоо тухайн нэгжид ноогдох <strong>бүх хувьсах зардлыг</strong> (түүхий эд, шууд хөдөлмөр гэх мэт) заавал хасч тооцоолно</span></div>
+  </div>
+  <div class="def" style="border-left-color:var(--rust);background:var(--rust-bg)">
+    <div class="lbl" style="color:var(--rust)">Үр дагавар</div>
+    <p style="font-size:17px">Эс тэгвээс загвар <strong>«хамгийн их ашигтай»</strong> биш <strong>«хамгийн их орлоготой»</strong> шийдийг олно. Хоёр нь огт өөр хариу.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 25. ЖИЖИГ ЖИШЭЭ 2.3.4 ══════════ -->
+<section class="slide" data-sec="2.3" data-notes="Дөрвөн жишээ — 2.2.5-ын дөрвөн салбартай яг таарна. Жишээ 3-ыг онцол: коэффициент нь заавал төгрөг байх албагүй, хувь ч байж болно. Оюутнаар нэг бүрчлэн чиглэлийг нь хэлүүл.">
+  <div class="s-tag">2.3.4 · Жижиг жишээнүүд</div>
+  <h2 class="title">Дөрвөн бэлэн <em>зорилгын функц</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:26%">Нөхцөл</th><th style="width:40%">Зорилгын функц</th><th>Чиглэл</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Нэг хос эрэгтэй гутлаас 25,000₮, эмэгтэй гутлаас 20,000₮ ашиг</td><td class="sym">Z = 25000x₁ + 20000x₂</td><td style="color:var(--green);font-weight:600">→ max</td></tr>
+    <tr><td class="k">Ачааны машины нэг рейс 150,000₮, чиргүүлтэй машины нэг рейс 300,000₮ зардал</td><td class="sym">Z = 150000x₁ + 300000x₂</td><td style="color:var(--rust);font-weight:600">→ min</td></tr>
+    <tr><td class="k">А бондын жилийн өгөөж 8%, Б хувьцааны хүлээгдэж буй өгөөж 12%</td><td class="sym">Z = 0.08x₁ + 0.12x₂</td><td style="color:var(--green);font-weight:600">→ max</td></tr>
+    <tr><td class="k">1 литрийн шүүснээс 3,000₮, 0.5 литрийн шүүснээс 1,800₮ ашиг</td><td class="sym">Z = 3000x₁ + 1800x₂</td><td style="color:var(--green);font-weight:600">→ max</td></tr>
+    </tbody>
+  </table>
+  <div class="s-foot"><span>Бүлэг 2.3.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 26. ХУРААНГУЙ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Таван гол санаа. Оюутнаар нэг бүрчлэн давтуулж хэлүүл. Ялангуяа 3 ба 5-ыг — шалгалтад заавал орно. Дараа нь дадлага руу.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Таван гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt"><b>GIGO</b> — оролт нь хог бол гаралт нь ч хог. Симплекс алдаагүй ажилладаг тул алдаа зөвхөн <b>таны тавилтаас</b> гарна.</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt">Тавилт нь <b>дөрвөн алхамтай</b>: зорилго → хувьсагч → зорилгын функц → хязгаарлалт. Дараалал нь заавал байх ёстой.</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt">Шийдвэрийн хувьсагч бол шийдвэр гаргагчийн <b>удирдаж чадах</b> зүйл; түүнийг <b>бүтээгдэхүүн, нэгж, цаг хугацааны</b> хамт тодорхойлно.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt">Зорилгын функц <b>Z = c₁x₁ + c₂x₂ + … + cₙxₙ</b>; чиглэл нь бизнесийн мөн чанараас урган гарна — ашиг max, зардал min.</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt">cᵢ бол <b>нэгжийн ашиг</b> (үнэ хасах нь хувьсах өртөг), борлуулах үнэ <b>биш</b> — эс тэгвээс загвар өөр асуултад хариулна.</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 2.1–2.3 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 27. ХААЛТ ══════════ -->
+<section class="slide closing dark" data-sec="—" data-notes="Дараагийн 1.5 цаг — дадлага. Сайт дээр Хичээл 2 → Дадлага таб, formulation хэрэгсэл. Дараагийн лекц: 2.4 хязгаарлалт, 2.5 үл сөрөг байх нөхцөл, 2.6 стандарт хэлбэр. Тэгээд 2.7-д Модон урлал бүрэн загвар болно.">
+  <h2>Хувьсагч бэлэн. Зорилгын функц <em>бэлэн</em>.<br>Одоо түүнийг юу <em>хязгаарлах</em> вэ?</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    Бүлэг 2.4-т хязгаарлалтын системийг, 2.5-д үл сөрөг байх нөхцөлийг байгуулна. 2.6-д стандарт хэлбэрт оруулж, 2.7-д «Модон урлал» ХХК-ийн бүрэн загварыг эхнээс нь эцэс хүртэл гаргана.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 2.4–2.6</span>
+    <span>🔗 LP Suite → Хичээл → Долоо хоног 2</span>
+  </div>
+</section>
+
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 27</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+/* ── Энэ хичээлийн бүтэц (толгой/хөлийн зурвас) ───────────────────── */
+window.DECK = {
+  lesson: 'Хичээл 2',
+  course: 'Бүлэг 2 — Бодлогын тавилт',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'2.1',   label:'Тавилтын алхмууд'},
+    {k:'2.2',   label:'Шийдвэрийн хувьсагч'},
+    {k:'2.3',   label:'Зорилгын функц'},
+    {k:'end',   label:'Дүгнэлт'},
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Хичээлийн агуулга'},
+    {p:'intro', s:'Сурах зорилт'},
+    {p:'2.1',   s:'Математик хэл рүү хөрвүүлэх'},
+    {p:'2.1',   s:'2.1.1 · GIGO зарчим'},
+    {p:'2.1',   s:'2.1.1 · Буруу тавилтын үр дагавар'},
+    {p:'2.1',   s:'2.1.2 · Тавилтын дөрвөн алхам'},
+    {p:'2.1',   s:'2.1.3 · Өгөгдлийн эх сурвалж'},
+    {p:'2.1',   s:'2.1.3 · Өгөгдлийн чанар'},
+    {p:'2.2',   s:'Шийдвэрийн хувьсагч'},
+    {p:'2.2',   s:'2.2.1 · Дэлгэрэнгүй тодорхойлолт'},
+    {p:'2.2',   s:'2.2.2 · Хувьсагчийг хэрхэн сонгох вэ?'},
+    {p:'2.2',   s:'Интерактив · Хувьсагчаа тодорхойл'},
+    {p:'2.2',   s:'2.2.3 · Ямар үсэг ашиглах вэ?'},
+    {p:'2.2',   s:'2.2.4 · Түгээмэл алдаанууд'},
+    {p:'2.2',   s:'Интерактив · Алдаа агнах'},
+    {p:'2.2',   s:'2.2.5 · Жижиг жишээнүүд'},
+    {p:'2.3',   s:'Зорилгын функц'},
+    {p:'2.3',   s:'2.3.1 · Дэлгэрэнгүй тодорхойлолт'},
+    {p:'2.3',   s:'Интерактив · Зорилгын функц угсрагч'},
+    {p:'2.3',   s:'2.3.2 · Max эсвэл min'},
+    {p:'2.3',   s:'Интерактив · max уу, min үү?'},
+    {p:'2.3',   s:'2.3.3 · Коэффициентийн утга'},
+    {p:'2.3',   s:'2.3.3 · Үнэ ба ашгийг андуурах'},
+    {p:'2.3',   s:'2.3.4 · Жижиг жишээнүүд'},
+    {p:'end',   s:'Бүлгийн хураангуй'},
+    {p:'end',   s:''},
+  ],
+};
+</script>
+<script>
+/* ==========================================================================
+   ЕРӨНХИЙ ТУСЛАХ — эргэдэг картын механик (.gc)
+   ========================================================================== */
+function lp2Flip(gridId, scoreId, resetId, yesLbl, noLbl){
+  const grid = document.getElementById(gridId);
+  if(!grid) return;
+  const cards = Array.from(grid.querySelectorAll('.gc'));
+  const score = document.getElementById(scoreId);
+  const reset = document.getElementById(resetId);
+  function refresh(){
+    const n = cards.filter(c=>c.classList.contains('done')).length;
+    score.textContent = n + ' / ' + cards.length + ' нээгдсэн';
+  }
+  cards.forEach(c=>{
+    c.addEventListener('mousedown', e=>e.preventDefault());
+    c.addEventListener('click', ()=>{
+      if(c.classList.contains('done')) return;
+      c.classList.add('done');
+      const yes = c.classList.contains('yes');
+      c.querySelector('.ic').textContent  = yes ? '✓' : '✗';
+      c.querySelector('.lbl').textContent = yes ? yesLbl : noLbl;
+      c.querySelector('.ans').textContent = c.dataset.why;
+      refresh();
+    });
+  });
+  reset.addEventListener('mousedown', e=>e.preventDefault());
+  reset.addEventListener('click', ()=>{
+    cards.forEach(c=>{
+      c.classList.remove('done');
+      c.querySelector('.ic').textContent='';
+      c.querySelector('.lbl').textContent='';
+      c.querySelector('.ans').textContent='';
+    });
+    refresh();
+  });
+  refresh();
+}
+
+/* ==========================================================================
+   1. ИНТЕРАКТИВ — «Хувьсагчаа тодорхойл» (2.2.2)
+   ========================================================================== */
+(function(){
+  if(!document.getElementById('varGrid')) return;
+  lp2Flip('varGrid', 'varScore', 'varReset', 'Зөв хувьсагч', 'Буруу хувьсагч');
+})();
+
+/* ==========================================================================
+   2. ИНТЕРАКТИВ — «Алдаа агнах» (2.2.2 ба 2.2.4)
+   ========================================================================== */
+(function(){
+  const list = document.getElementById('huntList');
+  if(!list) return;
+  const rows  = Array.from(list.querySelectorAll('.chk.hunt'));
+  const score = document.getElementById('huntScore');
+  const reset = document.getElementById('huntReset');
+  function refresh(){
+    const n = rows.filter(r=>r.classList.contains('done')).length;
+    score.textContent = n + ' / ' + rows.length + ' нээгдсэн';
+  }
+  rows.forEach(r=>{
+    r.setAttribute('tabindex','0');
+    r.addEventListener('mousedown', e=>e.preventDefault());
+    r.addEventListener('click', ()=>{ r.classList.add('done'); refresh(); });
+    r.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){ e.preventDefault(); r.classList.add('done'); refresh(); }
+    });
+  });
+  reset.addEventListener('mousedown', e=>e.preventDefault());
+  reset.addEventListener('click', ()=>{ rows.forEach(r=>r.classList.remove('done')); refresh(); });
+  refresh();
+})();
+
+/* ==========================================================================
+   3. ИНТЕРАКТИВ — Зорилгын функц угсрагч (2.3.1 → 2.3.4)
+   Бүх урьдчилсан тоо номын жишээнээс:
+     «Модон урлал» 50,000 / 40,000 max (2.3.3)   Гутал 25,000 / 20,000 max
+     Тээвэр 150,000 / 300,000 min                Шүүс 3,000 / 1,800 max
+   ========================================================================== */
+(function(){
+  const s1 = document.getElementById('zb1'), s2 = document.getElementById('zb2');
+  if(!s1) return;
+  const bMax = document.getElementById('zbMax'), bMin = document.getElementById('zbMin');
+  let dir = 'max';
+  const nf = n => n.toLocaleString('en-US');
+
+  const CASES = [
+    {c1:50000,  c2:40000,  d:'max', lbl:'Таньлаа — «Модон урлал» ХХК',
+     msg:'Бүлэг 2.3.3-ын жишээ. c₁ = 50,000₮ гэдэг нь нэг ширээ нэмж хийх бүрд нийт ашиг яг 50,000 төгрөгөөр өснө гэсэн үг.'},
+    {c1:25000,  c2:20000,  d:'max', lbl:'Таньлаа — Гутлын үйлдвэр',
+     msg:'2.3.4 Жишээ 1. Нэг хос эрэгтэй гутлаас 25,000₮, эмэгтэй гутлаас 20,000₮ ашиг олдог.'},
+    {c1:150000, c2:300000, d:'min', lbl:'Таньлаа — Тээврийн компани',
+     msg:'2.3.4 Жишээ 2. Зардал бол зайлсхийх ёстой хэмжигдэхүүн тул чиглэл нь min.'},
+    {c1:3000,   c2:1800,   d:'max', lbl:'Таньлаа — Жимсний шүүсний үйлдвэр',
+     msg:'2.3.4 Жишээ 4. 1 литрийн шүүснээс 3,000₮, 0.5 литрийн шүүснээс 1,800₮ ашиг.'}
+  ];
+
+  function upd(){
+    const c1 = +s1.value, c2 = +s2.value, mx = Math.max(c1, c2, 1);
+    document.getElementById('zbV1').textContent = nf(c1);
+    document.getElementById('zbV2').textContent = nf(c2);
+    document.getElementById('zbF1').textContent = nf(c1);
+    document.getElementById('zbF2').textContent = nf(c2);
+    document.getElementById('zbT1').textContent = nf(c1);
+    document.getElementById('zbT2').textContent = nf(c2);
+    document.getElementById('zbB1').style.width = (c1/mx*100) + '%';
+    document.getElementById('zbB2').style.width = (c2/mx*100) + '%';
+    document.getElementById('zbFd').textContent = '→ ' + dir;
+    bMax.classList.toggle('on', dir==='max');
+    bMin.classList.toggle('on', dir==='min');
+
+    const word = (dir==='max') ? 'өсгөнө' : 'нэмэгдүүлнэ';
+    document.getElementById('zbCap').textContent =
+      'Нэг нэгж 1-р бүтээгдэхүүн Z-г ' + nf(c1) + '-аар, нэг нэгж 2-р бүтээгдэхүүн ' +
+      nf(c2) + '-аар ' + word + '.';
+
+    const hit = CASES.find(k => k.c1===c1 && k.c2===c2 && k.d===dir);
+    const box = document.getElementById('zbBox');
+    if(hit){
+      box.style.borderLeftColor = 'var(--green)';
+      box.style.background = 'var(--green-bg)';
+      document.getElementById('zbLbl').textContent = '✓ ' + hit.lbl;
+      document.getElementById('zbMsg').textContent = hit.msg;
+    } else {
+      box.style.borderLeftColor = 'var(--gold)';
+      box.style.background = 'var(--gold-bg)';
+      document.getElementById('zbLbl').textContent = 'Таны угсарсан функц';
+      document.getElementById('zbMsg').textContent =
+        (dir==='max'
+          ? 'max — ашиг, орлого, үр дүн, хэрэглэгчийн ханамжийг хамгийн их болгох үед.'
+          : 'min — зардал, алдагдал зэрэг зайлсхийх ёстой хэмжигдэхүүнийг хамгийн бага болгох үед.') +
+        ' Номын дөрвөн жишээний аль нэгтэй таарвал энд нэр нь гарна.';
+    }
+  }
+
+  s1.addEventListener('input', upd);
+  s2.addEventListener('input', upd);
+  [bMax, bMin].forEach(b=>{
+    b.addEventListener('mousedown', e=>e.preventDefault());
+    b.addEventListener('click', ()=>{ dir = b.dataset.dir; upd(); });
+  });
+  document.querySelectorAll('.zp').forEach(p=>{
+    p.addEventListener('mousedown', e=>e.preventDefault());
+    p.addEventListener('click', ()=>{
+      s1.value = p.dataset.c1;
+      s2.value = p.dataset.c2;
+      dir = p.dataset.dir;
+      upd();
+    });
+  });
+  upd();
+})();
+
+/* ==========================================================================
+   4. ИНТЕРАКТИВ — «max уу, min үү?» (2.3.2)
+   ========================================================================== */
+(function(){
+  if(!document.getElementById('mmGrid')) return;
+  lp2Flip('mmGrid', 'mmScore', 'mmReset', 'max — их байлгах', 'min — бага байлгах');
+})();
+</script>
+<script src="deck.js"></script>
+</body>
+</html>

@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 13 — Тээврийн бодлого: загвар ба гарааны шийд</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ---- Хичээл 13-ын дотоод интерактив загвар ---- */
+.tt{border-collapse:separate;border-spacing:0;width:100%;font-family:var(--body)}
+.tt th,.tt td{border:1px solid var(--line-strong);text-align:center;padding:0}
+.tt thead th{background:linear-gradient(135deg,#1B3B1F,#16321A);color:#fff;font-size:11.5px;
+  font-weight:600;padding:8px 5px;letter-spacing:.02em}
+.tt td.rh{background:var(--muted);font-weight:600;color:var(--ink);font-size:12.5px;padding:7px 9px;text-align:left}
+.tt td.cell{position:relative;height:46px;background:var(--paper);cursor:default}
+.tt td.cell .cc{position:absolute;left:5px;top:3px;font-size:10px;color:var(--ink-mute);font-family:var(--mono)}
+.tt td.cell .aa{display:flex;align-items:center;justify-content:center;height:100%;
+  font-family:var(--mono);font-size:17px;font-weight:600;color:var(--ink-faint)}
+.tt td.cell.on{background:var(--green-bg)}
+.tt td.cell.on .aa{color:var(--green)}
+.tt td.cell.dead{background:var(--muted)}
+.tt td.cell.dead .aa{color:var(--ink-faint);opacity:.5}
+.tt td.cell.pick{box-shadow:inset 0 0 0 2.5px var(--gold)}
+.tt td.rem{background:var(--subtle);font-family:var(--mono);font-size:13.5px;color:var(--ink);padding:6px 4px}
+.tt td.pen{background:var(--indigo-bg);font-family:var(--mono);font-size:12.5px;color:var(--indigo);padding:5px 4px}
+.tt td.pen.hi{background:var(--indigo);color:#fff;font-weight:600}
+.tabs{display:flex;gap:8px;margin-top:12px}
+.tbtn{flex:1;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:9px 8px;
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+  transition:background .25s var(--ease),color .25s var(--ease),border-color .25s var(--ease)}
+.tbtn:hover{border-color:var(--line-strong)}
+.tbtn.on{background:var(--green);border-color:var(--green);color:#fff}
+.i3grid{display:grid;grid-template-columns:1fr 358px;gap:18px;margin-top:12px;align-items:start}
+.i1grid{display:grid;grid-template-columns:1fr 372px;gap:18px;margin-top:14px;align-items:start}
+.stepbox{background:var(--muted);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.55;
+  color:var(--ink-soft);min-height:104px}
+.stepbox b{color:var(--ink)}
+.btnrow{display:flex;gap:8px;margin-top:11px}
+.btnx{background:var(--green);color:#fff;border:none;border-radius:9px;padding:9px 13px;
+  font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.btnx.ghost{background:var(--paper);color:var(--ink-soft);border:1.5px solid var(--line)}
+.btnx[disabled]{opacity:.4;cursor:default}
+.ztot{font-family:var(--mono);font-size:14px;color:var(--ink);margin-top:11px;
+  background:var(--gold-bg);border-radius:8px;padding:8px 11px}
+.cmp{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.cmp>div{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:7px 4px;
+  text-align:center;font-size:10.5px;color:var(--ink-mute);letter-spacing:.03em}
+.cmp>div b{display:block;font-family:var(--mono);font-size:15px;color:var(--ink);margin-top:3px}
+.cmp>div.best{border-color:var(--green);background:var(--green-bg)}
+.cmp>div.best b{color:var(--green)}
+.pickable{cursor:pointer;transition:background .2s var(--ease)}
+.pickable:hover{background:var(--gold-bg)}
+.tt td.seen{background:var(--gold-bg)}
+.tt td.cur{box-shadow:inset 0 0 0 2.5px var(--gold)}
+.optrow{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.opt{background:var(--paper);border:1.5px solid var(--line);border-radius:9px;padding:8px 15px;
+  font-family:var(--mono);font-size:15px;font-weight:600;color:var(--ink);cursor:pointer}
+.opt:hover{border-color:var(--line-strong)}
+.opt.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.opt.bad{background:var(--rust-bg);border-color:var(--rust);color:var(--rust)}
+.mini{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);
+  font-weight:600;margin:12px 0 6px}
+.verd{border-radius:10px;padding:11px 13px;font-size:13.5px;line-height:1.55;margin-top:10px}
+.verd.g{background:var(--green-bg);color:var(--green);border-left:4px solid var(--green)}
+.verd.r{background:var(--rust-bg);color:var(--rust);border-left:4px solid var(--rust)}
+.verd.n{background:var(--muted);color:var(--ink-soft);border-left:4px solid var(--line-strong)}
+.verd b{color:inherit}
+#i1Tbl .tt thead th{padding:12px 6px;font-size:13px}
+#i1Tbl .tt td.cell{height:74px}
+#i1Tbl .tt td.cell .aa{font-size:21px;color:var(--ink-soft)}
+#i1Tbl .tt td.rem{padding:18px 4px;font-size:15px}
+#i1Tbl .tt td.rh{padding:16px 12px;font-size:14px}
+#smTbl .tt td.cell{height:54px}
+</style>
+</head>
+<body>
+
+<div id="viewport"><div id="stage">
+
+<!-- ══════════ 1. НҮҮР ══════════ -->
+<section class="slide cover" data-sec="—" data-notes="Тавтай морил. Өнөөдөр Бүлэг 8.1–8.4: тээврийн бодлого хаанаас үүссэн, математик загварыг нь хэрхэн бичих, тэнцвэржүүлэх, гарааны шийдийг гурван аргаар олох. MODI арга бол дараагийн хичээл. Дөрвөн интерактив байгаа — голынх нь 21-р слайдын гурван аргын зэрэгцүүлсэн симуляци.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Тээврийн бодлого: загвар ба <em>гарааны шийд</em></h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 13</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 8.1–8.4</span>
+    <span class="pill">4 интерактив дасгал</span>
+  </div>
+</section>
+
+<!-- ══════════ 2. АГУУЛГА ══════════ -->
+<section class="slide" data-sec="—" data-notes="Өнөөдрийн зургаан блок. Түүх 15 минут, загвар 20, тэнцвэржүүлэлт 15, гарааны шийд 35 минут. Гурван аргын симуляци бол хичээлийн зүрх.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">8.1</div><h3>Түүх ба үүсэл</h3><p>Дайн, ложистик, Канторович — Хичкок — Купманс. Яагаад тээвэр «зардлын хар нүх» вэ?</p></div>
+    <div class="card accent"><div class="k">8.2</div><h3>Математик загвар</h3><p>xᵢⱼ, min Z = ΣΣcᵢⱼxᵢⱼ, мөрийн ба баганын хязгаарлалт.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Хүснэгтийн нүд таних</h3><p>Нүд бүр дээр товшиж «энэ юуг илэрхийлэх вэ?» гэдгийг нээнэ.</p></div>
+    <div class="card accent"><div class="k">8.3</div><h3>Тэнцвэржүүлэлт</h3><p>Σaᵢ = Σbⱼ мөн үү? Зохиомол багана эсвэл зохиомол мөр нэмнэ.</p></div>
+    <div class="card accent"><div class="k">8.4</div><h3>Гарааны шийд</h3><p>Баруун дээд өнцгийн арга, Хамгийн бага зардлын арга, Фогелийн ойролцоолох арга.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Гурван арга зэрэгцүүлэн</h3><p>Нэг хүснэгт, гурван таб — алхам алхмаар хуваарилж, зардлыг харьцуулна.</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 13 · Бүлэг 8.1–8.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 3. СУРАХ ЗОРИЛТ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Хичээлийн эцэст оюутан эдгээрийг чаддаг байх ёстой. Дадлагын даалгавар яг эдгээрийг шалгана. 4-р зорилт бол шалгалтын гол асуулт.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Тээврийн бодлогын <strong>түүхэн үүслийг</strong> тайлбарлаж, Канторович, Хичкок, Купманс нарын хувь нэмрийг нэрлэх</span></li>
+    <li><span class="b">2</span><span>Бодит бизнесийн өгүүлбэрийг <strong>xᵢⱼ, min Z, хязгаарлалтын систем</strong> болгон математик загварт буулгах</span></li>
+    <li><span class="b">3</span><span>Бодлого <strong>тэнцвэртэй</strong> эсэхийг шалгаж, шаардлагатай бол <strong>зохиомол</strong> мөр буюу багана нэмэх</span></li>
+    <li><span class="b">4</span><span><strong>Баруун дээд өнцгийн арга, Хамгийн бага зардлын арга, Фогелийн ойролцоолох аргаар</strong> гарааны шийд олж, нийт зардлыг тооцох</span></li>
+    <li><span class="b">5</span><span>Гурван аргын үр дүнг харьцуулж, <strong>m + n − 1</strong> шалгуураар <strong>гажуудалтай шийдийг</strong> илрүүлэх</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 13 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 4. ЗААГ 8.1 ══════════ -->
+<section class="slide divider dark" data-sec="8.1" data-notes="Түүхийн блок, 15 минут. Гол санаа: тээврийн бодлого онолын гоо сайхнаас биш, дайны амь дүйсэн шаардлагаас төрсөн.">
+  <div class="num">8.1</div>
+  <h2>Тээврийн бодлогын түүх ба эдийн засгийн үүсэл</h2>
+  <p class="sub">Тээврийн бодлого зөвхөн эрдэмтдийн ширээн дээр төрсөнгүй — энэ бол дайн, хомсдол, сэргээн босголтын шаардлагаас урган гарсан шинжлэх ухаан.</p>
+  <div class="s-foot"><span>Бүлэг 8.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 5. 8.1.1 ══════════ -->
+<section class="slide" data-sec="8.1" data-notes="1939–1945. Ачааны машин, түлш, цаг — бүгд хомс. Оюутнуудаас асуу: «Та фронтын хангамжийн офицер бол юу хийх вэ?» Тэднийг min зардлын логик руу өөрсдөө хөтөл.">
+  <div class="s-tag">8.1.1 · Дайн ба хямрал дахь үүсэл</div>
+  <h2 class="title">«Тээвэр бол эдийн засгийн <em>судас</em>»</h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Тээврийн бодлого нь Дэлхийн 2-р дайны үеийн цэргийн ложистик, нөөцийн хэт хомсдолоос үүдэлтэй, <strong>амь дүйсэн шаардлагаас</strong> урган гарсан.</p>
+      <div class="def">
+        <div class="lbl">Гол эргэлт</div>
+        <p>Хязгаарлагдмал нөөцөөр (ачааны машин, түлш, цаг хугацаа) <strong>аль болох олон цэгт, аль болох бага зардлаар</strong> хүрэх шаардлага математикчдыг шинэ төрлийн бодлого боловсруулахад хүргэв.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card"><div class="k">Дайны үед</div><h3 style="font-size:17px">Цэргийн ложистик</h3><p style="font-size:14px">Хүнс, зэвсэг, шатахууны тээвэрлэлт — алдвал амь насаар төлдөг.</p></div>
+      <div class="card"><div class="k">Дайны дараа</div><h3 style="font-size:17px">Эдийн засгийн сэргээлт</h3><p style="font-size:14px">Сүйрсэн дэд бүтэц, хомс нөөцийг үр ашигтай хуваарилах шаардлага.</p></div>
+      <div class="card green"><p style="color:var(--green);font-weight:500;font-size:15px">Яг энэ түүхэн нөхцөлд тээврийн бодлогын онолын үндэс тавигдсан.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.1.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 6. 8.1.2 ══════════ -->
+<section class="slide" data-sec="8.1" data-notes="Гурван нэр. Канторовичийг Бүлэг 1.1.1-д үзсэн — сануул. Хичкок → «Хичкокийн бодлого». Купмансын усан онгоцны түүх оюутанд хамгийн сайн ойлгогддог: ачаатай яваад хоосон буцна.">
+  <div class="s-tag">8.1.2 · Гол хувь нэмэр оруулагчид</div>
+  <h2 class="title">Гурван нэр, нэг <em>загвар</em></h2>
+  <div class="grid g3">
+    <div class="person">
+      <div class="ini">ЛК</div>
+      <div class="nm">Л.В. Канторович</div>
+      <div class="yr">1912–1986 · 1939</div>
+      <p>Фанерын үйлдвэрийн хаягдлыг багасгах бодлогоор анх тээврийн бодлого тавьж, Ленинград–Хабаровск төмөр замын бодлогыг судалсан.</p>
+      <div class="badge">Нобель 1975</div>
+    </div>
+    <div class="person">
+      <div class="ini">ФХ</div>
+      <div class="nm">Ф.Л. Хичкок</div>
+      <div class="yr">1875–1957 · 1941</div>
+      <p>«The Distribution of a Product from Several Sources to Numerous Localities» бүтээлдээ өнөөдрийн математик загварыг анх тодорхойлсон.</p>
+      <div class="badge">Хичкокийн бодлого</div>
+    </div>
+    <div class="person">
+      <div class="ini">ТК</div>
+      <div class="nm">Т.Ч. Купманс</div>
+      <div class="yr">1910–1985 · 1947</div>
+      <p>Холбоотны ачааны усан онгоц ачаатай яваад хоосон буцаж байсныг судалж, маршрутыг математикаар холбосон.</p>
+      <div class="badge">Нобель 1975</div>
+    </div>
+  </div>
+  <div class="def">
+    <div class="lbl">Нэр томьёо</div>
+    <p>Тээврийн бодлогын сонгодог хэлбэрийг дэлхий даяар <strong>«Хичкок–Купмансын тээврийн загвар»</strong> гэж нэрлэдэг. Жорж Данциг 1949 онд симплекс аргыг тээврийн бодлогод хэрэглэж, тусгай алгоритмуудын үндсийг тавьсан.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.1.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 7. 8.1.3 ЦАГИЙН ШУГАМ ══════════ -->
+<section class="slide" data-sec="8.1" data-notes="Дөрвөн үе. Онцлох: II үе шатанд бидний өнөөдөр үзэх дөрвөн арга бүгд төрсөн. IV үе — өнөөдөр Amazon секундын дотор боддог, гэхдээ логик нь ижил.">
+  <div class="s-tag">8.1.3 · Хөгжлийн дөрвөн үе</div>
+  <h2 class="title">1930-аад → <em>2026</em></h2>
+  <div class="timeline">
+    <div class="tl-row"><div class="tl-year">I үе</div><div class="tl-dot"></div><div class="tl-txt"><strong>1930–1940-өөд он · онолын суурь.</strong> Дайны шаардлагаар тэгшитгэлүүд зохиогдсон боловч тооцоолох компьютер байгаагүй тул цаасан дээр хэдэн сараар боддог байв</div></div>
+    <div class="tl-row hi"><div class="tl-year">II үе</div><div class="tl-dot"></div><div class="tl-txt"><strong>1950–1970 он · алгоритмын тэсрэлт.</strong> Данцигийн симплекс арга, анхны IBM машинууд — <strong>баруун дээд өнцгийн арга, хамгийн бага зардлын арга, VAM, MODI</strong> яг энэ үед үүссэн</div></div>
+    <div class="tl-row"><div class="tl-year">III үе</div><div class="tl-dot"></div><div class="tl-txt"><strong>1980–2000 он · сүлжээний өргөтгөл.</strong> Дундын агуулах (Hub), олон дамжлагат тээвэр — дамжин өнгөрүүлэх бодлого (→ Бүлэг 10)</div></div>
+    <div class="tl-row hi"><div class="tl-year">IV үе</div><div class="tl-dot"></div><div class="tl-txt"><strong>2000 оноос хойш · ухаалаг ложистик.</strong> Эрэлт цаг тутам өөрчлөгдөх, түгжрэл, цаг агаар — олон мянган хувьсагчийг зэрэг тооцох AI, Big Data системүүд</div></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.1.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 8. 8.1.3 ХЭРЭГЛЭЭ ══════════ -->
+<section class="slide" data-sec="8.1" data-notes="Оюутнаас асуу: «Өнөө өглөө та энэ алгоритмын үр дүнг ашигласан уу?» Хоол хүргэлт, такси — бүгд энэ. Ялгаа нь зөвхөн хэмжээнд.">
+  <div class="s-tag">8.1.3 · Орчин үеийн хэрэглээ (2000–2026)</div>
+  <h2 class="title">Өнөөдөр хаана <em>ажиллаж</em> байна вэ?</h2>
+  <div class="grid g2">
+    <div class="card accent"><div class="k">Ложистик</div><h3>Amazon, Alibaba, DHL, FedEx, UPS</h3><p>Түгээлтийн сүлжээ, агуулах–хэрэглэгч оновчлол, маршрутын шийдэл.</p></div>
+    <div class="card accent"><div class="k">Нийтийн үйлчилгээ</div><h3>Uber, Lyft, Deliveroo, Wolt</h3><p>Жолооч–зорчигч тохируулга, хоол хүргэлт.</p></div>
+    <div class="card accent"><div class="k">Хямрал ба осол</div><h3>Вакцин, гамшиг, дүрвэгсэд</h3><p>COVID-19 вакцины хуваарилалт, гамшгийн бүсэд хүнс хүргэлт, хуарангийн хангамж.</p></div>
+    <div class="card green"><div class="k">Монгол</div><h3>Уул уурхай, ХАА, хотын хангамж</h3><p>Ордоос баяжуулах үйлдвэр, экспортын боомт хүртэлх нүүрс, зэсийн хүдрийн тээвэрлэлт; малын түүхий эдийн түгээлт (→ 8.8).</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Ялгаа нь зөвхөн хэмжээнд</div>
+    <p>Amazon 3 нийлүүлэгч, 3 хэрэглэгчийн оронд <strong>мянга мянган зангилаатай</strong> хүснэгттэй ажилладаг тул гараар биш, <strong>MODI аргын программчлагдсан хувилбараар</strong> секундын дотор шийддэг.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.1.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 9. 8.1.4 ══════════ -->
+<section class="slide" data-sec="8.1" data-notes="Талхны жишээг заавал хэл — оюутан хэзээ ч мартдаггүй. 15–20% гэсэн тоог самбарт бич. Эцсийн тодорхойлолтыг оюутнаар чангаар уншуул.">
+  <div class="s-tag">8.1.4 · Яагаад тээврийн бодлого чухал вэ?</div>
+  <h2 class="title">Тээвэр — эдийн засгийн <em>«зардлын хар нүх»</em></h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Үйлдвэрлэл бараанд үнэ цэнэ (Value) шингээдэг. Харин ложистик <strong>шинээр ямар ч чанар нэмдэггүй</strong> хэрнээ асар их хөрөнгө зарцуулдаг.</p>
+      <div class="def">
+        <div class="lbl">Эдийн засгийн тодорхойлолт</div>
+        <p>Тээврийн бодлого нь хязгаарлагдмал нөөцтэй <strong>олон нийлүүлэгчээс</strong> тодорхой эрэлттэй <strong>олон хэрэглэгч рүү</strong> барааг орон зайн хувьд хуваарилахдаа <strong>нийт сүлжээний зардлыг хамгийн бага</strong> байлгах оновчтой төлөвлөгөөг олдог математик загвар юм.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card accent"><div class="k">15–20%</div><h3 style="font-size:17px">Дэлхийн эдийн засаг</h3><p style="font-size:14px">Ложистикийн зардлын эзлэх хувь. Үр ашиг ердөө <strong>10%-иар</strong> сайжирахад ашиг эрс өснө.</p></div>
+      <div class="card"><div class="k">Талхны дүрэм</div><h3 style="font-size:17px">Зөөснөөс амттай болохгүй</h3><p style="font-size:14px">Гэхдээ зөөхгүй бол зарагдахгүй — энэ бол тээврийн парадокс.</p></div>
+      <div class="card green"><p style="color:var(--green);font-weight:500;font-size:14.5px">Ус, цахилгаан, мэдээллийн урсгал, хөрөнгө оруулалтын багц — бүх нийтлэг хуваарилалтын эх онол.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.1.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 10. ЗААГ 8.2 ══════════ -->
+<section class="slide divider dark" data-sec="8.2" data-notes="Одоо математик руу орно, 20 минут. Бүлэг 2-ын гурван тулгуурыг сануул: зорилгын функц, хязгаарлалт, үл сөрөг нөхцөл.">
+  <div class="num">8.2</div>
+  <h2>Тээврийн бодлогын математик загварчлал</h2>
+  <p class="sub">Гурван тулгуур: нийлүүлэгчид, хэрэглэгчид, тээвэрлэлтийн зардал. Эндээс xᵢⱼ, min Z, хязгаарлалтын систем гарч ирнэ.</p>
+  <div class="s-foot"><span>Бүлэг 8.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 11. 8.2.1 ЦАГААН ТОЛГОЙ ══════════ -->
+<section class="slide" data-sec="8.2" data-notes="Энэ хүснэгтийг оюутнаар дэвтэрт нь хуулуул — бүлгийн туршид дахин дахин хэрэгтэй. i үргэлж мөр, j үргэлж багана гэдгийг гурван удаа давт.">
+  <div class="s-tag">8.2.1 · Шийдвэрийн хувьсагч xᵢⱼ</div>
+  <h2 class="title">Загварын <em>цагаан толгой</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:15%">Тэмдэглэгээ</th><th style="width:38%">Утга</th><th>Тайлбар</th></tr></thead>
+    <tbody>
+      <tr><td class="sym">m</td><td class="k">Нийлүүлэгчийн тоо</td><td>Үйлдвэр, агуулах, салбарын тоо — хүснэгтийн <strong>мөр</strong></td></tr>
+      <tr><td class="sym">n</td><td class="k">Хэрэглэгчийн тоо</td><td>Дэлгүүр, зах зээл, хүрэх цэгийн тоо — хүснэгтийн <strong>багана</strong></td></tr>
+      <tr><td class="sym">i, j</td><td class="k">Дугаарлалт</td><td>i = 1, 2, …, m (үйлдвэрүүд) · j = 1, 2, …, n (дэлгүүрүүд)</td></tr>
+      <tr><td class="sym">aᵢ</td><td class="k">Нийлүүлэлт (нөөц)</td><td>i-р үйлдвэрт байгаа бүтээгдэхүүний хэмжээ</td></tr>
+      <tr><td class="sym">bⱼ</td><td class="k">Эрэлт</td><td>j-р дэлгүүрийн захиалсан хэмжээ</td></tr>
+      <tr><td class="sym">cᵢⱼ</td><td class="k">Нэгжийн зардал</td><td>i-ээс j хүртэл <strong>1 нэгж</strong> тээвэрлэх зардал (мөнгө, цаг, км)</td></tr>
+      <tr><td class="sym">xᵢⱼ</td><td class="k">Шийдвэрийн хувьсагч</td><td>i-р үйлдвэрээс j-р дэлгүүр рүү <strong>тээвэрлэхээр шийдсэн</strong> ачааны хэмжээ — бидний хайж буй гол баатар</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Матрицын хэлбэр</div>
+    <p>xᵢⱼ хувьсагчдыг <strong>m×n хэмжээтэй матриц</strong> болгон бичнэ: мөр бүр нийлүүлэгчийг, багана бүр хэрэглэгчийг төлөөлнө. Үл сөрөг байх нөхцөл хүчинтэй хэвээр: <strong>xᵢⱼ ≥ 0</strong>.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.2.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 12. ИНТЕРАКТИВ 1 — НҮД ТАНИХ ══════════ -->
+<section class="slide" data-sec="8.2" id="i1Slide" data-notes="ИНТЕРАКТИВ 1, 5 минут. Нүд бүр дээр товшихын өмнө оюутнаас «энэ юуг илэрхийлэх вэ?» гэж асуу, дараа нь нээ. Хамгийн чухал нь захын мөр/багана — мөрийн болон баганын хязгаарлалт эндээс гарна.">
+  <div class="s-tag">Интерактив · Хүснэгтийн нүд таних</div>
+  <h2 class="title">Энэ нүд юуг <em>илэрхийлэх</em> вэ?</h2>
+  <div class="i1grid">
+    <div id="i1Tbl"></div>
+    <div class="sim-panel">
+      <h4>Тайлбар</h4>
+      <div class="stepbox" id="i1Txt" style="min-height:262px">Хүснэгтийн дурын нүд дээр товшино уу. Дотоод нүд — шийдвэрийн хувьсагч, захын нүд — хязгаарлалт.</div>
+    </div>
+  </div>
+  <div class="gamebar">
+    <span id="i1Score">0 / 12 нээгдсэн</span>
+    <button id="i1Reset">↺ Эхнээс</button>
+  </div>
+  <div class="s-foot"><span>«Сүү Импекс» ХХК · Бүлэг 8.2.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 13. 8.2.2–8.2.3 ТОМЬЁО ══════════ -->
+<section class="slide" data-sec="8.2" data-notes="Бүрэн загвар. Мөрийн дүрэм = нийлүүлэлт, баганын дүрэм = эрэлт гэдгийг гараар зурж үзүүл. Бүх коэффициент 0 эсвэл 1 гэдгийг онцол — эндээс тусгай алгоритмууд боломжтой болдог.">
+  <div class="s-tag">8.2.2–8.2.3 · Зорилгын функц ба хязгаарлалт</div>
+  <h2 class="title">Тээврийн бодлогын <em>бүрэн загвар</em></h2>
+  <div class="formula">
+    <div class="fl" style="font-size:21px;line-height:1.85">
+      min Z = <span class="c">Σᵢ</span> <span class="c">Σⱼ</span> cᵢⱼ · xᵢⱼ &nbsp;<span class="op">→ min</span><br>
+      <span style="font-size:14px;color:rgba(255,255,255,.7)">нийлүүлэлтийн (мөрийн) хязгаарлалт:</span> &nbsp; <span class="c">Σⱼ</span> xᵢⱼ <span class="op">=</span> aᵢ, &nbsp; i = 1, …, m<br>
+      <span style="font-size:14px;color:rgba(255,255,255,.7)">эрэлтийн (баганын) хязгаарлалт:</span> &nbsp; <span class="c">Σᵢ</span> xᵢⱼ <span class="op">=</span> bⱼ, &nbsp; j = 1, …, n<br>
+      <span style="font-size:14px;color:rgba(255,255,255,.7)">үл сөрөг нөхцөл:</span> &nbsp; xᵢⱼ <span class="op">≥ 0</span>
+    </div>
+    <div class="cap">Z — нийт тээврийн зардал &nbsp;·&nbsp; cᵢⱼ — нэгжийн зардал &nbsp;·&nbsp; xᵢⱼ — тээвэрлэх хэмжээ &nbsp;·&nbsp; aᵢ — нөөц &nbsp;·&nbsp; bⱼ — эрэлт</div>
+  </div>
+  <p class="lead" style="margin-top:16px;font-size:17px">Бүлэг 2-ын ерөнхий ШП загвартай <strong>яг адил бүтэцтэй</strong> боловч онцгой энгийн: хязгаарлалтын бүх коэффициент <strong>0 эсвэл 1</strong> байдаг.</p>
+  <div class="s-foot"><span>Бүлэг 8.2.2–8.2.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 14. 8.2.3 ЖИШЭЭ ══════════ -->
+<section class="slide" data-sec="8.2" data-notes="«Сүү Импекс» жишээ. Таван алхмыг самбарт давтан бич. Тэнцвэрийн шалгалт 100 = 100 — энэ бол дараагийн блокийн гүүр.">
+  <div class="s-tag">8.2.3 · Загварчлалын жишээ</div>
+  <h2 class="title">«Сүү Импекс» ХХК — <em>таван алхам</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:19%">Алхам</th><th>Агуулга</th></tr></thead>
+    <tbody>
+      <tr><td class="k">1 · Цагаан толгой</td><td><strong>m = 2</strong> (2 үйлдвэр), <strong>n = 3</strong> (3 дэлгүүр). i = 1, 2; j = 1, 2, 3</td></tr>
+      <tr><td class="k">2 · Параметр</td><td>a₁ = 40, a₂ = 60 (нийлүүлэлт) · b₁ = 30, b₂ = 50, b₃ = 20 (эрэлт) · cᵢⱼ — нэгжийн тээврийн зардал</td></tr>
+      <tr><td class="k">3 · Хувьсагч</td><td>x₁₁, x₁₂, x₁₃ (Үйлдвэр-1-ээс А, Б, В рүү) · x₂₁, x₂₂, x₂₃ (Үйлдвэр-2-оос мөн адил)</td></tr>
+      <tr><td class="k">4 · Зорилгын функц</td><td class="sym">min Z = c₁₁x₁₁ + c₁₂x₁₂ + c₁₃x₁₃ + c₂₁x₂₁ + c₂₂x₂₂ + c₂₃x₂₃</td></tr>
+      <tr><td class="k">5 · Хязгаарлалт</td><td class="sym">x₁₁+x₁₂+x₁₃ = 40 · x₂₁+x₂₂+x₂₃ = 60 · x₁₁+x₂₁ = 30 · x₁₂+x₂₂ = 50 · x₁₃+x₂₃ = 20 · xᵢⱼ ≥ 0</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Тэнцвэрийн шалгалт</div>
+    <p><strong>40 + 60 = 100 = 30 + 50 + 20</strong> тул <strong>тэнцвэржүүлсэн бодлого</strong> болно. Бодит бизнесийн өгүүлбэрийг математик хэлбэрт бүрэн шилжүүллээ.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.2.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 15. ЗААГ 8.3 ══════════ -->
+<section class="slide divider dark" data-sec="8.3" data-notes="«Алтан дүрэм» блок, 15 минут. Энэ алхмыг алгасвал бүх бодолт буруу гарна гэдгийг хатуу хэл.">
+  <div class="num">8.3</div>
+  <h2>Тэнцвэржүүлсэн ба тэнцвэргүй бодлого</h2>
+  <p class="sub">Бодож эхлэхийн өмнө нэгэн «алтан дүрэм»-ийг заавал шалгана: нийт нийлүүлэлт нийт эрэлттэйгээ тэнцүү байх ёстой.</p>
+  <div class="s-foot"><span>Бүлэг 8.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 16. 8.3.1–8.3.3 ХҮСНЭГТ ══════════ -->
+<section class="slide" data-sec="8.3" data-notes="Гурван тохиолдлын хүснэгт. Зохиомол мөр/баганын зардал ҮРГЭЛЖ 0 гэдгийг онцол — оюутнууд энд хамгийн их андуурдаг. Практик утгыг эдийн засгийн дохио болгон тайлбарла.">
+  <div class="s-tag">8.3.1–8.3.3 · Гурван тохиолдол</div>
+  <h2 class="title">Σaᵢ ба Σbⱼ <em>тэнцэж байна уу?</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:19%">Тохиолдол</th><th style="width:15%">Нөхцөл</th><th style="width:35%">Үйлдэл</th><th>Практик утга</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Тэнцвэртэй</td><td class="sym">Σaᵢ = Σbⱼ</td><td>Юу ч нэмэхгүй — шууд бодолт руу орно</td><td>Бүх нөөц бүрэн ашиглагдаж, бүх эрэлт бүрэн хангагдана</td></tr>
+      <tr><td class="k">Илүү нийлүүлэлт</td><td class="sym">Σaᵢ &gt; Σbⱼ</td><td><strong>Зохиомол эрэлт</strong> (Dummy Demand) — нэмэлт багана:<br><span class="en">b₍ₙ₊₁₎ = Σaᵢ − Σbⱼ,&nbsp; c₍ᵢ,ₙ₊₁₎ = 0</span></td><td>Агуулахад үлдэх, зарагдаагүй ачаа. Аль үйлдвэр ачаагаа зарж чадаагүй нь шийднээс харагдана</td></tr>
+      <tr><td class="k">Илүү эрэлт</td><td class="sym">Σaᵢ &lt; Σbⱼ</td><td><strong>Зохиомол нийлүүлэгч</strong> (Dummy Supply) — нэмэлт мөр:<br><span class="en">a₍ₘ₊₁₎ = Σbⱼ − Σaᵢ,&nbsp; c₍ₘ₊₁,ⱼ₎ = 0</span></td><td>Хангагдахгүй эрэлт буюу алдагдал. Аль дэлгүүр бараагүй хоцрохыг математик гаргаж ирнэ</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Яагаад зардал нь 0 вэ?</div>
+    <p>Зохиомол мөр буюу багана бол <strong>цаасан дээрх зохиомол объект</strong> — бодит тээвэрлэлт болдоггүй. Тухайн бараа зүгээр л үйлдвэртээ үлдэнэ, эсвэл дэлгүүр огт хүлээж авахгүй.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.3.1–8.3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 17. ИНТЕРАКТИВ 2 — ТЭНЦВЭРЖҮҮЛЭГЧ ══════════ -->
+<section class="slide" data-sec="8.3" id="i2Slide" data-notes="ИНТЕРАКТИВ 2, 6 минут. Эхлээд гулсуурыг хөдөлгөөд ЗААВАЛ оюутнаар таамаглуул, дараа нь товчийг дар. «Илүү нийлүүлэлт → багана, илүү эрэлт → мөр» гэдгийг санах дүрэм болгон гаргуул.">
+  <div class="s-tag">Интерактив · Бүлэг 8.3</div>
+  <h2 class="title">Тэнцвэржүүлэгч — <em>та юу нэмэх вэ?</em></h2>
+  <div class="sim">
+    <div class="sim-panel">
+      <h4>Өгөгдөл</h4>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">Нийт нийлүүлэлт Σaᵢ</span><span class="cv" id="i2av">100</span></div>
+        <input type="range" id="i2a" min="60" max="140" step="10" value="100">
+        <div class="ch">Үйлдвэрүүдийн нийт нөөц (тонн)</div>
+      </div>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">Нийт эрэлт Σbⱼ</span><span class="cv" id="i2bv">100</span></div>
+        <input type="range" id="i2b" min="60" max="140" step="10" value="100">
+        <div class="ch">Дэлгүүрүүдийн нийт захиалга (тонн)</div>
+      </div>
+      <div class="def" style="margin-top:4px;padding:12px 14px">
+        <div class="lbl">Алтан дүрэм</div>
+        <p style="font-size:14px;line-height:1.5">Σaᵢ = Σbⱼ болтол бодолт эхлэхгүй.</p>
+      </div>
+    </div>
+    <div class="sim-panel">
+      <h4>Эхлээд өөрөө таа</h4>
+      <div class="optrow" style="flex-direction:column;gap:8px">
+        <button class="opt" id="i2g0" data-g="0" style="font-family:var(--body);font-size:13.5px;text-align:left;font-weight:600">Тэнцвэртэй — юу ч нэмэхгүй</button>
+        <button class="opt" id="i2g1" data-g="1" style="font-family:var(--body);font-size:13.5px;text-align:left;font-weight:600">Зохиомол хүрэх цэг нэмнэ (багана)</button>
+        <button class="opt" id="i2g2" data-g="2" style="font-family:var(--body);font-size:13.5px;text-align:left;font-weight:600">Зохиомол нийлүүлэгч нэмнэ (мөр)</button>
+      </div>
+      <div class="verd n" id="i2Verd">Гулсуурыг хөдөлгөөд гурван хувилбарын нэгийг сонгоно уу.</div>
+    </div>
+    <div class="sim-panel">
+      <h4>Математикийн хариу</h4>
+      <div class="profit" id="i2Box">
+        <div class="pl">Шийдвэр</div>
+        <div class="pv" id="i2Ans" style="font-size:25px;line-height:1.2">— — —</div>
+        <div class="flag" id="i2Flag">Таамаглаа сонгоно уу</div>
+        <div class="best" id="i2Why" style="line-height:1.55;font-size:12px">&nbsp;</div>
+      </div>
+    </div>
+  </div>
+  <div class="simhints">
+    <div class="simhint"><b>Туршилт 1</b>Σaᵢ = 120, Σbⱼ = 90 — илүүдэл ачаа хаашаа явах вэ?</div>
+    <div class="simhint"><b>Туршилт 2</b>Σaᵢ = 90, Σbⱼ = 120 — аль дэлгүүр бараагүй хоцрох вэ?</div>
+    <div class="simhint"><b>Туршилт 3</b>Σaᵢ = Σbⱼ — нэмэлт мөр, багана огт хэрэггүй.</div>
+  </div>
+  <div class="s-foot"><span>Гулсуураа хөдөлгөөд таамаглаад, дараа нь шалгана уу</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 18. 8.3.4 АЛХМУУД ══════════ -->
+<section class="slide" data-sec="8.3" data-notes="Дөрвөн алхмыг оюутнаар цээжлүүл — шалгалтын бодлого болгонд эхний алхам нь энэ. Хоёр жишээг самбарт зэрэгцүүлэн бич.">
+  <div class="s-tag">8.3.4 · Тэнцвэрт оруулах алхмууд</div>
+  <h2 class="title">Дөрвөн <em>алхам</em></h2>
+  <div class="checks">
+    <div class="chk yes"><span class="m">1</span><span class="tx"><b>Нийт эрэлт, нийт нийлүүлэлтийг тооцоолно</b> — Σaᵢ ба Σbⱼ</span></div>
+    <div class="chk yes"><span class="m">2</span><span class="tx"><b>Тэдгээрийн ялгааг олно</b> — Σaᵢ − Σbⱼ</span></div>
+    <div class="chk yes"><span class="m">3</span><span class="tx"><b>Илүүдэл нийлүүлэлт бол зохиомол багана</b> (dummy destination), <b>илүүдэл эрэлт бол зохиомол мөр</b> (dummy source) нэмнэ</span></div>
+    <div class="chk yes"><span class="m">4</span><span class="tx"><b>Тэнцвэржүүлсний дараа</b> стандарт алгоритмуудыг хэрэглэнэ</span></div>
+  </div>
+  <div class="grid g2">
+    <div class="card accent"><div class="k">Жишээ · Илүү нийлүүлэлт</div><h3 style="font-size:17px">100 − 90 = 10</h3><p style="font-size:14px">Үйлдвэр-1 = 40, Үйлдвэр-2 = 60 (нийт 100); захиалга А = 30, Б = 40, В = 20 (нийт 90). «Дэлгүүр-Зохиомол» 4 дэх багана: <strong>b₄ = 10, c₁₄ = 0, c₂₄ = 0</strong> → хүснэгт 2×4 болно.</p></div>
+    <div class="card accent"><div class="k">Жишээ · Илүү эрэлт</div><h3 style="font-size:17px">110 − 100 = 10</h3><p style="font-size:14px">Захиалга А = 30, Б = 50, В = 30 (нийт 110); нийлүүлэлт 40 + 60 = 100. «Үйлдвэр-Зохиомол» 3 дахь мөр: <strong>a₃ = 10, c₃ⱼ = 0</strong> (бүх j-ийн хувьд).</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.3.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 19. ЗААГ 8.4 ══════════ -->
+<section class="slide divider dark" data-sec="8.4" data-notes="Хичээлийн гол блок, 35 минут. Яагаад нэг алхмаар бодчихдоггүй вэ? — мянга мянган боломжит маршрут дундаас таах боломжгүй.">
+  <div class="num">8.4</div>
+  <h2>Гарааны шийд олох аргууд</h2>
+  <p class="sub">Олон арван үйлдвэр, олон зуун хэрэглэгчийн хоорондох мянга мянган боломжит маршрут дундаас хамгийн хямдыг тааж олох боломжгүй. Тиймээс бодолт хоёр үе шаттай.</p>
+  <div class="s-foot"><span>Бүлэг 8.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 20. ХОЁР ҮЕ ШАТ + ЖИШЭЭ ══════════ -->
+<section class="slide" data-sec="8.4" data-notes="Хоёр үе шатыг тодорхой салга: өнөөдөр зөвхөн I үе. MODI бол дараагийн хичээл. Пиццаны жишээний тоог оюутнаар дэвтэрт хуулуул — дараагийн 6 слайдад энэ л хүснэгт байна.">
+  <div class="s-tag">8.4 · Хоёр үе шат ба нэгдсэн жишээ</div>
+  <h2 class="title">Ноорог төлөвлөгөө → <em>оновчтой шийд</em></h2>
+  <div class="split wide">
+    <div>
+      <div class="card accent" style="margin-bottom:14px"><div class="k">I үе шат — өнөөдөр</div><h3 style="font-size:18px">Гарааны шийд (Initial Basic Feasible Solution)</h3><p style="font-size:14px">Эрэлт, нийлүүлэлтийн тэнцвэрийг хангасан, <strong>ажил хэрэг болохуйц</strong> эхний зохион байгуулалт. Хамгийн хямд байх албагүй — цааш сайжруулах суурь.</p></div>
+      <div class="card green"><div class="k">II үе шат — Бүлэг 8.5</div><h3 style="font-size:18px">Оновчлол (MODI арга)</h3><p style="font-size:14px">«Үүнээс илүү хямдруулах боломж бий юу?» гэдгийг математикаар хайж, зардлыг дахин бууруулж <strong>эцсийн цэгийг тавина</strong>.</p></div>
+    </div>
+    <div>
+      <p class="lead" style="font-size:15px;margin-bottom:12px">«3 салбартай пиццаны газар ба 3 дотуур байр» — нийт нөөц 150, нийт эрэлт 150 тул <strong>тэнцвэржүүлсэн бодлого</strong>.</p>
+      <table class="t sm">
+        <thead><tr><th></th><th>Б1 (40)</th><th>Б2 (60)</th><th>Б3 (50)</th><th>Нөөц</th></tr></thead>
+        <tbody>
+          <tr><td class="k">С1</td><td class="sym">8</td><td class="sym">6</td><td class="sym">10</td><td class="sym">50</td></tr>
+          <tr><td class="k">С2</td><td class="sym">9</td><td class="sym">12</td><td class="sym">3</td><td class="sym">70</td></tr>
+          <tr><td class="k">С3</td><td class="sym">4</td><td class="sym">7</td><td class="sym">5</td><td class="sym">30</td></tr>
+          <tr><td class="k">Эрэлт</td><td class="sym">40</td><td class="sym">60</td><td class="sym">50</td><td class="sym">150</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.4 · Нэгдсэн жишээ</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 21. ИНТЕРАКТИВ 3 — ГУРВАН АРГА ══════════ -->
+<section class="slide" data-sec="8.4" id="sm3" data-notes="ЭНЭ БОЛ ХИЧЭЭЛИЙН ЗҮРХ. 12–15 минут. Таб бүрийг эхнээс нь дуустал алхаад, дараагийн нүдийг оюутнаар УРЬДЧИЛАН таамаглуул, дараа нь товчийг дар. VAM табанд торгуулийн тоонууд ирмэг дээр гарна — хамгийн их торгууль бараан өнгөөр тодорно. Гурвуулангийн зардлыг доор нь харьцуул.">
+  <div class="s-tag">Интерактив · Бүлэг 8.4.1–8.4.3</div>
+  <h2 class="title">Гарааны шийд <em>гурван аргаар</em></h2>
+  <div class="tabs">
+    <button class="tbtn on" data-m="nw">Баруун дээд өнцгийн арга</button>
+    <button class="tbtn" data-m="lcm">Хамгийн бага зардлын арга</button>
+    <button class="tbtn" data-m="vam">Фогелийн ойролцоолох арга (VAM)</button>
+  </div>
+  <div class="i3grid">
+    <div id="smTbl"></div>
+    <div class="sim-panel" style="padding:16px">
+      <h4 id="smName">Баруун дээд өнцгийн арга</h4>
+      <div class="stepbox" id="smTxt">Зардлыг огт харгалзахгүй, зүүн дээд нүднээс эхэлнэ. «Дараагийн хуваарилалт ›» товчийг дарна уу.</div>
+      <div class="btnrow">
+        <button class="btnx" id="smNext">Дараагийн хуваарилалт ›</button>
+        <button class="btnx ghost" id="smReset">↺ Эхнээс</button>
+      </div>
+      <div class="ztot" id="smZ">Одоогийн нийт зардал Z = 0₮ · хуваарилсан нүд: 0</div>
+      <div class="cmp" id="smCmp">
+        <div><span>NW</span><b>—</b></div>
+        <div><span>LCM</span><b>—</b></div>
+        <div><span>VAM</span><b>—</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Гурван табыг эхнээс нь дуустал алхаж, зардлыг харьцуулна уу</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 22. 8.4.1 NW ══════════ -->
+<section class="slide" data-sec="8.4" data-notes="«Залхуу бөгөөд мэдлэггүй диспетчер». Шатны хэлбэрийг хуруугаараа зурж үзүүл. 600₮-ийн алдааг онцол: С2→Б2 маршрут нэгжийн 12₮.">
+  <div class="s-tag">8.4.1 · Баруун дээд өнцгийн арга (North-West Corner)</div>
+  <h2 class="title">«Залхуу бөгөөд мэдлэггүй <em>диспетчер</em>»</h2>
+  <table class="t sm">
+    <thead><tr><th style="width:20%">Салбар \ Байр</th><th>Б1 (40)</th><th>Б2 (60)</th><th>Б3 (50)</th><th style="width:16%">Үлдсэн нөөц</th></tr></thead>
+    <tbody>
+      <tr><td class="k">С1 (50)</td><td class="sym"><strong>40</strong> (зардал 8)</td><td class="sym"><strong>10</strong> (зардал 6)</td><td class="sym">– (зардал 10)</td><td class="sym">0</td></tr>
+      <tr><td class="k">С2 (70)</td><td class="sym">– (зардал 9)</td><td class="sym"><strong>50</strong> (зардал 12)</td><td class="sym"><strong>20</strong> (зардал 3)</td><td class="sym">0</td></tr>
+      <tr><td class="k">С3 (30)</td><td class="sym">– (зардал 4)</td><td class="sym">– (зардал 7)</td><td class="sym"><strong>30</strong> (зардал 5)</td><td class="sym">0</td></tr>
+      <tr><td class="k">Үлдсэн эрэлт</td><td class="sym">0</td><td class="sym">0</td><td class="sym">0</td><td class="sym">Нийт: 150</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Нийт зардал</div>
+    <p><span class="sym" style="font-family:var(--mono);font-size:15px">Z = (40×8) + (10×6) + (50×12) + (20×3) + (30×5) = 320 + 60 + 600 + 60 + 150 = <strong>1,190₮</strong></span><br>
+    Хуваарилалт (40 → 10 → 50 → 20 → 30) баруун дээд өнцгөөс доошоо уруудсан <strong>шат (Staircase)</strong> хэлбэртэй. <strong>Давуу тал:</strong> маш хурдан, механик. <strong>Сул тал:</strong> зардлыг харгалзахгүй тул хамгийн муу гарааны шийд өгдөг.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.4.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 23. 8.4.2 LCM ══════════ -->
+<section class="slide" data-sec="8.4" data-notes="«Шунахай менежер». 1,190 → 780 болж 410₮ хэмнэлээ. Гэхдээ сүүлийн хоёр хуваарилалт (9, 12) аргагүйн эрхэнд гарсныг заавал онцол — энэ бол LCM-ийн сул тал.">
+  <div class="s-tag">8.4.2 · Хамгийн бага зардлын арга (Least Cost Method — LCM)</div>
+  <h2 class="title">«Шунахай <em>менежер</em>»</h2>
+  <table class="t sm">
+    <thead><tr><th style="width:20%">Салбар \ Байр</th><th>Б1 (40)</th><th>Б2 (60)</th><th>Б3 (50)</th><th style="width:16%">Үлдсэн нөөц</th></tr></thead>
+    <tbody>
+      <tr><td class="k">С1 (50)</td><td class="sym">– (зардал 8)</td><td class="sym"><strong>50</strong> (зардал 6)</td><td class="sym">– (зардал 10)</td><td class="sym">0</td></tr>
+      <tr><td class="k">С2 (70)</td><td class="sym"><strong>10</strong> (зардал 9)</td><td class="sym"><strong>10</strong> (зардал 12)</td><td class="sym"><strong>50</strong> (зардал 3)</td><td class="sym">0</td></tr>
+      <tr><td class="k">С3 (30)</td><td class="sym"><strong>30</strong> (зардал 4)</td><td class="sym">– (зардал 7)</td><td class="sym">– (зардал 5)</td><td class="sym">0</td></tr>
+      <tr><td class="k">Үлдсэн эрэлт</td><td class="sym">0</td><td class="sym">0</td><td class="sym">0</td><td class="sym">Нийт: 150</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Нийт зардал</div>
+    <p><span class="sym" style="font-family:var(--mono);font-size:15px">Z = (50×3) + (30×4) + (50×6) + (10×9) + (10×12) = 150 + 120 + 300 + 90 + 120 = <strong>780₮</strong></span><br>
+    Хуваарилалт хүснэгт дундуур <strong>тархай бутархай</strong> байрлана — геометрийн дэс дараалал биш. <strong>Сул тал:</strong> хямд замууд (3, 4, 6) руу ачаагаа шахсаар байгаад, сүүлд дутуу үлдсэнийг үнэтэй (9, 12) замаар нөхөх эрсдэлд ордог.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.4.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 24. 8.4.3 VAM ══════════ -->
+<section class="slide" data-sec="8.4" data-notes="«Алсын хараатай, стратегич диспетчер». Торгууль = хоёр дахь хамгийн бага − хамгийн бага. Мөр 2-ын торгууль 6 гэдгийг тайлбарла: хямд (3) замаа алдвал шууд 9 рүү үсэрнэ.">
+  <div class="s-tag">8.4.3 · Фогелийн ойролцоолох арга (VAM — Vogel's Approximation Method)</div>
+  <h2 class="title">Торгуулийн <em>зарчим</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:12%">Алхам</th><th style="width:44%">Торгуулиуд (2 дахь хамгийн бага − хамгийн бага)</th><th>Шийдвэр</th></tr></thead>
+    <tbody>
+      <tr><td class="k">1</td><td class="sym">Мөр: С1 (8,6,10)→2 · С2 (9,12,3)→<strong>6</strong> · С3 (4,7,5)→1<br>Багана: Б1 (8,9,4)→4 · Б2 (6,12,7)→1 · Б3 (10,3,5)→2</td><td>Хамгийн их торгууль <strong>6</strong> = Мөр 2. Хамгийн хямд нүд <strong>С2–Б3 (3)</strong>: min(70, 50) = <strong>50</strong>. Б3 хаагдана</td></tr>
+      <tr><td class="k">2</td><td class="sym">Мөр: С1 (8,6)→2 · С2 (9,12)→3 · С3 (4,7)→3<br>Багана: Б1 (8,9,4)→<strong>4</strong> · Б2 (6,12,7)→1</td><td>Торгууль <strong>4</strong> = Багана 1. Хамгийн хямд нүд <strong>С3–Б1 (4)</strong>: min(30, 40) = <strong>30</strong>. С3 хаагдана</td></tr>
+      <tr><td class="k">3</td><td class="sym">Мөр: С1 (8,6)→2 · С2 (9,12)→3<br>Багана: Б1 (8,9)→1 · Б2 (6,12)→<strong>6</strong></td><td>Торгууль <strong>6</strong> = Багана 2. Хамгийн хямд нүд <strong>С1–Б2 (6)</strong>: min(50, 60) = <strong>50</strong>. С1 хаагдана</td></tr>
+      <tr><td class="k">4</td><td class="sym">С2 мөрөнд Б1 (9), Б2 (12) хоёрхон нүд үлдсэн; С2-т яг 20, Б1, Б2-т тус бүр 10 дутуу</td><td><strong>С2–Б1 руу 10</strong>, <strong>С2–Б2 руу 10</strong> өгч дуусгана</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Эцсийн үр дүн</div>
+    <p><span class="sym" style="font-family:var(--mono);font-size:15px">Z = 300 + 90 + 120 + 150 + 120 = <strong>780₮</strong></span> &nbsp;(С1→Б2: 50×6 · С2→Б1: 10×9 · С2→Б2: 10×12 · С2→Б3: 50×3 · С3→Б1: 30×4)</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.4.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 25. 8.4.4 ХАРЬЦУУЛАЛТ ══════════ -->
+<section class="slide" data-sec="8.4" data-notes="Гол асуулт: LCM ч 780 өгсөн юм чинь яагаад VAM шилдэг вэ? Хариу: жишээ жижиг (3×3) байсан тул LCM САНАМСАРГҮЙГЭЭР төгс хариугаа олсон. 50×100 бодлогод LCM алддаг.">
+  <div class="s-tag">8.4.4 · Гурван аргын харьцуулалт</div>
+  <h2 class="title">Z(NW) ≥ Z(LCM) ≥ <em>Z(VAM)</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:38%">Арга</th><th style="width:16%">Нийт зардал</th><th>Тайлбар</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Баруун дээд өнцгийн арга<br><span class="en">North-West Corner</span></td><td class="sym">1,190₮</td><td>Зардлыг огт харгалзаагүй, хамгийн муу гарааны шийд</td></tr>
+      <tr><td class="k">Хамгийн бага зардлын арга<br><span class="en">Least Cost Method</span></td><td class="sym">780₮</td><td>Шунахай сонголтоор шууд оновчтой хариу таарсан</td></tr>
+      <tr><td class="k">Фогелийн ойролцоолох арга<br><span class="en">Vogel's Approximation Method</span></td><td class="sym">780₮</td><td>Торгуулийн зарчмаар мөн шууд оновчтой хариу гарсан</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Яагаад VAM хамгийн шилдэг вэ?</div>
+    <p>Энэ жишээ <strong>жижиг (3×3)</strong> байсан тул LCM санамсаргүйгээр төгс хариугаа олсон. 50 салбараас 100 дэлгүүр рүү түгээх том бодлогод LCM хямд нүд рүү ачаагаа чихээд, сүүлд өндөр үнэтэй алсын замаар хүргэхээс өөр аргагүй болдог. VAM <strong>торгууль тооцдог</strong> учраас алдагдлаас урьдчилан зайлсхийдэг. Гэвч гурвуулаа зөвхөн <strong>гарааны шийд</strong> л өгнө — баталгаажуулахад <strong>MODI арга</strong> хэрэгтэй.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.4.4 · Дараах: Бүлэг 8.5 MODI</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 26. ИНТЕРАКТИВ 4 — m + n − 1 ══════════ -->
+<section class="slide" data-sec="8.4" id="i4Slide" data-notes="ИНТЕРАКТИВ 4, 6 минут. Гарааны шийд бүр m + n − 1 суурь нүдтэй байх ёстой. Өнөөдрийн 3×3 жишээнд 3 + 3 − 1 = 5 — гурвуулаа яг 5 хуваарилалттай байсныг буцаж шалгуул. Цөөн бол ГАЖУУДАЛТАЙ ШИЙД, MODI ажиллахгүй.">
+  <div class="s-tag">Интерактив · Гарааны шийдийн шалгуур</div>
+  <h2 class="title">Суурь нүд хэд байх <em>ёстой вэ?</em></h2>
+  <div class="sim">
+    <div class="sim-panel">
+      <h4>Хүснэгтийн хэмжээ</h4>
+      <div class="mini">m — нийлүүлэгчийн тоо (мөр)</div>
+      <div class="optrow" id="i4M"></div>
+      <div class="mini">n — хэрэглэгчийн тоо (багана)</div>
+      <div class="optrow" id="i4N"></div>
+      <div class="def" style="margin-top:14px;padding:12px 14px">
+        <div class="lbl">Шалгуур</div>
+        <p style="font-size:14px;line-height:1.5">Хуваарилалттай (суурь) нүдний тоо = <strong>m + n − 1</strong></p>
+      </div>
+    </div>
+    <div class="sim-panel">
+      <h4>Таны хариу</h4>
+      <p style="font-size:13.5px;line-height:1.55;color:var(--ink-soft)" id="i4Q">m = 3, n = 3 хүснэгтэд суурь нүд хэд байх ёстой вэ?</p>
+      <div class="optrow" id="i4Opt"></div>
+      <div class="verd n" id="i4Verd">Нэг тоог сонгоно уу.</div>
+    </div>
+    <div class="sim-panel">
+      <h4>Гажуудлын шалгалт</h4>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">Хуваарилсан нүд</span><span class="cv" id="i4kv">5</span></div>
+        <input type="range" id="i4k" min="1" max="9" step="1" value="5">
+        <div class="ch" id="i4need">Байх ёстой: m + n − 1 = 5</div>
+      </div>
+      <div class="verd g" id="i4Deg">Гажуудалгүй шийд ✓ — MODI аргаар оновчлох боломжтой.</div>
+    </div>
+  </div>
+  <div class="simhints">
+    <div class="simhint"><b>Өнөөдрийн жишээ</b>3×3 хүснэгт → 3 + 3 − 1 = 5. Гурван арга бүгд яг 5 хуваарилалт өгсөн.</div>
+    <div class="simhint"><b>Гажуудал</b>Суурь нүд m + n − 1-ээс цөөн бол <b>гажуудалтай шийд</b> (Degeneracy) — MODI ажиллахгүй.</div>
+    <div class="simhint"><b>Засвар</b>Дутсан нүдэнд ε (маш бага) хэмжээ тавьж тоог гүйцээдэг → Бүлэг 8.5.</div>
+  </div>
+  <div class="s-foot"><span>m + n − 1 шалгуур · Бүлэг 8.4 → 8.5</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 27. ГОЛ САНАА ══════════ -->
+<section class="slide" data-sec="—" data-notes="Таван гол санаа. Оюутнаар нэг бүрчлэн давтуулж хэлүүл. Ялангуяа 4-рийг: гурван арга бол зөвхөн ГАРАА, эцсийн шийд биш.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Таван гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt">Тээврийн бодлого <b>дайны ложистикоос</b> төрж, <b>Хичкок–Купмансын тээврийн загвар</b> болон томьёологдсон. Канторович, Купманс 1975 онд Нобелийн шагнал хүртсэн.</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt">Загвар нь <b>min Z = ΣΣcᵢⱼxᵢⱼ</b>, мөрийн (Σⱼxᵢⱼ = aᵢ) ба баганын (Σᵢxᵢⱼ = bⱼ) хязгаарлалт, xᵢⱼ ≥ 0 гэсэн гурван хэсэгтэй.</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt"><b>Σaᵢ = Σbⱼ</b> биш бол бодолт эхлэхгүй: илүү нийлүүлэлт бол <b>зохиомол</b> багана, илүү эрэлт бол <b>зохиомол</b> мөр — зардал нь үргэлж <b>0</b>.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt">Гарааны шийдийн гурван арга: <b>Баруун дээд өнцгийн арга (1,190₮)</b>, <b>Хамгийн бага зардлын арга (780₮)</b>, <b>Фогелийн ойролцоолох арга (780₮)</b> — Z(NW) ≥ Z(LCM) ≥ Z(VAM).</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt">Гарааны шийд <b>m + n − 1</b> суурь нүдтэй байх ёстой. Цөөн бол <b>гажуудалтай шийд</b>. Гурван арга нь эцсийн хариу биш — <b>MODI</b> баталгаажуулна.</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 8.1–8.4 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 28. ТӨГСГӨЛ ══════════ -->
+<section class="slide closing dark" data-sec="—" data-notes="Дараагийн 1.5 цаг — дадлага: оюутан өөрийн 3×4 хүснэгтээ гурван аргаар бодно. Дараагийн долоо хоног Бүлэг 8.5: MODI арга нь яг өнөөдрийн 780₮-ийг оновчтой мөн эсэхийг баталгаажуулна.">
+  <h2>Та 1,190₮-ийг 780₮ болгож <em>буулгалаа</em>.<br>Гэхдээ энэ нь <em>хамгийн бага</em> мөн үү?</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    Гурван арга зөвхөн ноорог төлөвлөгөө өгнө. Бүлэг 8.5-д MODI арга энэ шийдийг шүүн шалгаж, «Үүнээс илүү хямдруулах боломж бий юу?» гэдгийг математикаар хариулна.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 8.5 — MODI арга</span>
+    <span>🔗 LP Suite → Хичээл 13 → transport_table</span>
+  </div>
+</section>
+
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 28</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+window.DECK = {
+  lesson: 'Хичээл 13',
+  course: 'Бүлэг 8 — Тээврийн бодлого',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'8.1',   label:'Түүх ба үүсэл'},
+    {k:'8.2',   label:'Математик загвар'},
+    {k:'8.3',   label:'Тэнцвэржүүлэлт'},
+    {k:'8.4',   label:'Гарааны шийд'},
+    {k:'end',   label:'Дүгнэлт'}
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Хичээлийн агуулга'},
+    {p:'intro', s:'Сурах зорилт'},
+    {p:'8.1',   s:'8.1 · Түүх ба эдийн засгийн үүсэл'},
+    {p:'8.1',   s:'8.1.1 · Дайн ба хямрал дахь үүсэл'},
+    {p:'8.1',   s:'8.1.2 · Гол хувь нэмэр оруулагчид'},
+    {p:'8.1',   s:'8.1.3 · Хөгжлийн дөрвөн үе'},
+    {p:'8.1',   s:'8.1.3 · Орчин үеийн хэрэглээ'},
+    {p:'8.1',   s:'8.1.4 · Яагаад чухал вэ?'},
+    {p:'8.2',   s:'8.2 · Математик загварчлал'},
+    {p:'8.2',   s:'8.2.1 · Шийдвэрийн хувьсагч xᵢⱼ'},
+    {p:'8.2',   s:'Интерактив · Хүснэгтийн нүд таних'},
+    {p:'8.2',   s:'8.2.2–8.2.3 · Бүрэн загвар'},
+    {p:'8.2',   s:'8.2.3 · Загварчлалын жишээ'},
+    {p:'8.3',   s:'8.3 · Тэнцвэржүүлсэн ба тэнцвэргүй бодлого'},
+    {p:'8.3',   s:'8.3.1–8.3.3 · Гурван тохиолдол'},
+    {p:'8.3',   s:'Интерактив · Тэнцвэржүүлэгч'},
+    {p:'8.3',   s:'8.3.4 · Тэнцвэрт оруулах алхмууд'},
+    {p:'8.4',   s:'8.4 · Гарааны шийд олох аргууд'},
+    {p:'8.4',   s:'8.4 · Хоёр үе шат ба нэгдсэн жишээ'},
+    {p:'8.4',   s:'Интерактив · Гурван арга зэрэгцүүлэн'},
+    {p:'8.4',   s:'8.4.1 · Баруун дээд өнцгийн арга'},
+    {p:'8.4',   s:'8.4.2 · Хамгийн бага зардлын арга'},
+    {p:'8.4',   s:'8.4.3 · Фогелийн ойролцоолох арга'},
+    {p:'8.4',   s:'8.4.4 · Гурван аргын харьцуулалт'},
+    {p:'8.4',   s:'Интерактив · m + n − 1 шалгуур'},
+    {p:'end',   s:'Бүлгийн хураангуй'},
+    {p:'end',   s:''}
+  ]
+};
+</script>
+
+<script>
+/* ══════════════ ИНТЕРАКТИВ 1 — Хүснэгтийн нүд таних ══════════════ */
+(function(){
+  if(!document.getElementById('i1Slide')) return;
+  var wrap = document.getElementById('i1Tbl');
+  var txt  = document.getElementById('i1Txt');
+  var sc   = document.getElementById('i1Score');
+  var CN = ['Дэлгүүр-А', 'Дэлгүүр-Б', 'Дэлгүүр-В'];
+  var RN = ['Үйлдвэр-1', 'Үйлдвэр-2'];
+  var SUB = ['₁','₂','₃'];
+  var EXP = {};
+  var i, j;
+  for(i=0;i<2;i++){
+    for(j=0;j<3;j++){
+      EXP['x'+i+j] =
+        '<b>x'+SUB[i]+SUB[j]+' — шийдвэрийн хувьсагч.</b><br>'+
+        RN[i]+'-ээс '+CN[j]+' рүү тээвэрлэхээр шийдсэн ачааны хэмжээ (тонн). '+
+        'Энэ бол бидний хайж буй гол баатар: xᵢⱼ ≥ 0 байх ба зорилгын функцэд '+
+        '<span style="font-family:var(--mono)">c'+SUB[i]+SUB[j]+'·x'+SUB[i]+SUB[j]+'</span> гэж орно.';
+    }
+  }
+  EXP['a0'] = '<b>a₁ = 40 — Үйлдвэр-1-ийн нөөц.</b><br>Мөрийн (нийлүүлэлтийн) хязгаарлалт: '+
+              '<span style="font-family:var(--mono)">x₁₁ + x₁₂ + x₁₃ = 40</span>. Үйлдвэрээс явуулсан нийт хэмжээ нөөцөөс хэтрэхгүй; тэнцвэржүүлсэн бодлогод яг тэнцүү.';
+  EXP['a1'] = '<b>a₂ = 60 — Үйлдвэр-2-ын нөөц.</b><br>Мөрийн (нийлүүлэлтийн) хязгаарлалт: '+
+              '<span style="font-family:var(--mono)">x₂₁ + x₂₂ + x₂₃ = 60</span>.';
+  EXP['b0'] = '<b>b₁ = 30 — Дэлгүүр-А-ийн эрэлт.</b><br>Баганын (эрэлтийн) хязгаарлалт: '+
+              '<span style="font-family:var(--mono)">x₁₁ + x₂₁ = 30</span>. Бүх үйлдвэрээс цугларч ирсэн хэмжээ эрэлтийг бүрэн хангана.';
+  EXP['b1'] = '<b>b₂ = 50 — Дэлгүүр-Б-ийн эрэлт.</b><br>Баганын (эрэлтийн) хязгаарлалт: '+
+              '<span style="font-family:var(--mono)">x₁₂ + x₂₂ = 50</span>.';
+  EXP['b2'] = '<b>b₃ = 20 — Дэлгүүр-В-ийн эрэлт.</b><br>Баганын (эрэлтийн) хязгаарлалт: '+
+              '<span style="font-family:var(--mono)">x₁₃ + x₂₃ = 20</span>.';
+  EXP['tot'] = '<b>Тэнцвэрийн шалгалт.</b><br>Σaᵢ = 40 + 60 = <b>100</b> · Σbⱼ = 30 + 50 + 20 = <b>100</b>. '+
+               'Тэнцүү тул <b>тэнцвэржүүлсэн бодлого</b> — зохиомол мөр, багана нэмэх шаардлагагүй.';
+  var TOTAL = 12, seen = {};
+
+  function build(){
+    var h = '<table class="tt"><thead><tr><th style="width:20%"></th>';
+    for(j=0;j<3;j++) h += '<th>'+CN[j]+'</th>';
+    h += '<th style="width:16%">Нөөц aᵢ</th></tr></thead><tbody>';
+    for(i=0;i<2;i++){
+      h += '<tr><td class="rh">'+RN[i]+'</td>';
+      for(j=0;j<3;j++)
+        h += '<td class="cell pickable" data-k="x'+i+j+'"><span class="aa">x'+SUB[i]+SUB[j]+'</span></td>';
+      h += '<td class="rem pickable" data-k="a'+i+'">'+(i===0?'a₁ = 40':'a₂ = 60')+'</td></tr>';
+    }
+    h += '<tr><td class="rh">Эрэлт bⱼ</td>';
+    var bs = ['b₁ = 30','b₂ = 50','b₃ = 20'];
+    for(j=0;j<3;j++) h += '<td class="rem pickable" data-k="b'+j+'">'+bs[j]+'</td>';
+    h += '<td class="rem pickable" data-k="tot">100 = 100</td></tr></tbody></table>';
+    wrap.innerHTML = h;
+  }
+  build();
+
+  wrap.addEventListener('click', function(e){
+    var td = e.target.closest('td.pickable');
+    if(!td) return;
+    var k = td.getAttribute('data-k');
+    var old = wrap.querySelector('td.cur');
+    if(old) old.classList.remove('cur');
+    td.classList.add('cur', 'seen');
+    seen[k] = 1;
+    txt.innerHTML = EXP[k];
+    sc.textContent = Object.keys(seen).length + ' / ' + TOTAL + ' нээгдсэн';
+  });
+
+  var rb = document.getElementById('i1Reset');
+  rb.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  rb.addEventListener('click', function(){
+    seen = {}; build();
+    txt.innerHTML = 'Хүснэгтийн дурын нүд дээр товшино уу. Дотоод нүд — шийдвэрийн хувьсагч, захын нүд — хязгаарлалт.';
+    sc.textContent = '0 / ' + TOTAL + ' нээгдсэн';
+  });
+})();
+
+/* ══════════════ ИНТЕРАКТИВ 2 — Тэнцвэржүүлэгч ══════════════ */
+(function(){
+  if(!document.getElementById('i2Slide')) return;
+  var sa = document.getElementById('i2a'), sb = document.getElementById('i2b');
+  var av = document.getElementById('i2av'), bv = document.getElementById('i2bv');
+  var ans = document.getElementById('i2Ans'), flag = document.getElementById('i2Flag');
+  var why = document.getElementById('i2Why'), box = document.getElementById('i2Box');
+  var verd = document.getElementById('i2Verd');
+  var btns = [document.getElementById('i2g0'), document.getElementById('i2g1'), document.getElementById('i2g2')];
+  var guess = -1;
+
+  function truth(){
+    var A = +sa.value, B = +sb.value;
+    if(A > B) return 1;
+    if(A < B) return 2;
+    return 0;
+  }
+  function reveal(){
+    var A = +sa.value, B = +sb.value, t = truth(), d = Math.abs(A - B);
+    if(t === 0){
+      ans.textContent = 'Тэнцвэртэй';
+      flag.textContent = 'Σaᵢ = Σbⱼ = ' + A;
+      why.innerHTML = 'Юу ч нэмэхгүй — бүх нөөц бүрэн ашиглагдаж, бүх эрэлт бүрэн хангагдана. Шууд бодолт руу орно.';
+    } else if(t === 1){
+      ans.textContent = 'Зохиомол багана';
+      flag.textContent = 'Σaᵢ = ' + A + ' > Σbⱼ = ' + B;
+      why.innerHTML = 'Илүү нийлүүлэлт → <b>зохиомол эрэлт</b> (Dummy Demand): b₍ₙ₊₁₎ = ' + A + ' − ' + B + ' = <b>' + d +
+        '</b>, c₍ᵢ,ₙ₊₁₎ = 0. Практик утга: агуулахад үлдэх, зарагдаагүй ачаа.';
+    } else {
+      ans.textContent = 'Зохиомол мөр';
+      flag.textContent = 'Σaᵢ = ' + A + ' < Σbⱼ = ' + B;
+      why.innerHTML = 'Илүү эрэлт → <b>зохиомол нийлүүлэгч</b> (Dummy Supply): a₍ₘ₊₁₎ = ' + B + ' − ' + A + ' = <b>' + d +
+        '</b>, c₍ₘ₊₁,ⱼ₎ = 0. Практик утга: хангагдахгүй эрэлт буюу алдагдал.';
+    }
+    var ok = (guess === t);
+    box.classList.toggle('bad', !ok);
+    verd.className = 'verd ' + (ok ? 'g' : 'r');
+    verd.innerHTML = ok ? '<b>Зөв ✓</b> — та математикийн шийдвэртэй тааруулж таалаа.'
+                        : '<b>Буруу ✗</b> — баруун талын хариуг харна уу. Илүү нийлүүлэлт → багана, илүү эрэлт → мөр.';
+    btns.forEach(function(b, k){
+      b.classList.remove('ok', 'bad');
+      if(k === t) b.classList.add('ok');
+      else if(k === guess) b.classList.add('bad');
+    });
+  }
+  function reset(){
+    guess = -1;
+    av.textContent = sa.value; bv.textContent = sb.value;
+    ans.textContent = '— — —';
+    flag.textContent = 'Таамаглаа сонгоно уу';
+    why.innerHTML = '&nbsp;';
+    box.classList.remove('bad');
+    verd.className = 'verd n';
+    verd.textContent = 'Гулсуурыг хөдөлгөөд гурван хувилбарын нэгийг сонгоно уу.';
+    btns.forEach(function(b){ b.classList.remove('ok', 'bad'); });
+  }
+  sa.addEventListener('input', reset);
+  sb.addEventListener('input', reset);
+  btns.forEach(function(b){
+    b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    b.addEventListener('click', function(){ guess = +b.getAttribute('data-g'); reveal(); });
+  });
+  reset();
+})();
+
+/* ══════════════ ИНТЕРАКТИВ 3 — Гарааны шийд гурван аргаар ══════════════ */
+(function(){
+  if(!document.getElementById('sm3')) return;
+  var COST = [[8,6,10],[9,12,3],[4,7,5]];
+  var SUP  = [50,70,30], DEM = [40,60,50];
+  var RN = ['С1 (50)','С2 (70)','С3 (30)'];
+  var CN = ['Б1 (40)','Б2 (60)','Б3 (50)'];
+  var NAME = { nw:'Баруун дээд өнцгийн арга', lcm:'Хамгийн бага зардлын арга', vam:'Фогелийн ойролцоолох арга (VAM)' };
+  var INTRO = {
+    nw:'Зардлыг огт харгалзахгүй, зүүн дээд нүднээс (С1–Б1) эхэлнэ. «Дараагийн хуваарилалт ›» товчийг дарна уу.',
+    lcm:'Хамгийн бага cᵢⱼ бүхий нүдийг олж, тэндээс эхэлнэ. «Дараагийн хуваарилалт ›» товчийг дарна уу.',
+    vam:'Мөр, багана бүрд торгууль (2 дахь хамгийн бага − хамгийн бага) тооцно. Ирмэг дээрх тоонуудыг ажигла — хамгийн их торгууль тодорно.'
+  };
+  var STEPS = {
+    nw: [
+      {r:0,c:0,q:40,t:'<b>Алхам 1 · С1 → Б1.</b> Б1-д 40 хэрэгтэй, С1-д 50 байна. Бага нь 40 — С1-ээс Б1 рүү 40-ийг бүрэн өгнө. Б1 хангагдаж, С1-д 10 үлдэнэ.'},
+      {r:0,c:1,q:10,t:'<b>Алхам 2 · С1 → Б2.</b> Б2-т 60 хэрэгтэй, С1-д 10 үлдсэн. Бага нь 10. С1 хоосорч, Б2-т 50 дутуу үлдэнэ.'},
+      {r:1,c:1,q:50,t:'<b>Алхам 3 · С2 → Б2.</b> Б2-т 50 дутуу, С2-т 70 байна. Бага нь 50. Б2 хангагдаж, С2-т 20 үлдэнэ.'},
+      {r:1,c:2,q:20,t:'<b>Алхам 4 · С2 → Б3.</b> Б3-т 50 хэрэгтэй, С2-т 20 үлдсэн. Бага нь 20. С2 хоосорч, Б3-т 30 дутуу үлдэнэ.'},
+      {r:2,c:2,q:30,t:'<b>Алхам 5 · С3 → Б3.</b> Б3-т 30 дутуу, С3-т яг 30 байна. Бүгдийг өгнө — бүх нөөц, эрэлт тэнцэж дууслаа.'}
+    ],
+    lcm: [
+      {r:1,c:2,q:50,t:'<b>Алхам 1.</b> Хамгийн бага тоо нь С2–Б3 (зардал 3). Б3-т 50 хэрэгтэй, С2-т 70 байна. Бага нь 50. Б3 хангагдаж, багана хаагдана. С2-т 20 үлдэнэ.'},
+      {r:2,c:0,q:30,t:'<b>Алхам 2.</b> Үлдсэн зардлууд (8, 6), (9, 12), (4, 7) дундаас хамгийн бага нь С3–Б1 (зардал 4). Бага нь 30. С3 хоосорч, мөр хаагдана. Б1-д 10 дутуу үлдэнэ.'},
+      {r:0,c:1,q:50,t:'<b>Алхам 3.</b> Үлдсэн нь С1 (8, 6) болон С2 (9, 12). Хамгийн бага нь С1–Б2 (зардал 6). Бага нь 50. С1 хоосорч, мөр хаагдана. Б2-т 10 дутуу үлдэнэ.'},
+      {r:1,c:0,q:10,t:'<b>Алхам 4а.</b> Одоо зөвхөн С2-т 20 үлдсэн, Б1-д 10, Б2-т 10 дутуу. Өөр сонголт байхгүй — С2–Б1 (зардал 9) замаар 10.'},
+      {r:1,c:1,q:10,t:'<b>Алхам 4б.</b> Үлдсэн 10-ыг С2–Б2 (зардал 12) замаар өгнө. Хуваарилалт хүснэгт дундуур тархай бутархай байрлаж байгааг ажигла.'}
+    ],
+    vam: [
+      {r:1,c:2,q:50,t:'<b>Алхам 1.</b> Хамгийн их торгууль <b>6</b> буюу Мөр 2 (С2): хамгийн хямд (3) замаа алдвал шууд 9 рүү үсэрч их алдагдал хүлээнэ. Тэр мөрийн хамгийн хямд нүд С2–Б3 (3): min(70, 50) = 50. Б3 хангагдаж, багана хаагдана.'},
+      {r:2,c:0,q:30,t:'<b>Алхам 2.</b> Б3 баганыг хассан. Хамгийн их торгууль <b>4</b> буюу Багана 1. Тэр баганын хамгийн хямд нүд С3–Б1 (4): min(30, 40) = 30. С3 хоосорч, мөр хаагдана. Б1-д 10 дутуу үлдэнэ.'},
+      {r:0,c:1,q:50,t:'<b>Алхам 3.</b> Б3 багана, С3 мөрийг хассан. Хамгийн их торгууль <b>6</b> буюу Багана 2. Хамгийн хямд нүд С1–Б2 (6): min(50, 60) = 50. С1 хоосорч, мөр хаагдана. Б2-т 10 дутуу үлдэнэ.'},
+      {r:1,c:0,q:10,t:'<b>Алхам 4а.</b> С2 мөрөнд Б1 (9), Б2 (12) гэсэн хоёрхон нүд үлдсэн, С2-т яг 20 үлдсэн. С2–Б1 руу 10-ыг өгнө.'},
+      {r:1,c:1,q:10,t:'<b>Алхам 4б.</b> С2–Б2 руу үлдсэн 10-ыг өгч дуусгана.'}
+    ]
+  };
+  var DONE = {
+    nw:'<b>Дуусав.</b> Z = (40×8) + (10×6) + (50×12) + (20×3) + (30×5) = 320 + 60 + 600 + 60 + 150 = <b>1,190₮</b>. Хуваарилалт баруун дээд өнцгөөс уруудсан <b>шат (Staircase)</b> хэлбэртэй. Диспетчер зардлыг хараагүй тул С2–Б2 (12₮) маршрутаар 50 нэгжийг шахаж 600₮ зарцуулжээ.',
+    lcm:'<b>Дуусав.</b> Z = (50×3) + (30×4) + (50×6) + (10×9) + (10×12) = 150 + 120 + 300 + 90 + 120 = <b>780₮</b>. Зардал 1,190₮-өөс 780₮ болж багаслаа. Гэвч сүүлийн хоёр хуваарилалт үнэтэй (9, 12) замаар аргагүйн эрхэнд хийгдсэн — энэ бол LCM-ийн сул тал.',
+    vam:'<b>Дуусав.</b> Z = 300 + 90 + 120 + 150 + 120 = <b>780₮</b>. Торгуулийн зарчмаар мөн шууд оновчтой хариу гарлаа. Том бодлогод VAM оновчтой шийдэд хамгийн ойрхон хариуг өгдөг.'
+  };
+  var TOTALS = { nw:'1,190₮', lcm:'780₮', vam:'780₮' };
+
+  function fresh(){
+    return { i:0,
+      alloc:[[null,null,null],[null,null,null],[null,null,null]],
+      rr:SUP.slice(), cr:DEM.slice(),
+      rd:[false,false,false], cd:[false,false,false], last:null };
+  }
+  var st = { nw:fresh(), lcm:fresh(), vam:fresh() };
+  var found = { nw:null, lcm:null, vam:null };
+  var mode = 'nw';
+  var wrap = document.getElementById('smTbl');
+  var txt  = document.getElementById('smTxt');
+  var zEl  = document.getElementById('smZ');
+  var nmEl = document.getElementById('smName');
+  var cmp  = document.getElementById('smCmp');
+  var bNext = document.getElementById('smNext');
+  var bRes  = document.getElementById('smReset');
+
+  function pens(s){
+    var pr = [], pc = [], i, j, v;
+    for(i=0;i<3;i++){
+      if(s.rd[i]){ pr.push(''); continue; }
+      v = [];
+      for(j=0;j<3;j++) if(!s.cd[j]) v.push(COST[i][j]);
+      v.sort(function(a,b){ return a-b; });
+      pr.push(v.length >= 2 ? (v[1]-v[0]) : '—');
+    }
+    for(j=0;j<3;j++){
+      if(s.cd[j]){ pc.push(''); continue; }
+      v = [];
+      for(i=0;i<3;i++) if(!s.rd[i]) v.push(COST[i][j]);
+      v.sort(function(a,b){ return a-b; });
+      pc.push(v.length >= 2 ? (v[1]-v[0]) : '—');
+    }
+    return { r:pr, c:pc };
+  }
+
+  function render(){
+    var s = st[mode], vam = (mode === 'vam'), i, j;
+    var p = vam ? pens(s) : null;
+    var mx = -1;
+    if(vam && s.i < 5){
+      for(i=0;i<3;i++) if(typeof p.r[i] === 'number' && p.r[i] > mx) mx = p.r[i];
+      for(j=0;j<3;j++) if(typeof p.c[j] === 'number' && p.c[j] > mx) mx = p.c[j];
+    }
+    var h = '<table class="tt"><thead><tr><th style="width:17%"></th>';
+    for(j=0;j<3;j++) h += '<th>' + CN[j] + '</th>';
+    h += '<th style="width:13%">Үлдсэн нөөц</th>' + (vam ? '<th style="width:11%">Торгууль</th>' : '') + '</tr></thead><tbody>';
+    for(i=0;i<3;i++){
+      h += '<tr><td class="rh">' + RN[i] + '</td>';
+      for(j=0;j<3;j++){
+        var a = s.alloc[i][j];
+        var cls = 'cell';
+        if(a !== null) cls += ' on';
+        else if(s.rd[i] || s.cd[j]) cls += ' dead';
+        if(s.last && s.last.r === i && s.last.c === j) cls += ' pick';
+        h += '<td class="' + cls + '"><span class="cc">' + COST[i][j] + '</span><span class="aa">' +
+             (a !== null ? a : '–') + '</span></td>';
+      }
+      h += '<td class="rem">' + s.rr[i] + '</td>';
+      if(vam){
+        var pv = (s.i < 5) ? p.r[i] : '';
+        h += '<td class="pen' + (pv !== '' && pv === mx && mx > 0 ? ' hi' : '') + '">' + (pv === '' ? '' : pv) + '</td>';
+      }
+      h += '</tr>';
+    }
+    h += '<tr><td class="rh">Үлдсэн эрэлт</td>';
+    for(j=0;j<3;j++) h += '<td class="rem">' + s.cr[j] + '</td>';
+    var left = s.rr[0] + s.rr[1] + s.rr[2];
+    h += '<td class="rem">' + left + '</td>' + (vam ? '<td class="pen"></td>' : '') + '</tr>';
+    if(vam){
+      h += '<tr><td class="rh">Торгууль</td>';
+      for(j=0;j<3;j++){
+        var qv = (s.i < 5) ? p.c[j] : '';
+        h += '<td class="pen' + (qv !== '' && qv === mx && mx > 0 ? ' hi' : '') + '">' + (qv === '' ? '' : qv) + '</td>';
+      }
+      h += '<td class="pen"></td><td class="pen"></td></tr>';
+    }
+    h += '</tbody></table>';
+    wrap.innerHTML = h;
+
+    var z = 0, k = 0;
+    for(i=0;i<3;i++) for(j=0;j<3;j++) if(s.alloc[i][j] !== null){ z += s.alloc[i][j] * COST[i][j]; k++; }
+    zEl.innerHTML = 'Одоогийн нийт зардал Z = <b>' + z.toLocaleString('en-US') + '₮</b> · хуваарилсан нүд: <b>' + k + '</b>';
+    nmEl.textContent = NAME[mode];
+    txt.innerHTML = (s.i === 0) ? INTRO[mode] : (s.i >= 5 ? DONE[mode] : STEPS[mode][s.i-1].t);
+    bNext.disabled = (s.i >= 5);
+    bNext.textContent = (s.i >= 5) ? 'Дууссан ✓' : 'Дараагийн хуваарилалт ›';
+
+    var ks = ['nw','lcm','vam'], lbl = ['NW','LCM','VAM'], ch = '';
+    ks.forEach(function(m, ix){
+      var val = found[m] ? TOTALS[m] : '—';
+      var isBest = found[m] && (m === 'lcm' || m === 'vam');
+      ch += '<div class="' + (isBest ? 'best' : '') + '"><span>' + lbl[ix] + '</span><b>' + val + '</b></div>';
+    });
+    cmp.innerHTML = ch;
+  }
+
+  function step(){
+    var s = st[mode];
+    if(s.i >= 5) return;
+    var a = STEPS[mode][s.i];
+    s.alloc[a.r][a.c] = a.q;
+    s.rr[a.r] -= a.q;
+    s.cr[a.c] -= a.q;
+    s.last = a;
+    if(s.cr[a.c] === 0) s.cd[a.c] = true;
+    if(s.rr[a.r] === 0) s.rd[a.r] = true;
+    s.i++;
+    if(s.i >= 5) found[mode] = true;
+    render();
+  }
+
+  bNext.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  bRes.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  bNext.addEventListener('click', step);
+  bRes.addEventListener('click', function(){ st[mode] = fresh(); found[mode] = null; render(); });
+
+  var tabs = document.querySelectorAll('#sm3 .tbtn');
+  Array.prototype.forEach.call(tabs, function(b){
+    b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    b.addEventListener('click', function(){
+      Array.prototype.forEach.call(tabs, function(x){ x.classList.remove('on'); });
+      b.classList.add('on');
+      mode = b.getAttribute('data-m');
+      render();
+    });
+  });
+  render();
+})();
+
+/* ══════════════ ИНТЕРАКТИВ 4 — m + n − 1 шалгуур ══════════════ */
+(function(){
+  if(!document.getElementById('i4Slide')) return;
+  var m = 3, n = 3, answered = false;
+  var mBox = document.getElementById('i4M'), nBox = document.getElementById('i4N');
+  var optBox = document.getElementById('i4Opt'), verd = document.getElementById('i4Verd');
+  var qEl = document.getElementById('i4Q');
+  var sk = document.getElementById('i4k'), kv = document.getElementById('i4kv');
+  var need = document.getElementById('i4need'), deg = document.getElementById('i4Deg');
+
+  function sizeBtns(box, cur, cb){
+    var h = '', v;
+    for(v=2; v<=6; v++) h += '<button class="opt' + (v === cur ? ' ok' : '') + '" data-v="' + v + '">' + v + '</button>';
+    box.innerHTML = h;
+    Array.prototype.forEach.call(box.querySelectorAll('.opt'), function(b){
+      b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      b.addEventListener('click', function(){ cb(+b.getAttribute('data-v')); });
+    });
+  }
+
+  function buildOpts(){
+    var right = m + n - 1;
+    var raw = [right, m + n, m * n, m + n + 1];
+    var uniq = [], i;
+    for(i=0;i<raw.length;i++) if(uniq.indexOf(raw[i]) < 0) uniq.push(raw[i]);
+    uniq.sort(function(a,b){ return a-b; });
+    var h = '';
+    for(i=0;i<uniq.length;i++) h += '<button class="opt" data-v="' + uniq[i] + '">' + uniq[i] + '</button>';
+    optBox.innerHTML = h;
+    Array.prototype.forEach.call(optBox.querySelectorAll('.opt'), function(b){
+      b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      b.addEventListener('click', function(){
+        var v = +b.getAttribute('data-v');
+        answered = true;
+        Array.prototype.forEach.call(optBox.querySelectorAll('.opt'), function(x){
+          x.classList.remove('ok', 'bad');
+          if(+x.getAttribute('data-v') === right) x.classList.add('ok');
+          else if(+x.getAttribute('data-v') === v) x.classList.add('bad');
+        });
+        if(v === right){
+          verd.className = 'verd g';
+          verd.innerHTML = '<b>Зөв ✓</b> — ' + m + ' + ' + n + ' − 1 = <b>' + right + '</b> суурь нүд. Гарааны шийд яг ийм олон хуваарилалттай байх ёстой.';
+        } else {
+          verd.className = 'verd r';
+          verd.innerHTML = '<b>Буруу ✗</b> — зөв хариу нь <b>m + n − 1 = ' + m + ' + ' + n + ' − 1 = ' + right + '</b>. m·n бол хүснэгтийн НИЙТ нүдний тоо, суурь нүдний тоо биш.';
+        }
+      });
+    });
+  }
+
+  function refresh(){
+    answered = false;
+    var right = m + n - 1, mx = m * n;
+    qEl.innerHTML = 'm = ' + m + ', n = ' + n + ' хүснэгтэд <b>суурь (хуваарилалттай) нүд</b> хэд байх ёстой вэ?';
+    verd.className = 'verd n';
+    verd.textContent = 'Нэг тоог сонгоно уу.';
+    buildOpts();
+    sk.max = mx;
+    if(+sk.value > mx) sk.value = mx;
+    need.textContent = 'Байх ёстой: m + n − 1 = ' + right;
+    degCheck();
+  }
+
+  function degCheck(){
+    var right = m + n - 1, k = +sk.value;
+    kv.textContent = k;
+    if(k === right){
+      deg.className = 'verd g';
+      deg.innerHTML = '<b>Гажуудалгүй шийд ✓</b> — суурь нүд яг ' + right + '. MODI аргаар оновчлох боломжтой.';
+    } else if(k < right){
+      deg.className = 'verd r';
+      deg.innerHTML = '<b>Гажуудалтай шийд (Degeneracy) ✗</b> — суурь нүд ' + k + ' &lt; ' + right +
+        '. MODI арга ажиллахгүй: дутсан нүдэнд ε (маш бага) хэмжээ тавьж гүйцээнэ.';
+    } else {
+      deg.className = 'verd n';
+      deg.innerHTML = '<b>Боломжгүй</b> — суурь нүд ' + k + ' &gt; ' + right +
+        '. Хуваарилалт хэт олон бол хаалттай цикл үүсэх тул суурь шийд болохгүй.';
+    }
+  }
+
+  function rebuild(){
+    sizeBtns(mBox, m, function(v){ m = v; rebuild(); });
+    sizeBtns(nBox, n, function(v){ n = v; rebuild(); });
+    refresh();
+  }
+  sk.addEventListener('input', degCheck);
+  rebuild();
+})();
+</script>
+
+<script src="deck.js"></script>
+</body>
+</html>

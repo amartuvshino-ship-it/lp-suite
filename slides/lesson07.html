@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 7 — Симплекс: каноник хэлбэр ба анхны хүснэгт</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ═══ Хичээл 7-ийн өөрийн интерактив хэсгүүд ═══ */
+.l7-row{display:flex;gap:10px;flex-wrap:wrap}
+.l7-btn{font-family:var(--body);font-size:14px;font-weight:600;cursor:pointer;line-height:1.35;
+  background:var(--paper);color:var(--ink-soft);border:1px solid var(--line-strong);
+  border-radius:10px;padding:9px 15px;transition:background .2s var(--ease),color .2s var(--ease),border-color .2s var(--ease)}
+.l7-btn:hover{border-color:var(--green);color:var(--green)}
+.l7-btn.on{background:var(--green);color:var(--on-accent);border-color:var(--green)}
+.l7-btn.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.l7-btn.bad{background:var(--rust-bg);border-color:var(--rust);color:var(--rust)}
+.l7-btn.sm{font-size:13px;padding:7px 12px;font-weight:500;text-align:left}
+.l7-btn.dim{opacity:.5}
+.l7-box{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:16px 19px}
+.l7-box.mute{background:var(--muted);border-color:var(--line)}
+.l7-h{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--green-ink);
+  font-weight:700;margin-bottom:11px}
+.l7-eq{font-family:var(--mono);font-size:18px;line-height:1.85;color:var(--ink)}
+.l7-eq.big{font-size:21px}
+.l7-add{color:var(--gold-ink);font-weight:600}
+.l7-cut{color:var(--rust)}
+.l7-pop{display:inline-block;animation:l7pop .5s var(--ease) both}
+@keyframes l7pop{from{opacity:0;transform:translateY(-12px) scale(.6)}to{opacity:1;transform:none}}
+.l7-tag{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;padding:5px 11px;border-radius:999px;background:var(--gold-bg);color:var(--gold-ink)}
+.l7-tag.g{background:var(--green-bg);color:var(--green)}
+.l7-tag.r{background:var(--rust-bg);color:var(--rust)}
+.l7-tag.i{background:var(--indigo-bg);color:var(--indigo)}
+.l7-note{font-size:14px;line-height:1.55;color:var(--ink-soft);margin-top:9px}
+.l7-note b{color:var(--ink)}
+.l7-fade{opacity:.16;transition:opacity .5s var(--ease)}
+.l7-fade.on{opacity:1}
+.l7-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px;align-items:start}
+.l7-2b{display:grid;grid-template-columns:.95fr 1.05fr;gap:18px;margin-top:16px;align-items:start}
+.l7-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;align-items:start}
+.l7-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:14px;
+  font-size:13.5px;color:var(--ink-mute)}
+.l7-bar b{color:var(--ink)}
+.l7-steps{display:flex;flex-direction:column;gap:10px}
+.l7-step{border-left:3px solid var(--line-strong);padding:2px 0 2px 13px;
+  font-size:14.5px;line-height:1.5;color:var(--ink-soft);opacity:.3;transition:opacity .45s var(--ease),border-color .45s var(--ease)}
+.l7-step.on{opacity:1;border-left-color:var(--gold)}
+.l7-step b{color:var(--ink);display:block;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+.l7-step .m{font-family:var(--mono);font-size:14px;color:var(--green-ink)}
+table.t td.cell{cursor:pointer;transition:box-shadow .2s var(--ease)}
+table.t th.cell{cursor:pointer}
+#cellTb td.hitok{background:var(--green-bg) !important;box-shadow:inset 0 0 0 2px var(--green)}
+#cellTb td.hitbad{background:var(--rust-bg) !important;box-shadow:inset 0 0 0 2px var(--rust)}
+#cellTb th.hitok{box-shadow:inset 0 0 0 2px var(--green-lite)}
+#cellTb th.hitbad{box-shadow:inset 0 0 0 2px var(--rust)}
+#buildTb td.lit{background:var(--gold-bg) !important;box-shadow:inset 0 0 0 2px var(--gold)}
+.l7-q{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:15px 16px;
+  display:flex;flex-direction:column;gap:8px}
+.l7-q .qt{font-size:14.5px;line-height:1.5;color:var(--ink);font-weight:600;margin-bottom:2px}
+.l7-q .why{font-size:12.5px;line-height:1.5;color:var(--ink-mute);min-height:34px}
+</style>
+</head>
+<body>
+
+<div id="viewport"><div id="stage">
+
+<!-- ══════════ 1. НҮҮР ══════════ -->
+<section class="slide cover" data-sec="—" data-notes="Тавтай морил. Өнөөдөр симплекс алгоритмыг ГҮЙЛГЭХГҮЙ — зөвхөн бэлтгэлийг нь хийнэ: бодлогыг каноник хэлбэрт оруулж, анхны хүснэгтийг угсарна. Мөрийн үйлдэл, ялгагч элемент нь дараагийн хичээл. Дөрвөн интерактив байгаа: 11, 18, 20, 23-р слайд.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Симплекс: <em>каноник хэлбэр</em> ба анхны хүснэгт</h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 7</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 5.1–5.3</span>
+    <span class="pill">4 интерактив дасгал</span>
+  </div>
+</section>
+
+<!-- ══════════ 2. ЮУ ҮЗЭХ ВЭ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Өнөөдрийн 6 блок. Гол зорилго: оюутан симплекс хүснэгтийг харангуутаа айхаа болих. Хамгийн их цаг 5.3.3 (Z мөрийн сөрөг тэмдэг) дээр зарцуулна.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">5.1</div><h3>Симплекс аргын танилцуулга</h3><p>Данциг, 1947. Хэзээ ашиглах вэ? Оройн цэгээс оройн цэг рүү зорилготой шилжих санаа.</p></div>
+    <div class="card accent"><div class="k">5.2</div><h3>Каноник хэлбэр</h3><p>Дөрвөн нөхцөл, нэмэлт хувьсагч (+s) ба түүний эдийн засгийн утга.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Хөрвүүлэгч</h3><p>≤ / ≥ / = гурван төрөл — ямар хувьсагч нэмэгдэхийг эхлээд таамаглана.</p></div>
+    <div class="card accent"><div class="k">5.3</div><h3>Анхны симплекс хүснэгт</h3><p>Суурь багана, RHS, Z мөр — бүх мэдээлэл нэг хүснэгтэд.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Хүснэгт угсрагч</h3><p>«Модон урлал» дээр Алхам 1 → 4-өөр анхны хүснэгтийг өөрсдөө байгуулна.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Нүд таних + Z тест</h3><p>Хүснэгтийн хэсгүүдийг товшиж заана. Яагаад −50, −40 вэ?</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 7 · Бүлэг 5.1–5.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 3. СУРАХ ЗОРИЛТ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Хичээлийн эцэст оюутан эдгээрийг хийж чаддаг байх ёстой. Дадлагын даалгавар яг эдгээрийг шалгана. Онцол: өнөөдөр бид хүснэгтийг ЗӨВХӨН байгуулна, эргүүлэхгүй.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Симплекс аргын <strong>үндсэн санааг</strong> — оройн цэгээс хөрш оройн цэг рүү зорилготой шилжихийг — тайлбарлах</span></li>
+    <li><span class="b">2</span><span>ШП-ийн бодлогыг <strong>каноник хэлбэрт</strong> оруулж, ямар тохиолдолд ямар хувьсагч нэмэгдэхийг таних</span></li>
+    <li><span class="b">3</span><span><strong>Нэмэлт хувьсагчийн</strong> эдийн засгийн утгыг (ашиглагдаагүй нөөц) тайлбарлах</span></li>
+    <li><span class="b">4</span><span>«Модон урлал» ХХК-ийн <strong>анхны симплекс хүснэгтийг</strong> эхнээс нь бие даан байгуулах</span></li>
+    <li><span class="b">5</span><span>Z мөрийн тоо <strong>яагаад сөрөг</strong> болохыг математик ба эдийн засгийн хоёр талаас тайлбарлах</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 7 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 4. ХЭСЭГ 5.1 ══════════ -->
+<section class="slide divider dark" data-sec="5.1" data-notes="Танилцуулгын блок. Гол санаа: симплекс бол гараар бодох арга биш, компьютерын дотор ажилладаг жинхэнэ алгоритм. Оюутнаас асуу: Excel-ийн Solver юу хийдэг вэ?">
+  <div class="num">5.1</div>
+  <h2>Симплекс аргын танилцуулга</h2>
+  <p class="sub">Графикийн арга хоёр хэмжээстэд зогсдог. Симплекс арга тэндээс цааш — олон мянган хувьсагч руу гарах цорын ганц бодит зам.</p>
+  <div class="s-foot"><span>Бүлэг 5.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 5. 5.1.1 ══════════ -->
+<section class="slide" data-sec="5.1" data-notes="Ж.Б. Данциг, 1947. Бүлэг 1-т үзсэн түүхийг эргэн сануул. Гол мессеж: симплексийг сурна гэдэг нь Solver дотор юу болж байгааг ойлгох түлхүүр авч байгаа хэрэг.">
+  <div class="s-tag">5.1.1 · Симплекс арга гэж юу вэ?</div>
+  <h2 class="title">Данциг, <em>1947</em> — өнөөдөр ч ажилласаар</h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Симплекс арга (Simplex Method) нь америкийн математикч <strong>Ж.Б. Данцигийн 1947 онд</strong> бүтээсэн алгоритм бөгөөд шугаман программчлалын бодлогыг шийдвэрлэх хамгийн чухал, хамгийн өргөн хэрэглэгддэг арга юм.</p>
+      <div class="def">
+        <div class="lbl">Яагаад чухал вэ</div>
+        <p>Симплексийг эзэмшинэ гэдэг нь гараар бодох чадвар олгохоос гадна, <strong>программ хангамж дотроо юу хийж байгааг</strong> ойлгох түлхүүр болдог.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card"><div class="k">Хаана ажиллаж байна вэ</div><h3 style="font-size:17px">Excel Solver · LINGO · CPLEX · Gurobi</h3><p style="font-size:14.5px">Өнөөдөр хэрэглэгдэж буй бараг бүх LP шийдвэрлэгч программ симплекс аргыг, эсвэл түүний сайжруулсан хувилбарыг дотроо ашигладаг.</p></div>
+      <div class="card green"><p style="color:var(--green);font-weight:500;font-size:15px">Дэлхийн 2-р дайны ложистикийн бодлогоос төрж, компьютерын хөгжилтэй хамт бизнес, засгийн газар, инженерчлэлд өргөн нэвтэрсэн.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.1.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 6. 5.1.2 ══════════ -->
+<section class="slide" data-sec="5.1" data-notes="Дөрвөн тохиолдол. Хоёр дахийг онцол — бүх хязгаарлалт ≤, зорилго max: энэ бол симплексийн СТАНДАРТ тохиолдол, өнөөдөр яг үүнийг л үзнэ. ≥ ба = нь Бүлэг 6 (Big-M).">
+  <div class="s-tag">5.1.2 · Хэзээ ашиглах вэ?</div>
+  <h2 class="title">Дөрвөн <em>тохиолдол</em></h2>
+  <div class="checks">
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Гурав ба түүнээс дээш хувьсагчтай</b> бодлогод — графикийн арга (Бүлэг 3) хоёр хэмжээст хавтгайгаас цааш ажилладаггүй</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Бүх хязгаарлалт ≤ тэмдэгтэй, max зорилготой</b> бодлогод — энэ бол симплекс аргын <b>стандарт тохиолдол</b></span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Хязгаарлалтын систем тэнцэтгэл биш (≤) агуулж байгаа</b> тул матрицын арга (Бүлэг 4, зөвхөн AX = B дээр ажилладаг) шууд хэрэглэгдэхгүй үед</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Олон мянган хувьсагч, олон зуун хязгаарлалттай</b> бодит бизнесийн бодлогод — энд симплекс бол компьютерийн тооцоололд тохирсон цорын ганц бодит боломж</span></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Өнөөдрийн хүрээ</div>
+    <p>Бид хоёр дахь буюу <strong>стандарт тохиолдлыг</strong> үзнэ. ≥ ба = хязгаарлалттай бодлого Бүлэг 6.2-т (Big-M арга) орно.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.1.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 7. 5.1.3 ══════════ -->
+<section class="slide" data-sec="5.1" data-notes="Бүлэг 3.3-ын оройн цэгийн теоремыг эргэн сануул. Гол зүйрлэл: харанхуй өрөөнд гэрэл хайхдаа бүх ханыг тэмтчихгүй — дулаан мэдрэгдэх зүг рүү л алхана. Симплекс яг тэгж ажилладаг.">
+  <div class="s-tag">5.1.3 · Симплекс аргын үндсэн санаа</div>
+  <h2 class="title">Бүх оройн цэгийг биш — <em>зөв чиглэлд</em></h2>
+  <div class="l7-2b">
+    <div>
+      <div class="l7-box mute">
+        <div class="l7-h">Асуудал</div>
+        <p style="font-size:15.5px;line-height:1.6;color:var(--ink-soft)">Оновчтой шийд үргэлж боломжит мужийн <b style="color:var(--ink)">оройн цэг</b> дээр байрладаг (Бүлэг 3.3). Гэвч 3, 4, 5 хэмжээст орон зайд оройн цэгүүд <b style="color:var(--ink)">хэдэн зуугаар</b> тоологдож болно — бүгдийг тооцоолж харьцуулах нь практикт боломжгүй.</p>
+      </div>
+      <div class="def" style="margin-top:16px">
+        <div class="lbl">Гол мөн чанар</div>
+        <p>«Санамсаргүй биш, <strong>зорилготой хайлт</strong>» — симплекс аргыг нэг өгүүлбэрт ингэж багтаана.</p>
+      </div>
+    </div>
+    <div class="l7-box">
+      <div class="l7-h">Симплексийн шийдэл</div>
+      <div class="l7-steps">
+        <div class="l7-step on"><b>1 · Эхлэл</b>Нэг оройн цэгээс эхэлнэ — ихэвчлэн эхлэл цэг (0, 0).</div>
+        <div class="l7-step on"><b>2 · Асуулт</b>«Аль чиглэлд шилжвэл ашиг хамгийн ихээр өсөх вэ?» гэдгийг алхам бүрд тооцоолно.</div>
+        <div class="l7-step on"><b>3 · Шилжилт</b>Зөвхөн тэр чиглэлд, <span class="m">хөрш оройн цэг</span> рүү шилжинэ.</div>
+        <div class="l7-step on"><b>4 · Давталт</b>Оновчтой оройн цэгт хүрэх хүртэл давтагдана.</div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.1.3 · Оройн цэгийн онол → Бүлэг 3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 8. 5.1.4 ══════════ -->
+<section class="slide" data-sec="5.1" data-notes="Графикийн арга ба симплексийн харьцуулалт. Онцол: симплекс бол шинэ онол биш — Бүлэг 3-т нүдээр хийж байсан зүйлийг алгебрээр, компьютерт зориулан автоматжуулсан хувилбар.">
+  <div class="s-tag">5.1.4 · Графикийн аргатай уялдах нь</div>
+  <h2 class="title">Нүдээр харж байсныг <em>алгебрээр</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:22%">Асуудал</th><th style="width:39%">Графикийн арга (Бүлэг 3)</th><th>Симплекс арга (Бүлэг 5)</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Оройн цэгийг олох</td><td>Шулуунуудыг зурж, огтлолцлыг нүдээр харна</td><td>Тэгшитгэлийн системээс алгебрээр гаргана</td></tr>
+    <tr><td class="k">Харьцуулах арга</td><td>Бүх оройн цэгт Z-ийг бодож харьцуулна</td><td>Зөвхөн сайжруулах чиглэлд шилжинэ</td></tr>
+    <tr><td class="k">Хэмжээс</td><td>Зөвхөн 2 хувьсагч (хавтгай)</td><td>Хязгааргүй олон хувьсагч</td></tr>
+    <tr><td class="k">Хэрэгжүүлэлт</td><td>Гараар, цаасан дээр</td><td>Хүснэгтээр — компьютерт автоматжуулсан</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Онолын үндэс</div>
+    <p>Бүлэг 3.3-ын <strong>оройн цэгийн теорем</strong> нь симплекс аргын онолын үндэс. Симплекс бол оройн цэгүүдийг ухаалгаар, зорилготойгоор туулах процесс.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.1.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 9. ХЭСЭГ 5.2 ══════════ -->
+<section class="slide divider dark" data-sec="5.2" data-notes="Каноник хэлбэрийн блок. Гол мессеж: алгоритм ажиллуулахын өмнөх бэлтгэл. Хэрэв энд алдвал цаашдын бүх алхам буруу гарна — тиймээс удаан, нягт хий.">
+  <div class="num">5.2</div>
+  <h2>Каноник хэлбэрт оруулах</h2>
+  <p class="sub">Симплекс алгоритмыг ажиллуулахын өмнөх анхны бөгөөд чухал алхам — тэнцэтгэл бишийг тэгшитгэл болгох.</p>
+  <div class="s-foot"><span>Бүлэг 5.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 10. 5.2.1 ══════════ -->
+<section class="slide" data-sec="5.2" data-notes="Дөрвөн нөхцөл. Оюутнаар нэг бүрчлэн уншуул. Дараагийн слайдын интерактив дээр эдгээрийг гар дээр нь турших болно.">
+  <div class="s-tag">5.2.1 · Каноник хэлбэр гэж юу вэ?</div>
+  <h2 class="title">Хангасан байх <em>дөрвөн нөхцөл</em></h2>
+  <div class="grid g2">
+    <div class="numcard"><div class="n">1</div><h3>Зорилго нь max</h3><p>Зорилгын функц нь <b>max</b> байна. Хэрэв анх min байсан бол max болгож хувиргана.</p></div>
+    <div class="numcard"><div class="n">2</div><h3>Бүх хязгаарлалт ≤</h3><p>Бүх хязгаарлалт эхэндээ <b>≤</b> тэмдэгтэй байна.</p></div>
+    <div class="numcard"><div class="n">3</div><h3>Тэгшитгэл болгосон</h3><p>Эдгээр ≤ хязгаарлалтыг <b>нэмэлт хувьсагч</b> ашиглан тэгшитгэл (=) болгосон байна.</p></div>
+    <div class="numcard"><div class="n">4</div><h3>Бүх хувьсагч ≥ 0</h3><p>Шийдвэрийн хувьсагч ба нэмэлт хувьсагч аль аль нь <b>x ≥ 0</b> нөхцөлийг хангана.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.2.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 11. ИНТЕРАКТИВ 1 — ХӨРВҮҮЛЭГЧ ══════════ -->
+<section class="slide" data-sec="5.2" id="convSlide" data-notes="ИНТЕРАКТИВ 1 — 6–8 минут. Хязгаарлалтын төрлөө сонгуулаад ЭХЛЭЭД гараа өргүүлж таамаглуул: 'Энд ямар хувьсагч нэмэгдэх вэ?' Гурван хувилбарын аль нэгийг товшсоны дараа л хариу нээгдэнэ. Санамж: ≥ ба = нь Бүлэг 6.2-ын материал — өнөөдөр зөвхөн ТАНИЛЦУУЛГА.">
+  <div class="s-tag">Интерактив · Каноник хэлбэр хөрвүүлэгч</div>
+  <h2 class="title">Ямар хувьсагч <em>нэмэгдэх</em> вэ? Эхлээд таамаглаарай</h2>
+  <div class="l7-2b">
+    <div>
+      <div class="l7-box mute">
+        <div class="l7-h">1 · Хязгаарлалтын төрлөө сонго</div>
+        <div class="l7-row" id="convTypes">
+          <button class="l7-btn on" data-t="le">4x₁ + 2x₂ <b>≤</b> 100</button>
+          <button class="l7-btn" data-t="ge">3x₁ + x₂ <b>≥</b> 60</button>
+          <button class="l7-btn" data-t="eq">x₁ + x₂ <b>=</b> 40</button>
+        </div>
+      </div>
+      <div class="l7-box mute" style="margin-top:14px">
+        <div class="l7-h">2 · Таамаглалаа товшино уу</div>
+        <div class="l7-row" id="convGuess" style="flex-direction:column">
+          <button class="l7-btn sm" data-g="0">A · Зөвхөн <b>Нэмэлт хувьсагч</b> (+s) нэмэгдэнэ</button>
+          <button class="l7-btn sm" data-g="1">B · <b>Илүүдэл хувьсагч</b> (−s) ба <b>Зохиомол хувьсагч</b> (A) хоёул нэмэгдэнэ</button>
+          <button class="l7-btn sm" data-g="2">C · Зөвхөн <b>Зохиомол хувьсагч</b> (A) нэмэгдэнэ</button>
+        </div>
+      </div>
+    </div>
+    <div class="l7-box">
+      <div class="l7-h">3 · Хөрвүүлэлт</div>
+      <div class="l7-eq big" id="convOut" style="min-height:70px">4x₁ + 2x₂ ≤ 100</div>
+      <div style="margin-top:12px"><span class="l7-tag" id="convBadge">Таамаглалаа сонгоно уу</span></div>
+      <p class="l7-note" id="convWhy">Гурван товчны аль нэгийг дарсны дараа хөрвүүлэлт хөдөлгөөнтэй гарч ирнэ.</p>
+      <div class="l7-bar"><span id="convScore">Зөв таамаг: <b>0 / 0</b></span><button class="l7-btn sm" id="convReset">Дахин эхлүүлэх</button></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.2.2 · ≥ ба = тохиолдол → Бүлэг 6.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 12. 5.2.2 ══════════ -->
+<section class="slide" data-sec="5.2" data-notes="Нэмэлт хувьсагчийн албан ёсны тодорхойлолт. Гол өгүүлбэр: тэнцэтгэл бишийг тэгшитгэл болгож чадвал бид AX = B хэлбэрт орно — ялгаа нь зөвхөн хувьсагчийн тоо нэмэгдсэнд.">
+  <div class="s-tag">5.2.2 · Нэмэлт хувьсагч (Slack Variable, +S)</div>
+  <h2 class="title">Тэнцэтгэл бишийг <em>тэгшитгэл</em> болгох</h2>
+  <div class="def">
+    <div class="lbl">Тодорхойлолт</div>
+    <p><strong>Нэмэлт хувьсагч</strong> (Slack Variable) гэдэг нь ≤ тэмдгийг = болгохын тулд тэнцэтгэл бишийн зүүн талд нэмж оруулдаг, үл сөрөг (≥ 0) хувьсагч юм.</p>
+  </div>
+  <div class="formula">
+    <div class="fl">
+      4x₁ + 2x₂ <span class="op">≤</span> 100 &nbsp;&nbsp;<span class="op">→</span>&nbsp;&nbsp; 4x₁ + 2x₂ <span class="c">+ s₁</span> <span class="op">=</span> 100, &nbsp; <span class="c">s₁</span> <span class="op">≥ 0</span>
+    </div>
+    <div class="cap">Энд s₁ нь ашиглагдаагүй үлдсэн нөөцийг илэрхийлнэ</div>
+  </div>
+  <p class="lead" style="margin-top:16px;font-size:17px">Тэнцэтгэл биш байсан хязгаарлалтыг тэгшитгэл болгож чадвал бид түүнийг матрицын арга (Бүлэг 4)-тай адил <strong>AX = B</strong> хэлбэрт оруулж чадна — ялгаа нь зөвхөн хувьсагчийн тоо нэмэгдсэнд оршино.</p>
+  <div class="s-foot"><span>Бүлэг 5.2.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 13. 5.2.3 ══════════ -->
+<section class="slide" data-sec="5.2" data-notes="Энэ слайд менежерүүдэд хамгийн ойлгомжтой хэсэг. Асуу: 's₁ = 0 гэдэг сайн уу, муу юу?' Хариу: тэр нөөц бүрэн шавхагдсан — өргөжүүлэх боломж яг тэнд байна (сүүдэр үнэ, Бүлэг 7).">
+  <div class="s-tag">5.2.3 · Нэмэлт хувьсагчийн эдийн засгийн утга</div>
+  <h2 class="title">s₁, s₂ нь зүгээр нэг <em>үсэг биш</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:16%">Хувьсагч</th><th style="width:34%">Эдийн засгийн утга</th><th style="width:16%">Утга = 0 бол</th><th>Утга &gt; 0 бол</th></tr></thead>
+    <tbody>
+    <tr><td class="k">s₁</td><td>Ашиглагдаагүй үлдсэн <b>мод</b> (м³)</td><td>Бүх мод зарцуулагдсан</td><td>Агуулахад мод үлдсэн — өөр бүтээгдэхүүн хийж болно</td></tr>
+    <tr><td class="k">s₂</td><td>Ажилчдын <b>сул зогссон цаг</b></td><td>Мужаанууд бүрэн ачаалалтай</td><td>Ажилчид сул зогсож байна — цагийг ашиглах боломж</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">Менежментийн ач холбогдол</div>
+    <p>Аль нөөц <strong>бүрэн шавхагдаж</strong>, аль нь <strong>илүүдэлтэй</strong> байгааг симплекс хүснэгт шууд харуулдаг. Энэ ялгаа шийдвэрт шууд нөлөөлнө.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.2.3 · «Модон урлал» ХХК</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 14. 5.2.4 ══════════ -->
+<section class="slide" data-sec="5.2" data-notes="Бүлэг 2.7-гийн бодлого дахин гарч ирлээ. Хамгийн чухал асуулт: яагаад 0·s₁, 0·s₂ вэ? Хариу: ашиглагдаагүй мод, цаг өөрөө ашиг үүсгэдэггүй.">
+  <div class="s-tag">5.2.4 · Модон урлалын каноник хэлбэр</div>
+  <h2 class="title">Анхны бодлого → <em>каноник хэлбэр</em></h2>
+  <div class="l7-2">
+    <div class="l7-box mute">
+      <div class="l7-h">Анхны хэлбэр (Бүлэг 2.7)</div>
+      <div class="l7-eq">max Z = 50,000x₁ + 40,000x₂<br>4x₁ + 2x₂ ≤ 100 &nbsp;<span style="font-family:var(--body);font-size:14px;color:var(--ink-mute)">(мод)</span><br>2x₁ + 4x₂ ≤ 80 &nbsp;<span style="font-family:var(--body);font-size:14px;color:var(--ink-mute)">(цаг)</span><br>x₁, x₂ ≥ 0</div>
+    </div>
+    <div class="l7-box">
+      <div class="l7-h">Каноник хэлбэр</div>
+      <div class="l7-eq">max Z = 50,000x₁ + 40,000x₂ <span class="l7-add">+ 0·s₁ + 0·s₂</span><br>4x₁ + 2x₂ <span class="l7-add">+ s₁</span> = 100<br>2x₁ + 4x₂ <span class="l7-add">+ s₂</span> = 80<br>x₁, x₂<span class="l7-add">, s₁, s₂</span> ≥ 0</div>
+    </div>
+  </div>
+  <div class="def">
+    <div class="lbl">Анзаараарай</div>
+    <p>Нэмэлт хувьсагчийн зорилгын функц дэх коэффициент яагаад <strong>0</strong> вэ? Ашиглагдаагүй мод, цаг өөрөө <strong>ашиг үүсгэдэггүй</strong> — зөвхөн нөөцийн үлдэгдлийг бүртгэж байгаа юм.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.2.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 15. 5.2.5 ══════════ -->
+<section class="slide" data-sec="5.2" data-notes="Айдсыг арилгах слайд. Гол мессеж: каноник хэлбэр бол гүн философи биш, ердөө алгебрын шилжүүлэлт. Хувьсагч 2 → 4 болов, хязгаарлалт 2 хэвээр.">
+  <div class="s-tag">5.2.5 · Каноник хэлбэр ба алгебр</div>
+  <h2 class="title">Цаанаа <em>ямар ч нууц</em> байхгүй</h2>
+  <div class="l7-3">
+    <div class="card accent"><div class="k">Юу өөрчлөгдсөн</div><h3>Хувьсагчийн тоо</h3><p style="font-size:24px;font-family:var(--mono);color:var(--green-ink);margin-top:6px">2 → 4</p><p style="margin-top:6px">x₁, x₂ дээр s₁, s₂ нэмэгдэв.</p></div>
+    <div class="card accent"><div class="k">Юу өөрчлөгдөөгүй</div><h3>Хязгаарлалтын тоо</h3><p style="font-size:24px;font-family:var(--mono);color:var(--green-ink);margin-top:6px">2 → 2</p><p style="margin-top:6px">Мөрийн тоо хэвээрээ үлдэнэ.</p></div>
+    <div class="card green"><div class="k">Үр дүн</div><h3>Тэгш хэлбэртэй систем</h3><p style="margin-top:6px">Математикийн хувьд тэгш хэлбэртэй тэгшитгэлийн систем — <b>яг үүн дээр</b> симплекс алгоритм ажиллана.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Дараагийн алхам</div>
+    <p>≥ болон = тэмдэгтэй хязгаарлалтад зориулсан каноник хэлбэрийн алгебрыг — <strong>Илүүдэл</strong> ба <strong>Зохиомол хувьсагч</strong> ашиглан — Бүлэг 6.2-т дэлгэрүүлж үзнэ.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.2.5 → Бүлэг 6.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 16. ХЭСЭГ 5.3 ══════════ -->
+<section class="slide divider dark" data-sec="5.3" data-notes="Хичээлийн гол блок. Энэ хэсэгт хамгийн олон цаг зарцуулна. Хүснэгт бол симплексийн ажлын талбар — оюутан үүнийг эхнээс нь бие даан байгуулж чаддаг болох ёстой.">
+  <div class="num">5.3</div>
+  <h2>Анхны симплекс хүснэгт байгуулах</h2>
+  <p class="sub">Бодлогын бүх мэдээллийг — коэффициент, хязгаарлалт, зорилгын функцийг — нэг дор хураангуйлсан ажлын талбар.</p>
+  <div class="s-foot"><span>Бүлэг 5.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 17. 5.3.1 ══════════ -->
+<section class="slide" data-sec="5.3" data-notes="Хүснэгтийн зорилгыг тайлбарла. Ключевое: хүснэгт нь үе шат (iteration) бүрд ШИНЭЧЛЭГДЭНЭ — өнөөдөр бид зөвхөн хамгийн анхныг нь байгуулна.">
+  <div class="s-tag">5.3.1 · Симплекс хүснэгт гэж юу вэ?</div>
+  <h2 class="title">Алгоритмын <em>ажлын талбар</em></h2>
+  <div class="l7-3">
+    <div class="card accent"><div class="k">Юу вэ</div><h3>Simplex Tableau</h3><p>Симплекс алгоритмыг ажиллуулах <b>гол хэрэглүүр</b>.</p></div>
+    <div class="card accent"><div class="k">Юуг агуулах вэ</div><h3>Бүх мэдээлэл нэг дор</h3><p>Коэффициент, хязгаарлалт, зорилгын функцийг нэг дор <b>хураангуйлан</b> харуулна.</p></div>
+    <div class="card green"><div class="k">Хэрхэн ажиллах вэ</div><h3>Үе шат бүрд шинэчлэгдэнэ</h3><p>Алгоритмын үе шат (iteration) бүрд хүснэгт бүхэлдээ дахин тооцоологдоно.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Өнөөдрийн хил хязгаар</div>
+    <p>Бид зөвхөн <strong>анхны хүснэгтийг</strong> байгуулна. Ялгагч элемент сонгох, Орох багана / Гарах мөр тодорхойлох, мөрийн үйлдэл хийх нь <strong>Бүлэг 5.4</strong>-т орно.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.3.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 18. ИНТЕРАКТИВ 2 — ХҮСНЭГТ УГСРАГЧ ══════════ -->
+<section class="slide" data-sec="5.3" id="buildSlide" data-notes="ИНТЕРАКТИВ 2 — ХИЧЭЭЛИЙН ЗҮРХ. 8–10 минут. Алхам бүрийн өмнө оюутнаас асуу: 'Одоо юу болох вэ?' Дараа нь товчийг дар. Алхам 3-т мөр багана бүрийг хуруугаараа зааж уншуул. Алхам 4-т яагаад s₁, s₂ суурь болохыг заавал асуу — хариу: тэгшитгэл бүрт ганцаараа зогсож байна.">
+  <div class="s-tag">Интерактив · Анхны симплекс хүснэгт угсрагч</div>
+  <h2 class="title">«Модон урлал» — <em>Алхам 1 → 4</em></h2>
+  <div class="l7-2b">
+    <div>
+      <div class="l7-row" id="buildBtns">
+        <button class="l7-btn" data-k="1">Алхам 1</button>
+        <button class="l7-btn" data-k="2">Алхам 2</button>
+        <button class="l7-btn" data-k="3">Алхам 3</button>
+        <button class="l7-btn" data-k="4">Алхам 4</button>
+        <button class="l7-btn sm" data-k="0">↺ Дахин</button>
+      </div>
+      <div class="l7-steps" style="margin-top:15px" id="buildSteps">
+        <div class="l7-step" data-k="1"><b>Алхам 1 · Нэмэлт хувьсагч нэмэх</b><span class="m">4x₁ + 2x₂ + s₁ = 100 &nbsp;·&nbsp; 2x₁ + 4x₂ + s₂ = 80</span></div>
+        <div class="l7-step" data-k="2"><b>Алхам 2 · Z мөрийг шилжүүлэх</b><span class="m">Z = 50000x₁ + 40000x₂ &nbsp;→&nbsp; Z − 50000x₁ − 40000x₂ = 0</span></div>
+        <div class="l7-step" data-k="3"><b>Алхам 3 · Мөр, багана бүрдүүлэх</b>Хязгаарлалт тус бүр нэг мөр, хувьсагч тус бүр нэг багана. RHS-д сул гишүүн. Z мөрийг 1000-аар багасгаж бичнэ.</div>
+        <div class="l7-step" data-k="4"><b>Алхам 4 · Суурь хувьсагчийг тэмдэглэх</b>s₁, s₂ — учир нь яг эдгээр хувьсагч тэгшитгэл бүрт <b>ганцаараа</b> зогсож байна.</div>
+      </div>
+    </div>
+    <div>
+      <table class="t sm" id="buildTb">
+        <thead><tr><th style="width:19%">Суурь</th><th>x₁</th><th>x₂</th><th>s₁</th><th>s₂</th><th>RHS</th></tr></thead>
+        <tbody>
+        <tr class="l7-fade" data-k="3"><td class="k bcell">s₁</td><td>4</td><td>2</td><td>1</td><td>0</td><td>100</td></tr>
+        <tr class="l7-fade" data-k="3"><td class="k bcell">s₂</td><td>2</td><td>4</td><td>0</td><td>1</td><td>80</td></tr>
+        <tr class="l7-fade" data-k="3"><td class="k">Z</td><td>−50</td><td>−40</td><td>0</td><td>0</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <p class="l7-note" id="buildNote" style="margin-top:12px">Товчийг дараалан дарж хүснэгтийг угсарна уу.</p>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.3.2 · Z мөр 1000-аар багасгасан</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 19. 5.3.2 ══════════ -->
+<section class="slide" data-sec="5.3" data-notes="Албан ёсны бүтэц. Хүснэгтийг мөр багана бүрээр нь тайлбарла. Онцол: эхний шийд бол x₁ = 0, x₂ = 0, s₁ = 100, s₂ = 80, Z = 0 — өөрөөр хэлбэл эхлэл цэг (0,0).">
+  <div class="s-tag">5.3.2 · Хүснэгтийн бүтэц</div>
+  <h2 class="title">Хүснэгтийн <em>таван бүрэлдэхүүн</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:16%">Суурь</th><th>x₁ (Ширээ)</th><th>x₂ (Сандал)</th><th>s₁ (Мод)</th><th>s₂ (Цаг)</th><th>RHS</th></tr></thead>
+    <tbody>
+    <tr><td class="k">s₁</td><td>4</td><td>2</td><td>1</td><td>0</td><td>100</td></tr>
+    <tr><td class="k">s₂</td><td>2</td><td>4</td><td>0</td><td>1</td><td>80</td></tr>
+    <tr><td class="k">Z</td><td>−50</td><td>−40</td><td>0</td><td>0</td><td>0</td></tr>
+    </tbody>
+  </table>
+  <div class="checks" style="margin-top:16px">
+    <div class="chk yes"><span class="m">1</span><span class="tx"><b>Суурь (Basis) багана</b> — одоогийн <b>суурь хувьсагчид</b>. Эхэндээ эдгээр нь s₁, s₂ — учир нь яг эдгээр хувьсагч тэгшитгэл бүрт ганцаараа зогсож байна</span></div>
+    <div class="chk yes"><span class="m">2</span><span class="tx"><b>x₁, x₂</b> — шийдвэрийн хувьсагчид &nbsp;·&nbsp; <b>s₁, s₂</b> — нэмэлт хувьсагчид</span></div>
+    <div class="chk yes"><span class="m">3</span><span class="tx"><b>RHS (Right Hand Side)</b> — тэгшитгэл бүрийн сул гишүүн буюу одоогийн хязгаарлалтын хэмжээ &nbsp;·&nbsp; <b>Z мөр</b> — зорилгын функцийг илэрхийлэх тусгай мөр</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.3.2 · Хүснэгт 5.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 20. ИНТЕРАКТИВ 3 — НҮД ТАНИХ ТОГЛООМ ══════════ -->
+<section class="slide" data-sec="5.3" id="cellSlide" data-notes="ИНТЕРАКТИВ 3 — 5 минут. Оюутныг самбар дээр гаргаж товшуул. Асуулт бүрд эхлээд гараа өргүүлж 'хаана байна?' гэж асуугаад, дараа нь товшуул. Дөрвөн асуулт дуусахад Дахин товчоор шинэчилнэ.">
+  <div class="s-tag">Интерактив · Хүснэгтийн нүд таних тоглоом</div>
+  <h2 class="title">Асуусан хэсгийг <em>товшиж</em> заана уу</h2>
+  <div class="l7-2b">
+    <div>
+      <table class="t sm" id="cellTb">
+        <thead><tr>
+          <th class="cell" data-r="basis" style="width:19%">Суурь</th>
+          <th class="cell" data-r="dec">x₁</th>
+          <th class="cell" data-r="dec">x₂</th>
+          <th class="cell" data-r="slack">s₁</th>
+          <th class="cell" data-r="slack">s₂</th>
+          <th class="cell" data-r="rhs">RHS</th>
+        </tr></thead>
+        <tbody>
+        <tr>
+          <td class="k cell" data-r="basis">s₁</td>
+          <td class="cell" data-r="dec">4</td><td class="cell" data-r="dec">2</td>
+          <td class="cell" data-r="slack">1</td><td class="cell" data-r="slack">0</td>
+          <td class="cell" data-r="rhs">100</td>
+        </tr>
+        <tr>
+          <td class="k cell" data-r="basis">s₂</td>
+          <td class="cell" data-r="dec">2</td><td class="cell" data-r="dec">4</td>
+          <td class="cell" data-r="slack">0</td><td class="cell" data-r="slack">1</td>
+          <td class="cell" data-r="rhs">80</td>
+        </tr>
+        <tr>
+          <td class="k cell" data-r="basis z">Z</td>
+          <td class="cell" data-r="dec z">−50</td><td class="cell" data-r="dec z">−40</td>
+          <td class="cell" data-r="slack z">0</td><td class="cell" data-r="slack z">0</td>
+          <td class="cell" data-r="rhs z">0</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="l7-box">
+      <div class="l7-h">Асуулт <span id="cellNo">1</span> / 4</div>
+      <p style="font-size:19px;line-height:1.45;color:var(--ink);font-weight:600" id="cellQ">«Суурь багана» хаана байна вэ?</p>
+      <div style="margin-top:12px"><span class="l7-tag i" id="cellVerdict">Хүснэгтээс товшино уу</span></div>
+      <p class="l7-note" id="cellWhy">Зөв нүд товшвол ногоон, буруу бол улаанаар шууд тодорно.</p>
+      <div class="l7-bar"><span id="cellScore">Зөв: <b>0 / 4</b> &nbsp;·&nbsp; Алдаа: <b>0</b></span><button class="l7-btn sm" id="cellReset">↺ Дахин</button></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.3.2 · Суурь · Z мөр · RHS · Нэмэлт хувьсагч</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 21. 5.3.3 (1) ══════════ -->
+<section class="slide" data-sec="5.3" data-notes="ОНЦГОЙ ЧУХАЛ ХЭСЭГ. Оюутнууд яг энд гацдаг. Самбар дээр Z = 50000x₁ + 40000x₂ гэж бичээд, гишүүдийг нөгөө тал руу нүүлгэж үзүүл. Тэмдэг солигдох дүрэм — 7-р ангийн алгебр, өөр юу ч биш.">
+  <div class="s-tag">5.3.3 · Z мөрийн бүтэц — 1. Математикийн шалтгаан</div>
+  <h2 class="title">Яагаад <em>−50, −40</em> вэ?</h2>
+  <div class="formula">
+    <div class="fl">
+      Анхны хэлбэр: &nbsp; Z <span class="op">=</span> <span class="c">50000</span>x₁ <span class="op">+</span> <span class="c">40000</span>x₂<br>
+      Шилжүүлэх: &nbsp;&nbsp;&nbsp; Z <span class="op">−</span> <span class="c">50000</span>x₁ <span class="op">−</span> <span class="c">40000</span>x₂ <span class="op">=</span> 0
+    </div>
+    <div class="cap">Симплекс арга бүх хувьсагчийг зүүн талд, сул гишүүнийг баруун талд байлгахыг шаарддаг</div>
+  </div>
+  <div class="def">
+    <div class="lbl">Дүрэм</div>
+    <p>Математикийн дүрмээр <strong>нэмэх тэмдэгтэй</strong> байсан тоо тэнцүүгийн тэмдгийн нөгөө тал руу шилжихдээ <strong>хасах</strong> болж хувирдаг. Тиймээс Z мөрөнд −50000, −40000 (1000-аар багасгаад <strong>−50, −40</strong>) орж ирдэг.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.3.3 · Математикийн тайлбар</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 22. 5.3.3 (2) ══════════ -->
+<section class="slide" data-sec="5.3" data-notes="Хоёр дахь тайлбар — эдийн засгийн логик. Энэ нь оюутанд илүү санагдамхай. −50-ийг чангаар уншуул: 'Хэрэв би нэг ширээ хийхгүй бол 50,000₮ алдаж байна.' Дараа нь зогсох нөхцөлийг хэлүүл.">
+  <div class="s-tag">5.3.3 · Z мөрийн бүтэц — 2. Алгоритмын логик</div>
+  <h2 class="title">Сөрөг тэмдэг = <em>алдагдсан боломж</em></h2>
+  <div class="l7-2">
+    <div class="l7-box mute">
+      <div class="l7-h">Гарааны цэг</div>
+      <p style="font-size:15.5px;line-height:1.6;color:var(--ink-soft)">Симплекс алгоритм анх хүснэгт байгуулахдаа үргэлж <b style="color:var(--ink)">«одоогийн ашиг = 0»</b>, өөрөөр хэлбэл ямар ч бүтээгдэхүүн үйлдвэрлээгүй гэсэн цэгээс эхэлдэг.</p>
+      <div style="margin-top:12px"><span class="l7-tag r">−50 гэдгийг ингэж уншина</span></div>
+      <p style="font-size:16px;line-height:1.55;color:var(--ink);margin-top:9px;font-style:italic">«Хэрэв би нэг ширхэг ширээ (x₁) хийхгүй бол олох байсан <b>50,000₮</b>-ийн ашиг маань алдагдаж байна.»</p>
+    </div>
+    <div class="l7-box">
+      <div class="l7-h">Алгоритмын хариу үйлдэл</div>
+      <div class="l7-steps">
+        <div class="l7-step on"><b>Сонголт</b>Хамгийн их хасах тоотой, өөрөөр хэлбэл хамгийн их ашиг өгөх баганыг сонгож бодолтоо эхэлдэг.</div>
+        <div class="l7-step on"><b>Давталт</b>Эдгээр хасах тоо бүгд арилж дуустал алхам алхмаар үйлдвэрлэлээ өргөтгөсөөр байна.</div>
+        <div class="l7-step on"><b>Зогсох нөхцөл</b>Z мөрөнд хасах тоо үлдээгүй = «цаашид ашиг өсөх боломжгүй, <span class="m">оновчтой (max) цэгтээ хүрлээ</span>» гэсэн дохио.</div>
+      </div>
+    </div>
+  </div>
+  <div class="def">
+    <div class="lbl">Практикт</div>
+    <p>Сөрөг тэмдэг нь <strong>боломжийг</strong> илэрхийлнэ; <strong>хамгийн сөрөг тоо</strong> нь хамгийн их боломжийг заана.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.3.3 · Эдийн засгийн логик</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 23. ИНТЕРАКТИВ 4 — Z МӨРИЙН ТЕСТ ══════════ -->
+<section class="slide" data-sec="5.3" id="quizSlide" data-notes="ИНТЕРАКТИВ 4 — 4 минут, богино мэдлэг шалгах тест. Гурван асуултыг ангиар нь санал асуулгаар авч болно. Буруу сонголт дээр яагаад буруу болохыг заавал уншуул.">
+  <div class="s-tag">Интерактив · Z мөрийн богино тест</div>
+  <h2 class="title">Z мөрийн сөрөг тэмдэг — <em>шалгая</em></h2>
+  <div class="l7-3" id="quizWrap">
+    <div class="l7-q" data-a="0">
+      <div class="qt">1 · Z = 50000x₁ + 40000x₂-ийг симплексийн шаардлагаар шилжүүлбэл?</div>
+      <button class="l7-btn sm" data-i="0">Z − 50000x₁ − 40000x₂ = 0</button>
+      <button class="l7-btn sm" data-i="1">Z + 50000x₁ + 40000x₂ = 0</button>
+      <button class="l7-btn sm" data-i="2">50000x₁ + 40000x₂ − Z = 0</button>
+      <div class="why"></div>
+    </div>
+    <div class="l7-q" data-a="1">
+      <div class="qt">2 · Хүснэгтийн Z мөрөнд байгаа −50 гэсэн тоо юуг илэрхийлж байна вэ?</div>
+      <button class="l7-btn sm" data-i="0">Нэг ширээний зардал 50,000₮</button>
+      <button class="l7-btn sm" data-i="1">Ширээ хийхгүй бол алдагдах 50,000₮ ашиг</button>
+      <button class="l7-btn sm" data-i="2">Модны үлдэгдэл 50 м³</button>
+      <div class="why"></div>
+    </div>
+    <div class="l7-q" data-a="2">
+      <div class="qt">3 · Z мөрөнд сөрөг тоо огт үлдээгүй бол энэ нь юуг заана вэ?</div>
+      <button class="l7-btn sm" data-i="0">Бодлого шийдгүй</button>
+      <button class="l7-btn sm" data-i="1">Дахин нэмэлт хувьсагч нэмэх хэрэгтэй</button>
+      <button class="l7-btn sm" data-i="2">Оновчтой (max) цэгтээ хүрсэн</button>
+      <div class="why"></div>
+    </div>
+  </div>
+  <div class="l7-bar"><span id="quizScore">Оноо: <b>0 / 3</b></span><button class="l7-btn sm" id="quizReset">↺ Дахин эхлүүлэх</button></div>
+  <div class="s-foot"><span>Бүлэг 5.3.3 · Мэдлэг шалгах</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 24. 5.3.4 ══════════ -->
+<section class="slide" data-sec="5.3" data-notes="Бүлэг 4-тэй холбоно. Гол мессеж: симплекс хүснэгт бол матриц, мөрийн үйлдэл бол Гаусс–Жорданы хувиргалт. Оюутан шинэ зүйл сурч байгаа биш — мэддэг зүйлээ шинэ зорилгоор хэрэглэж байна.">
+  <div class="s-tag">5.3.4 · Матрицын аргын симплекстэй уялдаа</div>
+  <h2 class="title">Хүснэгтийн ард нуугдаж буй <em>матриц</em></h2>
+  <div class="l7-3">
+    <div class="card accent"><div class="k">Хэлбэр</div><h3>Хүснэгт = матриц</h3><p>Симплекс хүснэгт өөрөө нэг төрлийн <b>матриц хэлбэр</b> юм.</p></div>
+    <div class="card accent"><div class="k">Үйлдэл</div><h3>Мөрийн үйлдэл</h3><p>Бүлэг 5.4-т үзэх «мөрийн үйлдэл» гэдэг нь үнэндээ матрицын мөр дээрх <b>шугаман хувиргалт</b>.</p></div>
+    <div class="card green"><div class="k">Логик</div><h3>Гаусс–Жордан</h3><p>Мөрийг тоогоор үржүүлж, нэмэх буюу хасах — Бүлэг 4-т үзсэн <b>урвуу матриц</b> олох аргатай ижил логик.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Нэг өгүүлбэрээр</div>
+    <p>Симплекс алгоритм бол Бүлэг 4-ийн матрицын логикийг <strong>алхам алхмаар, зорилготойгоор</strong> ашигладаг хэрэгсэл юм.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.3.4 → Бүлэг 4, Бүлэг 5.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 25. ГОЛ САНАА ══════════ -->
+<section class="slide" data-sec="—" data-notes="Таван гол санаа. Оюутнаар нэг бүрчлэн давтуулж хэлүүл. Ялангуяа 4-р санааг — сөрөг тэмдгийн утгыг — бүх ангиар давтуулах нь зүйтэй.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Таван гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt">Симплекс арга (<b>Данциг, 1947</b>) бүх оройн цэгийг тоолохын оронд <b>сайжруулах чиглэлд</b> хөрш оройн цэг рүү шилждэг — «санамсаргүй биш, зорилготой хайлт».</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt"><b>Каноник хэлбэр</b>: max зорилго · бүх хязгаарлалт ≤ · <b>Нэмэлт хувьсагчаар</b> тэгшитгэл болгосон · бүх хувьсагч ≥ 0.</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt"><b>Нэмэлт хувьсагч</b> (s₁, s₂) нь ашиглагдаагүй нөөцийг заана. Зорилгын функцэд коэффициент нь <b>0</b> — үлдсэн нөөц өөрөө ашиг үүсгэдэггүй.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt">Z мөрийн <b>−50, −40</b> нь Z − 50000x₁ − 40000x₂ = 0 гэсэн шилжүүлэлтээс гарна. Сөрөг тэмдэг = <b>алдагдсан боломж</b>.</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt">Анхны хүснэгтийн <b>Суурь хувьсагч</b> нь s₁, s₂ — тэгшитгэл бүрт ганцаараа зогсож байгаа хувьсагчид.</span></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 7 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 26. ТӨГСГӨЛ ══════════ -->
+<section class="slide closing dark" data-sec="—" data-notes="Хүснэгт бэлэн боллоо — гэвч бид хараахан юу ч бодоогүй. Дараагийн хичээлд Ялгагч элемент, Орох багана, Гарах мөр гурвыг үзэж, хүснэгтийг жинхэнэ утгаар нь эргүүлж эхэлнэ. Уншиж бэлдэх: Бүлэг 5.4–5.5.">
+  <h2>Хүснэгт <em>бэлэн</em> боллоо.<br>Одоо түүнийг яаж <em>эргүүлэх</em> вэ?</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    Бүлэг 5.4-т <strong>Орох багана</strong>, <strong>Гарах мөр</strong>, <strong>Ялгагч элемент</strong> гурвыг тодорхойлж, мөрийн үйлдлээр хүснэгтийг үе шат бүрд шинэчилнэ. Z мөрөнд сөрөг тоо үлдэхгүй болтол.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 5.4–5.5</span>
+    <span>🔗 LP Suite → Хэрэгсэл → Симплекс</span>
+  </div>
+</section>
+
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 26</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+window.DECK = {
+  lesson: 'Хичээл 7',
+  course: 'Бүлэг 5 — Симплекс арга',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'5.1',   label:'Танилцуулга'},
+    {k:'5.2',   label:'Каноник хэлбэр'},
+    {k:'5.3',   label:'Анхны хүснэгт'},
+    {k:'end',   label:'Дүгнэлт'}
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Өнөөдрийн хичээл'},
+    {p:'intro', s:'Сурах зорилт'},
+    {p:'5.1',   s:'5.1 · Симплекс аргын танилцуулга'},
+    {p:'5.1',   s:'5.1.1 · Симплекс арга гэж юу вэ?'},
+    {p:'5.1',   s:'5.1.2 · Хэзээ ашиглах вэ?'},
+    {p:'5.1',   s:'5.1.3 · Симплекс аргын үндсэн санаа'},
+    {p:'5.1',   s:'5.1.4 · Графикийн аргатай уялдах нь'},
+    {p:'5.2',   s:'5.2 · Каноник хэлбэрт оруулах'},
+    {p:'5.2',   s:'5.2.1 · Каноник хэлбэр гэж юу вэ?'},
+    {p:'5.2',   s:'Интерактив · Каноник хэлбэр хөрвүүлэгч'},
+    {p:'5.2',   s:'5.2.2 · Нэмэлт хувьсагч'},
+    {p:'5.2',   s:'5.2.3 · Эдийн засгийн утга'},
+    {p:'5.2',   s:'5.2.4 · Модон урлалын каноник хэлбэр'},
+    {p:'5.2',   s:'5.2.5 · Каноник хэлбэр ба алгебр'},
+    {p:'5.3',   s:'5.3 · Анхны симплекс хүснэгт'},
+    {p:'5.3',   s:'5.3.1 · Симплекс хүснэгт гэж юу вэ?'},
+    {p:'5.3',   s:'Интерактив · Анхны хүснэгт угсрагч'},
+    {p:'5.3',   s:'5.3.2 · Хүснэгтийн бүтэц'},
+    {p:'5.3',   s:'Интерактив · Хүснэгтийн нүд таних'},
+    {p:'5.3',   s:'5.3.3 · Z мөр — математикийн шалтгаан'},
+    {p:'5.3',   s:'5.3.3 · Z мөр — алгоритмын логик'},
+    {p:'5.3',   s:'Интерактив · Z мөрийн тест'},
+    {p:'5.3',   s:'5.3.4 · Матрицын аргатай уялдаа'},
+    {p:'end',   s:'Бүлгийн хураангуй'},
+    {p:'end',   s:''}
+  ]
+};
+</script>
+
+<script>
+/* ══════════ ИНТЕРАКТИВ 1 · Каноник хэлбэр хөрвүүлэгч ══════════ */
+(function(){
+  if(!document.getElementById('convSlide')) return;
+  var DATA = {
+    le: {
+      src:'4x₁ + 2x₂ ≤ 100',
+      ans:0,
+      html:'4x₁ + 2x₂ <span class="l7-add l7-pop">+ s₁</span> = 100,&nbsp; <span class="l7-add">s₁ ≥ 0</span>',
+      badge:'Нэмэлт хувьсагч (+s)', cls:'l7-tag g',
+      why:'≤ тэмдгийг = болгохын тулд зүүн талд <b>Нэмэлт хувьсагч</b> s₁ нэмнэ. Энэ нь ашиглагдаагүй үлдсэн нөөцийг заана. Зохиомол хувьсагч шаардлагагүй — s₁ өөрөө шууд Суурь хувьсагч болно.'
+    },
+    ge: {
+      src:'3x₁ + x₂ ≥ 60',
+      ans:1,
+      html:'3x₁ + x₂ <span class="l7-add l7-pop">− s₁</span> <span class="l7-add l7-pop">+ A₁</span> = 60,&nbsp; <span class="l7-add">s₁, A₁ ≥ 0</span>',
+      badge:'Илүүдэл хувьсагч (−s) + Зохиомол хувьсагч (A)', cls:'l7-tag r',
+      why:'≥ тэмдгийг = болгохдоо эхлээд <b>Илүүдэл хувьсагч</b> s₁-ийг хасна (хэтэрсэн хэмжээ). Гэвч тэгвэл −1 коэффициенттэй тул эхлэлийн суурь үүсэхгүй — иймд <b>Зохиомол хувьсагч</b> A₁-ийг нэмж оруулна. → Бүлэг 6.2'
+    },
+    eq: {
+      src:'x₁ + x₂ = 40',
+      ans:2,
+      html:'x₁ + x₂ <span class="l7-add l7-pop">+ A₁</span> = 40,&nbsp; <span class="l7-add">A₁ ≥ 0</span>',
+      badge:'Зохиомол хувьсагч (A)', cls:'l7-tag',
+      why:'Тэгшитгэл аль хэдийн = хэлбэртэй тул Нэмэлт ч, Илүүдэл ч хувьсагч хэрэггүй. Гэвч эхлэлийн <b>Суурь хувьсагч</b> байхгүй тул зөвхөн <b>Зохиомол хувьсагч</b> A₁-ийг нэмнэ. → Бүлэг 6.2'
+    }
+  };
+  var cur='le', done=false, hit=0, tot=0;
+  var types=document.getElementById('convTypes');
+  var guess=document.getElementById('convGuess');
+  var out=document.getElementById('convOut');
+  var badge=document.getElementById('convBadge');
+  var why=document.getElementById('convWhy');
+  var score=document.getElementById('convScore');
+  var reset=document.getElementById('convReset');
+
+  function paintScore(){ score.innerHTML='Зөв таамаг: <b>'+hit+' / '+tot+'</b>'; }
+  function clearGuess(){
+    var bs=guess.querySelectorAll('.l7-btn');
+    for(var i=0;i<bs.length;i++){ bs[i].className='l7-btn sm'; bs[i].disabled=false; }
+  }
+  function setType(t){
+    cur=t; done=false;
+    var bs=types.querySelectorAll('.l7-btn');
+    for(var i=0;i<bs.length;i++) bs[i].className = (bs[i].getAttribute('data-t')===t) ? 'l7-btn on' : 'l7-btn';
+    out.innerHTML=DATA[t].src;
+    badge.className='l7-tag i'; badge.textContent='Таамаглалаа сонгоно уу';
+    why.innerHTML='A, B, C гурвын аль нэгийг товшсоны дараа хөрвүүлэлт хөдөлгөөнтэй гарч ирнэ.';
+    clearGuess();
+  }
+  function reveal(i){
+    if(done) return;
+    done=true; tot++;
+    var d=DATA[cur], ok=(i===d.ans);
+    if(ok) hit++;
+    var bs=guess.querySelectorAll('.l7-btn');
+    for(var j=0;j<bs.length;j++){
+      bs[j].disabled=true;
+      if(j===d.ans) bs[j].className='l7-btn sm ok';
+      else if(j===i) bs[j].className='l7-btn sm bad';
+      else bs[j].className='l7-btn sm dim';
+    }
+    out.innerHTML=d.src+' &nbsp;→<br>'+d.html;
+    badge.className=d.cls; badge.textContent=d.badge;
+    why.innerHTML=(ok?'<b style="color:var(--green)">Зөв таалаа. </b>':'<b style="color:var(--rust)">Дахин харцгаая. </b>')+d.why;
+    paintScore();
+  }
+  types.addEventListener('mousedown',function(e){ if(e.target.closest('.l7-btn')) e.preventDefault(); });
+  guess.addEventListener('mousedown',function(e){ if(e.target.closest('.l7-btn')) e.preventDefault(); });
+  types.addEventListener('click',function(e){
+    var b=e.target.closest('.l7-btn'); if(!b) return; setType(b.getAttribute('data-t'));
+  });
+  guess.addEventListener('click',function(e){
+    var b=e.target.closest('.l7-btn'); if(!b||b.disabled) return; reveal(parseInt(b.getAttribute('data-g'),10));
+  });
+  reset.addEventListener('mousedown',function(e){ e.preventDefault(); });
+  reset.addEventListener('click',function(){ hit=0; tot=0; paintScore(); setType('le'); });
+  setType('le'); paintScore();
+})();
+
+/* ══════════ ИНТЕРАКТИВ 2 · Анхны симплекс хүснэгт угсрагч ══════════ */
+(function(){
+  if(!document.getElementById('buildSlide')) return;
+  var NOTE = {
+    0:'Товчийг дараалан дарж хүснэгтийг угсарна уу.',
+    1:'<b>Алхам 1.</b> ≤ хязгаарлалт бүрд нэг <b>Нэмэлт хувьсагч</b> нэмэгдэв: s₁ (мод), s₂ (цаг). Хувьсагч 2 → 4 боллоо.',
+    2:'<b>Алхам 2.</b> Зорилгын функцийн бүх хувьсагчийг зүүн тал руу шилжүүлэв. Тэмдэг солигдож −50000, −40000 болов.',
+    3:'<b>Алхам 3.</b> Хязгаарлалт тус бүр нэг мөр, хувьсагч тус бүр нэг багана. Z мөрийг 1000-аар багасгаж −50, −40 гэж бичив.',
+    4:'<b>Алхам 4.</b> <b>Суурь хувьсагч</b> = s₁, s₂. Анхны шийд: x₁ = 0, x₂ = 0, s₁ = 100, s₂ = 80, Z = 0 — өөрөөр хэлбэл эхлэл цэг (0, 0).'
+  };
+  var st=0;
+  var btns=document.getElementById('buildBtns');
+  var steps=document.getElementById('buildSteps').querySelectorAll('.l7-step');
+  var rows=document.getElementById('buildTb').querySelectorAll('tbody tr');
+  var bcells=document.getElementById('buildTb').querySelectorAll('.bcell');
+  var note=document.getElementById('buildNote');
+
+  function paint(){
+    var bs=btns.querySelectorAll('.l7-btn'), i;
+    for(i=0;i<bs.length;i++){
+      var k=parseInt(bs[i].getAttribute('data-k'),10);
+      var base=bs[i].classList.contains('sm')?'l7-btn sm':'l7-btn';
+      bs[i].className = (k>0 && k<=st) ? base+' ok' : base;
+    }
+    for(i=0;i<steps.length;i++){
+      if(parseInt(steps[i].getAttribute('data-k'),10)<=st) steps[i].classList.add('on');
+      else steps[i].classList.remove('on');
+    }
+    for(i=0;i<rows.length;i++){
+      if(st>=3) rows[i].classList.add('on'); else rows[i].classList.remove('on');
+    }
+    for(i=0;i<bcells.length;i++){
+      if(st>=4) bcells[i].classList.add('lit'); else bcells[i].classList.remove('lit');
+    }
+    note.innerHTML=NOTE[st];
+  }
+  btns.addEventListener('mousedown',function(e){ if(e.target.closest('.l7-btn')) e.preventDefault(); });
+  btns.addEventListener('click',function(e){
+    var b=e.target.closest('.l7-btn'); if(!b) return;
+    st=parseInt(b.getAttribute('data-k'),10); paint();
+  });
+  paint();
+})();
+
+/* ══════════ ИНТЕРАКТИВ 3 · Хүснэгтийн нүд таних тоглоом ══════════ */
+(function(){
+  if(!document.getElementById('cellSlide')) return;
+  var QS=[
+    {k:'basis', q:'«Суурь багана» хаана байна вэ?',
+     ok:'Зөв. Суурь баганад одоогийн <b>Суурь хувьсагчид</b> (s₁, s₂) бичигдэнэ.',
+     no:'Энэ бол суурь багана биш. Суурь багана нь хүснэгтийн хамгийн зүүн талын багана.'},
+    {k:'z', q:'«Z мөр» хаана байна вэ?',
+     ok:'Зөв. Z мөр бол зорилгын функцийг илэрхийлэх <b>тусгай доод мөр</b>: −50, −40, 0, 0, 0.',
+     no:'Энэ Z мөр биш. Z мөр бол хамгийн доод мөр — тэнд сөрөг тоо байдаг.'},
+    {k:'rhs', q:'«Чөлөөт гишүүн (b) буюу RHS» хаана байна вэ?',
+     ok:'Зөв. RHS багана нь тэгшитгэл бүрийн <b>сул гишүүн</b>: 100, 80, 0.',
+     no:'Энэ RHS биш. RHS бол хамгийн баруун талын багана — 100, 80, 0.'},
+    {k:'slack', q:'«Нэмэлт хувьсагчийн багана» хаана байна вэ?',
+     ok:'Зөв. s₁, s₂ баганууд нь <b>Нэмэлт хувьсагчид</b> — нэгж матриц үүсгэж байгааг анзаараарай.',
+     no:'Энэ нэмэлт хувьсагчийн багана биш. Хайх зүйл: s₁ ба s₂ гэсэн толгойтой баганууд.'}
+  ];
+  var idx=0, hit=0, miss=0, locked=false;
+  var tb=document.getElementById('cellTb');
+  var qEl=document.getElementById('cellQ'), noEl=document.getElementById('cellNo');
+  var vEl=document.getElementById('cellVerdict'), wEl=document.getElementById('cellWhy');
+  var sEl=document.getElementById('cellScore'), rEl=document.getElementById('cellReset');
+
+  function clearMarks(){
+    var cs=tb.querySelectorAll('.cell');
+    for(var i=0;i<cs.length;i++){ cs[i].classList.remove('hitok'); cs[i].classList.remove('hitbad'); }
+  }
+  function paintScore(){ sEl.innerHTML='Зөв: <b>'+hit+' / 4</b> &nbsp;·&nbsp; Алдаа: <b>'+miss+'</b>'; }
+  function ask(){
+    locked=false; clearMarks();
+    if(idx>=QS.length){
+      qEl.textContent='Дөрвөн асуулт дууслаа.';
+      noEl.textContent='4';
+      vEl.className='l7-tag g'; vEl.textContent='Дүн: '+hit+' / 4';
+      wEl.innerHTML='«↺ Дахин» товчоор шинэчилнэ үү.';
+      locked=true; return;
+    }
+    noEl.textContent=(idx+1);
+    qEl.textContent=QS[idx].q;
+    vEl.className='l7-tag i'; vEl.textContent='Хүснэгтээс товшино уу';
+    wEl.innerHTML='Зөв нүд товшвол ногоон, буруу бол улаанаар шууд тодорно.';
+  }
+  function markGroup(k){
+    var cs=tb.querySelectorAll('.cell');
+    for(var i=0;i<cs.length;i++){
+      var r=(' '+cs[i].getAttribute('data-r')+' ');
+      if(r.indexOf(' '+k+' ')>=0) cs[i].classList.add('hitok');
+    }
+  }
+  tb.addEventListener('click',function(e){
+    var c=e.target.closest('.cell'); if(!c||locked) return;
+    var want=QS[idx].k;
+    var r=(' '+c.getAttribute('data-r')+' ');
+    if(r.indexOf(' '+want+' ')>=0){
+      locked=true; hit++;
+      markGroup(want);
+      vEl.className='l7-tag g'; vEl.textContent='✓ Зөв';
+      wEl.innerHTML=QS[idx].ok+' <b>Дараагийн асуулт 1.2 секундын дараа.</b>';
+      paintScore();
+      idx++;
+      setTimeout(ask,1200);
+    } else {
+      miss++;
+      c.classList.add('hitbad');
+      vEl.className='l7-tag r'; vEl.textContent='✗ Буруу';
+      wEl.innerHTML=QS[idx].no;
+      paintScore();
+    }
+  });
+  rEl.addEventListener('mousedown',function(e){ e.preventDefault(); });
+  rEl.addEventListener('click',function(){ idx=0; hit=0; miss=0; paintScore(); ask(); });
+  paintScore(); ask();
+})();
+
+/* ══════════ ИНТЕРАКТИВ 4 · Z мөрийн богино тест ══════════ */
+(function(){
+  if(!document.getElementById('quizSlide')) return;
+  var WHY=[
+    ['Зөв. Бүх хувьсагчийг зүүн тал руу шилжүүлэхэд нэмэх тэмдэг хасах болж хувирна.',
+     'Буруу. Нөгөө тал руу шилжихэд тэмдэг СОЛИГДОНО — нэмэх хэвээр үлдэхгүй.',
+     'Буруу. Z нь зүүн талд, эерэг коэффициенттэй зогсох ёстой (Z мөрийн Z багана = 1).'],
+    ['Буруу. Энэ бол ашиг (орлого) — 50,000₮ бол нэг ширээний өгөх АШИГ, зардал биш.',
+     'Зөв. Сөрөг тэмдэг = алдагдсан боломж: ширээ хийхгүй бол 50,000₮ ашиг алдагдана.',
+     'Буруу. Модны үлдэгдлийг s₁ хувьсагч бүртгэдэг, Z мөрийн коэффициент биш.'],
+    ['Буруу. Шийдгүй байдал огт өөр шинжээр илэрдэг.',
+     'Буруу. Нэмэлт хувьсагчийг зөвхөн каноник хэлбэрт оруулах үед нэг л удаа нэмнэ.',
+     'Зөв. Z мөрөнд сөрөг тоо үлдээгүй = цаашид ашиг өсөх боломжгүй, оновчтой цэгтээ хүрсэн.']
+  ];
+  var wrap=document.getElementById('quizWrap');
+  var sEl=document.getElementById('quizScore'), rEl=document.getElementById('quizReset');
+  var qs=wrap.querySelectorAll('.l7-q');
+  var score=0;
+
+  function paint(){ sEl.innerHTML='Оноо: <b>'+score+' / 3</b>'; }
+  function reset(){
+    score=0;
+    for(var i=0;i<qs.length;i++){
+      var bs=qs[i].querySelectorAll('.l7-btn');
+      for(var j=0;j<bs.length;j++){ bs[j].className='l7-btn sm'; bs[j].disabled=false; }
+      qs[i].querySelector('.why').innerHTML='';
+    }
+    paint();
+  }
+  wrap.addEventListener('mousedown',function(e){ if(e.target.closest('.l7-btn')) e.preventDefault(); });
+  wrap.addEventListener('click',function(e){
+    var b=e.target.closest('.l7-btn'); if(!b||b.disabled) return;
+    var q=b.closest('.l7-q');
+    var qi=Array.prototype.indexOf.call(qs,q);
+    var ans=parseInt(q.getAttribute('data-a'),10);
+    var pick=parseInt(b.getAttribute('data-i'),10);
+    var bs=q.querySelectorAll('.l7-btn');
+    for(var j=0;j<bs.length;j++){
+      bs[j].disabled=true;
+      if(j===ans) bs[j].className='l7-btn sm ok';
+      else if(j===pick) bs[j].className='l7-btn sm bad';
+      else bs[j].className='l7-btn sm dim';
+    }
+    if(pick===ans) score++;
+    q.querySelector('.why').innerHTML=WHY[qi][pick];
+    paint();
+  });
+  rEl.addEventListener('mousedown',function(e){ e.preventDefault(); });
+  rEl.addEventListener('click',reset);
+  paint();
+})();
+</script>
+<script src="deck.js"></script>
+</body>
+</html>

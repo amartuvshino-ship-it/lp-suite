@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 12 — Хосмог бодлого (Duality)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ── Хичээл 12-ын өөрийн интерактив бүрдлүүд ─────────────────────────── */
+.d7-panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:13px 15px}
+.d7-panel.pr{border-color:var(--green);box-shadow:inset 3px 0 0 var(--green)}
+.d7-panel.du{border-color:var(--gold);box-shadow:inset 3px 0 0 var(--gold)}
+.d7-h{font-family:var(--body);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-mute);margin-bottom:7px;font-weight:600}
+.d7-eq{font-family:var(--mono);font-size:14.5px;line-height:1.95;color:var(--ink-soft)}
+.d7-eq b{color:var(--ink);font-weight:600}
+.d7-eq .hl{background:var(--gold-bg);border-radius:4px;padding:1px 3px;transition:background .3s}
+.d7-eq .dim{opacity:.28}
+.d7-row{opacity:0;transform:translateY(6px);transition:opacity .45s var(--ease),transform .45s var(--ease)}
+.d7-row.sh{opacity:1;transform:none}
+.d7-btn{font-family:var(--body);font-size:12.5px;padding:6px 11px;border-radius:9px;
+  border:1px solid var(--line-strong);background:var(--paper);color:var(--ink-soft);cursor:pointer;
+  transition:all .2s var(--ease)}
+.d7-btn:hover{border-color:var(--green);color:var(--green)}
+.d7-btn.on{background:var(--green);color:var(--on-accent);border-color:var(--green)}
+.d7-btn.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.d7-btn.bad{background:var(--rust-bg);border-color:var(--rust);color:var(--rust)}
+.d7-bar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.d7-note{font-family:var(--body);font-size:13.5px;line-height:1.5;color:var(--ink-soft)}
+.d7-note b{color:var(--green)}
+.d7-mx{position:relative;width:188px;height:152px;margin:2px auto 0}
+.d7-cell{position:absolute;width:54px;height:54px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-size:19px;font-weight:600;
+  background:var(--muted);border:1px solid var(--line-strong);color:var(--ink);
+  transition:left .55s var(--ease),top .55s var(--ease),background .35s,border-color .35s}
+.d7-cell.mv{background:var(--gold-bg);border-color:var(--gold);color:var(--gold-ink,var(--gold))}
+.d7-lb{position:absolute;font-family:var(--mono);font-size:11.5px;color:var(--ink-mute);
+  transition:opacity .3s}
+.d7-tag{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:20px;
+  background:var(--muted);color:var(--ink-mute);border:1px solid var(--line)}
+.d7-val{font-family:var(--mono);font-weight:600}
+.d7-fl{font-family:var(--body);font-size:12px;padding:3px 9px;border-radius:20px;display:inline-block}
+.d7-fl.y{background:var(--green-bg);color:var(--green)}
+.d7-fl.n{background:var(--rust-bg);color:var(--rust)}
+.d7-card{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:12px 13px;
+  display:flex;flex-direction:column;gap:7px}
+.d7-card.done{border-color:var(--green)}
+.d7-q{font-family:var(--body);font-size:13px;line-height:1.45;color:var(--ink)}
+.d7-a{font-family:var(--body);font-size:12.2px;line-height:1.45;color:var(--ink-soft);
+  min-height:52px;opacity:0;transition:opacity .35s}
+.d7-a.sh{opacity:1}
+.d7-a b{color:var(--green)}
+.d7-a i{color:var(--rust);font-style:normal}
+.d7-opt{display:block;width:100%;text-align:left;margin-top:5px}
+</style>
+</head>
+<body>
+
+<div id="viewport"><div id="stage">
+
+<!-- ══════════ 1. НҮҮР ══════════ -->
+<section class="slide cover" data-sec="—" data-notes="Тавтай морил. Өнөөдөр бид Бүлэг 7 — Хосмог бодлогыг бүтнээр нь үзнэ. Гол мессеж: симплексээр нэг тооцоолол хийхдээ бид үнэндээ хоёр бодлогыг зэрэг бодож байсан. Дөрвөн интерактив байгаа: 11-р слайдад хөрвүүлэгч, 13-т тест, 17-т теорем шалгагч, 19-т бие биеэ нөхөх сул төлөвийн шалгуур.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Хосмог бодлого <em>(Duality)</em></h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 12</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 7</span>
+    <span class="pill">4 интерактив дасгал</span>
+  </div>
+</section>
+
+<!-- ══════════ 2. АГУУЛГА ══════════ -->
+<section class="slide" data-sec="—" data-notes="Өнөөдрийн зургаан блок. 7.4 бол хичээлийн зүрх — тэнд гурван интерактивын хоёр нь байрлана. Цагийн хуваарилалт: 7.1–7.3 нийт 35 минут, 7.4 25 минут, 7.5–7.7 30 минут.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">7.1–7.2</div><h3>Танилцуулга</h3><p>Хосмог бодлого гэж юу вэ, хэн үүсгэсэн бэ, Анхдагч бодлоготой ямар харилцаатай вэ?</p></div>
+    <div class="card accent"><div class="k">7.3</div><h3>Байгуулах дүрэм</h3><p>Дөрвөн алхам: max↔min, хувьсагч↔хязгаарлалт, коэффициент байраа солих, Aᵀ.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Хөрвүүлэгч + тест</h3><p>«Модон урлал»-ын Анхдагч бодлогыг таван алхмаар Хосмог болгож угсарна.</p></div>
+    <div class="card accent"><div class="k">7.4</div><h3>Z* = W*</h3><p>Сул, хүчтэй хосмогийн теорем ба Бие биеэ нөхөх сул төлөвийн теорем.</p></div>
+    <div class="card accent"><div class="k">7.5</div><h3>Сүүдрийн үнэ</h3><p>Хосмог хувьсагч y нь яг Сүүдрийн үнэ мөн — нөөц худалдан авах шийдвэрийн үндэс.</p></div>
+    <div class="card green"><div class="k">7.6–7.7</div><h3>Хоёр бодит кейс</h3><p>«Модон урлал» ХХК ба «Од Тоглоом» ХХК-ийн ажилчны хөлсний бодлого.</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 12 · Хосмог бодлого (Duality)</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 3. СУРАХ ЗОРИЛТ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Хичээлийн эцэст оюутан эдгээрийг чаддаг байх ёстой. Дасгал 1, 3, 5, 7 яг эдгээрийг шалгана.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Дурын Анхдагч бодлогоос <strong>Хосмог бодлогыг дөрвөн алхмаар</strong> автоматаар байгуулах</span></li>
+    <li><span class="b">2</span><span><strong>Хосмогийн үндсэн теорем (Z* = W*)</strong>, сул ба хүчтэй хосмогийн теоремыг тайлбарлах</span></li>
+    <li><span class="b">3</span><span><strong>Бие биеэ нөхөх сул төлөвийн теоремыг</strong> ашиглан сүүдрийн үнэ тэг эсэхийг тодорхойлох</span></li>
+    <li><span class="b">4</span><span>Хосмог хувьсагчийг <strong>Сүүдрийн үнэ</strong> болгон уншиж, нөөц худалдан авах шийдвэр гаргах</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 12 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 4. ХЭСЭГ 7.1 ══════════ -->
+<section class="slide divider dark" data-sec="7.1" data-notes="Шилжилтийн слайд. Гол санаа: өмнөх зургаан бүлэг «юу үйлдвэрлэх вэ» гэж асууж байсан. Одоо бид анх удаа «нөөц өөрөө хэдэн төгрөг үнэтэй вэ» гэж асууна.">
+  <div class="num">7.1</div>
+  <h2>Хосмог бодлогын танилцуулга</h2>
+  <p class="sub">Өмнөх зургаан бүлэг «Хязгаарлагдмал нөөцөөрөө хэрхэн хамгийн их ашиг олох вэ?» гэж асуусан. Одоо бид өөр асуулт тавина: «Тэрхүү нөөцийн жинхэнэ, далд үнэ цэн хэд вэ?»</p>
+  <div class="s-foot"><span>Бүлэг 7.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 5. 7.1.1 ══════════ -->
+<section class="slide" data-sec="7.1" data-notes="Гол зүйрлэл: нэг зоосны толгой ба сүүл. Оюутнуудаас асуу: «Та захирал бол юу асуух вэ? Харин хөрөнгө оруулагч бол?» Хоёр асуулт өөр ч мэдээлэл нь ЯГ ижил.">
+  <div class="s-tag">7.1.1 · Хосмог бодлого гэж юу вэ?</div>
+  <h2 class="title">Бодлого бүрийн цаана <em>толин тусгал</em> нь байдаг</h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Аливаа нэг шугаман программчлалын бодлогын цаана, түүнтэй математикийн хувьд салшгүй холбоотой өөр нэг «толин тусгал» бодлого <strong>үргэлж оршин байдаг</strong>.</p>
+      <div class="def">
+        <div class="lbl">Хос нэр томьёо</div>
+        <p><strong>Анхдагч бодлого</strong> (Primal Problem) — бодит амьдралаас шууд гарч ирсэн бодлого.<br><strong>Хосмог бодлого</strong> (Dual Problem) — яг тэр мэдээллийг эсрэг талаас харсан бодлого.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card green"><div class="k">Анхдагч талаас</div><h3 style="font-size:17px">«Хэдэн ширээ, хэдэн сандал хийвэл хамгийн их ашигтай вэ?»</h3><p>Бүтээгдэхүүний тал — юу хэдийг үйлдвэрлэх вэ?</p></div>
+      <div class="card accent"><div class="k">Хосмог талаас</div><h3 style="font-size:17px">«Тэрхүү үйлдвэрлэлд орсон мод, цаг өөрсдөө хэдэн төгрөгийн үнэ цэнтэй вэ?»</h3><p>Нөөцийн тал — нөөц бүр хэдэн төгрөг үнэтэй вэ?</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.1.1 · Нэг зоосны толгой ба сүүл</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 6. 7.1.2 ТҮҮХ ══════════ -->
+<section class="slide" data-sec="7.1" data-notes="Түүхийн товч блок — 4 минут. Онцлох: фон Нейман тоглоомын онолтой холбож санааг үндэслэсэн, харин Гэйл-Кун-Такер нар үүнийг теорем болгож НОТОЛСОН. KKT нөхцөл бол өнөөдрийн машин сургалтын оновчлолын үндэс.">
+  <div class="s-tag">7.1.2 · Түүхэн үүсэл</div>
+  <h2 class="title">Санаанаас <em>теорем</em> хүртэл</h2>
+  <div class="timeline">
+    <div class="tl-row hi"><div class="tl-year">1947</div><div class="tl-dot"></div><div class="tl-txt">Данциг Симплекс аргаа боловсруулсан жил. Түүнтэй ярилцах явцад <strong>Жон фон Нейман</strong> ШП ба тоглоомын онол дахь «хос тоглоом» хоёрын гүн гүнзгий математик төстэй шинжийг анх зааж, <strong>Хосмог бодлогын санааг үндэслэв</strong></div></div>
+    <div class="tl-row hi"><div class="tl-year">1950-иад</div><div class="tl-dot"></div><div class="tl-txt"><strong>Дэвид Гэйл, Харольд Кун, Алберт Такер</strong> нар санааг албан ёсны математик теорем (сул ба хүчтэй хосмогийн теорем) хэлбэрээр <strong>нотолж</strong>, Кун-Такерийн нөхцөл (KKT conditions) хэмээх өргөн онолын үндсийг тавив</div></div>
+    <div class="tl-row"><div class="tl-year">1950→</div><div class="tl-dot"></div><div class="tl-txt">Онол эдийн засагт өргөн нэвтэрч, <strong>Сүүдрийн үнэ</strong> (Shadow Price) ойлголтоор нөөцийн үнэлгээ, шатахууны менежмент, зах зээлийн тэнцвэрийн онолын үндсэн хэрэглүүр болов</div></div>
+    <div class="tl-row"><div class="tl-year">1952</div><div class="tl-dot"></div><div class="tl-txt">Харри Марковицийн <strong>Портфелийн онол</strong> — санхүүгийн орчин үеийн загварууд ч мөн адил хязгаарлалттай оновчлолын хосмог математик бүтцэд түшиглэдэг</div></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.1.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 7. 7.1.3 + 7.1.4 ══════════ -->
+<section class="slide" data-sec="7.1" data-notes="Таван шалтгаан. Хамгийн чухал нь 2 ба 5 дугаартай. 5-р зүйлийг тайлбарла: 50 хязгаарлалт, 3 хувьсагчтай бодлогыг хосмог болговол 3 хязгаарлалт, 50 хувьсагчтай болно — симплекс хүснэгт хамаагүй бага. Доод def нь бүлгийн гол ишлэл.">
+  <div class="s-tag">7.1.3–7.1.4 · Ач холбогдол ба симплекстэй уялдаа</div>
+  <h2 class="title">Яагаад хосмог бодлого <em>чухал</em> вэ?</h2>
+  <div class="checks">
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Эдийн засгийн гүнзгий утга</b> — нөөцийн далд үнэ цэнийг тоогоор гаргана. Анхдагч бодлого дангаараа өгч чадахгүй мэдээлэл</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Сүүдрийн үнэ автоматаар олдоно</b> — Хосмогийн оновчтой шийд нь яг өөрөө Сүүдрийн үнэ</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Нөөцийн үнэлгээ</b> — мод, машины цаг, хөрөнгө зэрэг «хийсвэр» нөөцийг мөнгөн дүнгээр үнэлнэ</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Бизнесийн шийдвэр</b> — худалдан авалт, хөрөнгө оруулалт, гэрээний хэлэлцээрт шууд ашиглана</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Заримдаа илүү үр ашигтай</b> — олон хязгаарлалттай бодлогын Хосмог хэлбэр цөөн хязгаарлалттай болж хялбарчилна</span></div>
+  </div>
+  <div class="def">
+    <div class="lbl">7.1.4 · Симплекс аргатай уялдаа</div>
+    <p>Эцсийн симплекс хүснэгтийн Z мөр дэх <strong>s₁, s₂-ийн коэффициентүүд бол яг Хосмог хувьсагчийн (y₁, y₂) оновчтой утгууд</strong> юм — «нэг тооцооллоор хоёр бодлого зэрэг бодогдож байна».</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.1.3–7.1.4 · Сануулга → Бүлэг 5.6.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 8. 7.2.2 ХОС НҮД ══════════ -->
+<section class="slide" data-sec="7.2" data-notes="Хүснэгтийг мөр мөрөөр нь уншуул. Гол анзаарууштай зүйл: хоёр багана ЯГ ижил тоо (50000, 40000, 100, 80) ашиглаж байна — зөвхөн үүрэг нь солигдсон. Доод ишлэлийг оюутнаар давтуул.">
+  <div class="s-tag">7.2.2 · «Модон урлал» ХХК-ийн жишээгээр</div>
+  <h2 class="title">Нэг бодлого, <em>хоёр нүд</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:50%">Анхдагч бодлого (Primal)</th><th>Хосмог бодлого (Dual)</th></tr></thead>
+    <tbody>
+    <tr><td class="k">«Хамгийн их ашгийг олъё.»</td><td>«Нөөцийг ямар үнээр худалдаж авч болох вэ?»</td></tr>
+    <tr><td>«Модон урлал» ХХК өөрөө боддог.</td><td>Гадны хөрөнгө оруулагч боддог.</td></tr>
+    <tr><td class="k">max Z = 50000x₁ + 40000x₂</td><td class="k">min W = 100y₁ + 80y₂</td></tr>
+    <tr><td>Нөөц (мод, цаг) хязгаартай.</td><td>y₁ = модны 1 м³-ийн сүүдрийн үнэ.</td></tr>
+    <tr><td>Хэдэн ширээ, сандал хийх вэ?</td><td>y₂ = 1 цагийн сүүдрийн үнэ.</td></tr>
+    <tr><td>Асуулт: юу үйлдвэрлэх вэ?</td><td>Асуулт: нөөц бүр хэдэн төгрөг үнэтэй вэ?</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">7.2.4 · Эдийн засгийн тайлбар</div>
+    <p>«Анхдагч ба Хосмог бодлого нь эдийн засгийн зах зээл дэх <strong>худалдагч, худалдан авагч хоёрын уулзах цэгийг</strong> илэрхийлдэг — хоёулаа өөр өөр зорилготой боловч эцсийн дүндээ нэг л тэнцвэрт цэг дээр уулздаг.» Захирал 1,400,000₮ гэж боддог; хөрөнгө оруулагчийн хамгийн бага санал ч мөн 1,400,000₮.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.2.2–7.2.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 9. ХЭСЭГ 7.3 ══════════ -->
+<section class="slide divider dark" data-sec="7.3" data-notes="Одоо механикт орно. Гол мессеж: Хосмог бодлогыг гараар «зохиох» шаардлагагүй — алгебрын хатуу дүрэм бий. Дараагийн гурван слайд бол практик ур чадвар.">
+  <div class="num">7.3</div>
+  <h2>Хосмог бодлогыг байгуулах дүрэм</h2>
+  <p class="sub">Энэ дүрмийг мэдсэнээр та ямар ч Анхдагч бодлогыг хараад түүний Хосмог хэлбэрийг шууд бичиж чадах болно.</p>
+  <div class="s-foot"><span>Бүлэг 7.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 10. 7.3.1–7.3.2 ══════════ -->
+<section class="slide" data-sec="7.3" data-notes="Дөрвөн алхмыг цээжлүүл. Санах арга: «Бүх зүйл байраа солино» — max↔min, мөр↔багана, c↔b. Дараагийн слайдад үүнийг товчоор нь угсарна.">
+  <div class="s-tag">7.3.1–7.3.2 · Ерөнхий дүрэм ба хувиргах алхмууд</div>
+  <h2 class="title">Бүх зүйл <em>байраа солино</em></h2>
+  <div class="formula">
+    <div class="fl">
+      <span style="font-size:15px;color:rgba(255,255,255,.6)">Анхдагч</span> &nbsp;&nbsp; max Z = <span class="c">c</span>ᵀx &nbsp;·&nbsp; Ax <span class="op">≤</span> <span class="c">b</span> &nbsp;·&nbsp; x <span class="op">≥ 0</span><br>
+      <span style="font-size:15px;color:rgba(255,255,255,.6)">Хосмог</span> &nbsp;&nbsp; min W = <span class="c">b</span>ᵀy &nbsp;·&nbsp; <span class="op">Aᵀ</span>y <span class="op">≥</span> <span class="c">c</span> &nbsp;·&nbsp; y <span class="op">≥ 0</span>
+    </div>
+    <div class="cap">c — зорилгын коэффициентийн вектор &nbsp;·&nbsp; b — нөөцийн (RHS) вектор &nbsp;·&nbsp; A — хязгаарлалтын матриц &nbsp;·&nbsp; Aᵀ — A-гийн хөрвүүлэг</div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card accent"><div class="k">Алхам 1</div><h3 style="font-size:16px">max ↔ min шилжинэ</h3><p>Анхдагч бодлого max бол Хосмог нь min болно (эсвэл эсрэгээр).</p></div>
+    <div class="card accent"><div class="k">Алхам 2</div><h3 style="font-size:16px">Хувьсагч ↔ хязгаарлалт</h3><p>Анхдагчийн n хувьсагч → Хосмогийн n хязгаарлалт. Анхдагчийн m хязгаарлалт → Хосмогийн m хувьсагч.</p></div>
+    <div class="card accent"><div class="k">Алхам 3</div><h3 style="font-size:16px">Тэмдгийн эсрэг харилцаа</h3><p>max бодлогод: Анхдагчийн ≤ хязгаарлалтад y ≥ 0, Анхдагчийн x ≥ 0 хувьсагчид ≥ хязгаарлалт харгалзана.</p></div>
+    <div class="card accent"><div class="k">Алхам 4</div><h3 style="font-size:16px">Коэффициент байраа солино</h3><p>c → Хосмогийн RHS, b → Хосмогийн зорилгын коэффициент, A → Aᵀ.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.3.1–7.3.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 11. ИНТЕРАКТИВ 1 — ХӨРВҮҮЛЭГЧ ══════════ -->
+<section class="slide" data-sec="7.3" id="convSlide" data-notes="ЭНЭ БОЛ ХИЧЭЭЛИЙН ГОЛ ИНТЕРАКТИВ. 6–8 минут. Алхам бүрийг дарахаас өмнө оюутнуудаас «одоо юу болох вэ?» гэж асуу. Алхам 3-т матриц хөрвөх хөдөлгөөнийг заавал ажиглуул — энэ жишээнд A тэгш хэмтэй тул Aᵀ = A боловч мөр↔багана солигдох ЗАРЧИМ хэвээр гэдгийг тайлбарла. Эцэст нь баруун талын бүрэн Хосмог бодлогыг оюутнаар уншуул.">
+  <div class="s-tag">Интерактив · Анхдагч → Хосмог хөрвүүлэгч</div>
+  <h2 class="title">Таван алхмаар <em>угсарна</em></h2>
+  <div style="display:grid;grid-template-columns:1fr 210px 1fr;gap:16px;align-items:start;margin-top:14px">
+    <div class="d7-panel pr">
+      <div class="d7-h">Анхдагч бодлого (Primal)</div>
+      <div class="d7-eq">
+        <span id="cvMax"><b>max</b></span> Z = <span id="cvC1">50000</span>x₁ + <span id="cvC2">40000</span>x₂<br>
+        <span id="cvA11">4</span>x₁ + <span id="cvA12">2</span>x₂ <span class="cvLe">≤</span> <span id="cvB1">100</span> &nbsp;<span style="font-size:12px;color:var(--ink-mute)">(мод)</span><br>
+        <span id="cvA21">2</span>x₁ + <span id="cvA22">4</span>x₂ <span class="cvLe">≤</span> <span id="cvB2">80</span> &nbsp;<span style="font-size:12px;color:var(--ink-mute)">(цаг)</span><br>
+        <span id="cvX">x₁, x₂ ≥ 0</span>
+      </div>
+      <div style="margin-top:9px" class="d7-tag">2 хувьсагч · 2 хязгаарлалт</div>
+    </div>
+
+    <div class="d7-panel" style="padding:11px 10px">
+      <div class="d7-h" style="text-align:center">A &nbsp;→&nbsp; Aᵀ</div>
+      <div class="d7-mx" id="cvMx">
+        <div class="d7-lb" id="lbC0" style="left:62px;top:2px">x₁</div>
+        <div class="d7-lb" id="lbC1" style="left:124px;top:2px">x₂</div>
+        <div class="d7-lb" id="lbR0" style="left:0;top:44px">мод</div>
+        <div class="d7-lb" id="lbR1" style="left:0;top:106px">цаг</div>
+        <div class="d7-cell" id="c00">4</div>
+        <div class="d7-cell" id="c01">2</div>
+        <div class="d7-cell" id="c10">2</div>
+        <div class="d7-cell" id="c11">4</div>
+      </div>
+      <div style="text-align:center;font-size:24px;color:var(--gold);margin-top:4px">▼</div>
+    </div>
+
+    <div class="d7-panel du">
+      <div class="d7-h">Хосмог бодлого (Dual)</div>
+      <div class="d7-eq">
+        <div class="d7-row" id="dr1"><b>min</b> W = <span id="dvB">…</span></div>
+        <div class="d7-row" id="dr2"><span id="dq1">4y₁ + 2y₂</span> <span id="ds1">…</span> <span id="dc1">…</span></div>
+        <div class="d7-row" id="dr3"><span id="dq2">2y₁ + 4y₂</span> <span id="ds2">…</span> <span id="dc2">…</span></div>
+        <div class="d7-row" id="dr4">y₁, y₂ ≥ 0</div>
+      </div>
+      <div style="margin-top:9px" class="d7-tag" id="dvTag">— </div>
+    </div>
+  </div>
+  <div style="margin-top:14px">
+    <div class="d7-bar">
+      <button class="d7-btn" data-cv="1">Алхам 1</button>
+      <button class="d7-btn" data-cv="2">Алхам 2</button>
+      <button class="d7-btn" data-cv="3">Алхам 3</button>
+      <button class="d7-btn" data-cv="4">Алхам 4</button>
+      <button class="d7-btn" data-cv="5">Алхам 5</button>
+      <button class="d7-btn" id="cvNext" style="border-color:var(--gold);color:var(--gold)">Дараах ▸</button>
+      <button class="d7-btn" id="cvReset">↺ Эхнээс</button>
+      <span class="d7-note" id="cvTxt" style="margin-left:6px">Товчоо дарж Хосмог бодлогыг алхам алхмаар угсарна уу.</span>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.3.2 → 7.6.2 · Алхам 1–5</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 12. 7.3.3–7.3.4 ══════════ -->
+<section class="slide" data-sec="7.3" data-notes="Энэ хүснэгт бол шалгалтад гардаг. Хамгийн их андуурдаг мөр: = хязгаарлалт → y хязгааргүй. Тайлбар: тэгшитгэлт хязгаарлалт бол «хатуу» нөхцөл тул харгалзах хосмог хувьсагч эерэг ч, сөрөг ч байж болно.">
+  <div class="s-tag">7.3.3–7.3.4 · Тэмдгийн эсрэг харилцаа</div>
+  <h2 class="title">Тэмдгийн <em>толин тусгал</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:50%">Анхдагч (max)</th><th>Хосмог (min)</th></tr></thead>
+    <tbody>
+    <tr><td class="k">≤ хязгаарлалт</td><td>y ≥ 0</td></tr>
+    <tr><td class="k">≥ хязгаарлалт</td><td>y ≤ 0</td></tr>
+    <tr><td class="k">= хязгаарлалт</td><td>y хязгааргүй</td></tr>
+    <tr><td class="k">x ≥ 0</td><td>≥ хязгаарлалт</td></tr>
+    <tr><td class="k">x ≤ 0</td><td>≤ хязгаарлалт</td></tr>
+    <tr><td class="k">x хязгааргүй</td><td>= хязгаарлалт</td></tr>
+    </tbody>
+  </table>
+  <div class="def">
+    <div class="lbl">7.3.4 · Хөрвүүлэг матрицын үүрэг</div>
+    <p>Бүлэг 4.1.6-т үзсэн <strong>хөрвүүлэг (Transpose, Aᵀ)</strong> — мөрийг багана, баганыг мөр болгох үйлдэл — энд гол механизм болдог. Товчхон: <strong>Хосмог бодлого бол «Анхдагчийн матрицыг хөрвүүлж, зорилго ба нөөцийн байрыг сольсон» бодлого юм.</strong></p>
+  </div>
+  <div class="s-foot"><span>Хүснэгт 7.3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 13. ИНТЕРАКТИВ 4 — ТЕСТ ══════════ -->
+<section class="slide" data-sec="7.3" id="quizSlide" data-notes="4–5 минут. Асуулт бүрийг эхлээд гараар санал асуулга авч, дараа нь товшуул. Асуулт 1 бол хамгийн түгээмэл шалгалтын асуулт: 2 хувьсагч 3 хязгаарлалт → 3 хувьсагч 2 хязгаарлалт. Хариу: 1-Б, 2-А, 3-В.">
+  <div class="s-tag">Интерактив · Мэдлэг шалгах тест</div>
+  <h2 class="title">Гурван асуулт — <em>та мэдэх үү?</em></h2>
+  <div class="grid g3" id="quizGrid" style="margin-top:14px">
+    <div class="d7-card" data-qz="1">
+      <div class="d7-h">Асуулт 1 · Хэмжээ</div>
+      <div class="d7-q">Анхдагч бодлого <b>2 хувьсагч, 3 хязгаарлалттай</b> бол Хосмог бодлого нь ямар хэмжээтэй вэ?</div>
+      <button class="d7-btn d7-opt" data-ok="0">А · 2 хувьсагч, 3 хязгаарлалт</button>
+      <button class="d7-btn d7-opt" data-ok="1">Б · 3 хувьсагч, 2 хязгаарлалт</button>
+      <button class="d7-btn d7-opt" data-ok="0">В · 3 хувьсагч, 3 хязгаарлалт</button>
+      <div class="d7-a">Хязгаарлалт → хувьсагч, хувьсагч → хязгаарлалт болж <b>байраа солино</b> (Алхам 2). Иймд 3 хувьсагч, 2 хязгаарлалт.</div>
+    </div>
+    <div class="d7-card" data-qz="2">
+      <div class="d7-h">Асуулт 2 · Тэмдэг</div>
+      <div class="d7-q">max бодлогын <b>≤ хязгаарлалтад</b> Хосмог талд юу харгалзах вэ?</div>
+      <button class="d7-btn d7-opt" data-ok="1">А · y ≥ 0 хувьсагч</button>
+      <button class="d7-btn d7-opt" data-ok="0">Б · y ≤ 0 хувьсагч</button>
+      <button class="d7-btn d7-opt" data-ok="0">В · y хязгааргүй хувьсагч</button>
+      <div class="d7-a">Хүснэгт 7.3.3-ын эхний мөр: <b>≤ хязгаарлалт → y ≥ 0</b>. Харин = хязгаарлалт л хязгааргүй хувьсагч өгнө.</div>
+    </div>
+    <div class="d7-card" data-qz="3">
+      <div class="d7-q" style="margin-top:2px"><span class="d7-h" style="display:block">Асуулт 3 · Бие биеэ нөхөх сул төлөв</span>Анхдагчийн нэг нөөц <b>бүрэн ашиглагдаагүй</b> (slack &gt; 0) бол тухайн нөөцийн сүүдрийн үнэ ямар байх вэ?</div>
+      <button class="d7-btn d7-opt" data-ok="0">А · Хамгийн өндөр байна</button>
+      <button class="d7-btn d7-opt" data-ok="0">Б · Сөрөг байна</button>
+      <button class="d7-btn d7-opt" data-ok="1">В · Тэг байна (y = 0)</button>
+      <div class="d7-a">Илүүдэлтэй нөөцийг нэмж авах хэрэггүй тул түүний далд үнэ цэн <b>0</b>. Энэ бол Бие биеэ нөхөх сул төлөвийн теорем.</div>
+    </div>
+  </div>
+  <div class="gamebar" style="margin-top:16px">
+    <span id="quizScore">0 / 3 зөв</span>
+    <button id="quizReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.3 · Өөрийгөө шалгах</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 14. ХЭСЭГ 7.4 ══════════ -->
+<section class="slide divider dark" data-sec="7.4" data-notes="⚠ Хичээлийн зүрх. Энэ хэсэгт 6 слайд, хоёр интерактив байна. Хугацаа 25 минут. Оюутнуудад анхааруулга өг: энэ хэсгийн теоремууд шалгалтад заавал орно.">
+  <div class="num">7.4</div>
+  <h2>Хосмогийн үндсэн теорем: Z = W</h2>
+  <p class="sub">⚠ Маш чухал! Энэ бол хосмог онолын гол цэг — Анхдагчийн хамгийн их ашиг ба Хосмогийн хамгийн бага нөөцийн үнэлгээ яг тэнцүү байдаг.</p>
+  <div class="s-foot"><span>Бүлэг 7.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 15. 7.4.1–7.4.2 ══════════ -->
+<section class="slide" data-sec="7.4" data-notes="Теоремын томьёолол ба эдийн засгийн утга. Практик дүгнэлт: аль нэгийг нь бодсон бол нөгөөгийнх нь оновчтой утга автоматаар мэдэгдэнэ — дахин тооцоолох шаардлагагүй.">
+  <div class="s-tag">7.4.1–7.4.2 · Хосмогийн үндсэн теорем</div>
+  <h2 class="title">Z* = <em>W*</em></h2>
+  <div class="formula">
+    <div class="fl">
+      «Хэрэв Анхдагч бодлого оновчтой шийдтэй бол Хосмог бодлого ч мөн оновчтой шийдтэй байх бөгөөд эдгээр оновчтой утга хоорондоо тэнцүү байна.»<br>
+      <span style="font-size:34px"><span class="c">Z*</span> <span class="op">=</span> <span class="c">W*</span></span>
+    </div>
+    <div class="cap">Z* — Анхдагч бодлогын оновчтой утга &nbsp;·&nbsp; W* — Хосмог бодлогын оновчтой утга</div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card green"><div class="k">Эдийн засгийн утга</div><h3 style="font-size:16px">Хамгийн их ашиг = Хамгийн бага нөөцийн үнэлгээ</h3><p>Компанийн үйл ажиллагаанаас олох боломжтой хамгийн их ашиг нь түүний эзэмшдэг бүх нөөцийн зах зээлийн бодит үнэ цэнтэй <strong>яг тэнцүү</strong> байдаг — алдагдалгүй, зөрөөгүй тэгш төлбөр.</p></div>
+    <div class="card accent"><div class="k">Практик ач холбогдол</div><h3 style="font-size:16px">Нэгийг мэдвэл нөгөө нь бэлэн</h3><p>Хэрэв та Анхдагч эсвэл Хосмог аль нэгний оновчтой шийдийг олсон бол нөгөө бодлогынхоо оновчтой утгыг <strong>дахин тооцоолох шаардлагагүй</strong> — тэр нь автоматаар мэдэгдэж байна.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.4.1–7.4.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 16. 7.4.3–7.4.4 ══════════ -->
+<section class="slide" data-sec="7.4" data-notes="Нотолгоог самбарт дахин бич: Aᵀy ≥ c тул cᵀx ≤ (Aᵀy)ᵀx = yᵀAx; Ax ≤ b тул yᵀAx ≤ yᵀb. Иймд cᵀx ≤ yᵀb буюу Z ≤ W. Дараагийн слайдын гулсуур яг үүнийг тоогоор харуулна.">
+  <div class="s-tag">7.4.3–7.4.4 · Сул ба хүчтэй хосмогийн теорем</div>
+  <h2 class="title">Эхлээд <em>тэнцэтгэл биш</em>, дараа нь тэнцүү</h2>
+  <div class="split wide">
+    <div>
+      <div class="def">
+        <div class="lbl">Сул хосмогийн теорем (Weak Duality)</div>
+        <p>«Ямар нэг боломжит Анхдагч шийд (Z) ба ямар нэг боломжит Хосмог шийд (W) хоёрын хувьд: <strong>Z ≤ W</strong> (max бодлогод).»</p>
+      </div>
+      <p class="lead" style="font-size:16px;margin-top:14px">Анхдагчийн ямар ч боломжит ашиг Хосмогийн ямар ч боломжит нөөцийн үнэлгээнээс <strong>хэзээ ч давахгүй</strong>. Зөвхөн хоёулаа оновчтой шийддээ хүрсэн үед л Z = W болно.</p>
+    </div>
+    <div>
+      <div class="formula" style="margin-top:0">
+        <div class="fl" style="font-size:17px;line-height:2">
+          Aᵀy <span class="op">≥</span> c &nbsp;⟹&nbsp; <span class="c">cᵀx</span> ≤ (Aᵀy)ᵀx = yᵀAx<br>
+          Ax <span class="op">≤</span> b &nbsp;⟹&nbsp; yᵀAx ≤ <span class="c">yᵀb</span><br>
+          ⟹ &nbsp; <span class="c">cᵀx</span> ≤ <span class="c">yᵀb</span> &nbsp; буюу &nbsp; <span class="op">Z ≤ W</span>
+        </div>
+        <div class="cap">Сул хосмогийн теоремын товч нотолгоо</div>
+      </div>
+      <div class="card green" style="margin-top:12px"><div class="k">Хүчтэй хосмогийн теорем (Strong Duality)</div><p>«Хэрэв Анхдагч бодлого оновчтой шийдтэй бол <strong>Z* = W* яг тэнцүү</strong>.» Гэйл, Кун, Такер нар 1950-иад оны эхээр нотолсон — KKT нөхцөлийн тусгай тохиолдол.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.4.3–7.4.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 17. ИНТЕРАКТИВ 2 — ТЕОРЕМ ШАЛГАГЧ ══════════ -->
+<section class="slide" data-sec="7.4" id="wdSlide" data-notes="5–6 минут. Даалгавар: «Z-г W-ээс их болгож чадах уу?» гэж уралдуул — боломжит шийд сонгосон цагт хэзээ ч болохгүй. Дараа нь «Оновчтой цэг» товчийг дар: хоёр сум нийлж 1,400,000₮ дээр тодорно. Энэ бол сул → хүчтэй хосмогийн шилжилтийн визуал.">
+  <div class="s-tag">Интерактив · Сул ба хүчтэй хосмогийн теорем шалгагч</div>
+  <h2 class="title">Z <em>≤</em> W — үргэлж үнэн үү?</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+    <div class="sim-panel">
+      <h4>Анхдагч — боломжит шийд (x₁, x₂)</h4>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">Ширээ x₁</span><span class="cv" id="wx1">10</span></div>
+        <input type="range" id="wsx1" min="0" max="25" value="10">
+      </div>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">Сандал x₂</span><span class="cv" id="wx2">5</span></div>
+        <input type="range" id="wsx2" min="0" max="20" value="5">
+      </div>
+      <div class="d7-note" style="margin-top:8px">4x₁+2x₂ ≤ 100 · 2x₁+4x₂ ≤ 80<br>
+        <span class="d7-fl y" id="wpF">боломжит ✓</span>
+        <span style="margin-left:8px">Z = <span class="d7-val" id="wZ">700,000</span>₮</span></div>
+    </div>
+    <div class="sim-panel">
+      <h4>Хосмог — боломжит шийд (y₁, y₂)</h4>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">Модны үнэ y₁ (мянга)</span><span class="cv" id="wy1">15</span></div>
+        <input type="range" id="wsy1" min="0" max="25" value="15">
+      </div>
+      <div class="ctrl">
+        <div class="cl"><span class="cn">Цагийн үнэ y₂ (мянга)</span><span class="cv" id="wy2">10</span></div>
+        <input type="range" id="wsy2" min="0" max="25" value="10">
+      </div>
+      <div class="d7-note" style="margin-top:8px">4y₁+2y₂ ≥ 50 · 2y₁+4y₂ ≥ 40<br>
+        <span class="d7-fl y" id="wdF">боломжит ✓</span>
+        <span style="margin-left:8px">W = <span class="d7-val" id="wW">2,300,000</span>₮</span></div>
+    </div>
+  </div>
+  <div class="plotbox" style="margin-top:14px">
+    <svg id="wdPlot" viewBox="0 0 1080 126" style="width:100%;height:auto"></svg>
+    <div class="d7-bar" style="margin-top:8px">
+      <span class="d7-note" id="wdTxt"><b>Z ≤ W ✓</b> — сул хосмогийн теорем биелж байна.</span>
+      <button class="d7-btn" id="wdOpt" style="margin-left:auto">★ Оновчтой цэг рүү (20, 10) ба (10, 5)</button>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.4.3–7.4.4 · Гулсуураа хөдөлгөж Z &gt; W болгож чадах уу?</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 18. 7.4.5 ══════════ -->
+<section class="slide" data-sec="7.4" data-notes="Хоёр дүрмийг цээжлүүл. Энгийн үг: «Илүүдэлтэй зүйл үнэгүй; үйлдвэрлэгдэж байгаа зүйлийн нөөцийн үнэ яг ашигтайгаа тэнцэнэ.» Дараагийн слайдад үүнийг картаар шалгана.">
+  <div class="s-tag">7.4.5 · Бие биеэ нөхөх сул төлөвийн теорем</div>
+  <h2 class="title">Бие биеэ нөхөх <em>сул төлөв</em></h2>
+  <div class="grid g2">
+    <div class="card accent"><div class="k">Дүрэм 1 · Хязгаарлалт → хувьсагч</div><h3 style="font-size:16px">Нөөц илүүдэлтэй бол үнэ нь тэг</h3><p>Хэрэв Анхдагчийн нэг хязгаарлалт <strong>сул</strong> (slack &gt; 0, нөөц бүрэн ашиглагдаагүй) байвал тэрхүү нөөцийн Хосмог хувьсагч (сүүдрийн үнэ) <strong>тэг</strong> байна.</p></div>
+    <div class="card accent"><div class="k">Дүрэм 2 · Хувьсагч → хязгаарлалт</div><h3 style="font-size:16px">Үйлдвэрлэж байгаа бол хязгаарлалт хатуу</h3><p>Хэрэв Анхдагчийн хувьсагч <strong>эерэг</strong> (x₁ &gt; 0, бүтээгдэхүүн үйлдвэрлэгдэж байгаа) бол түүнд харгалзах Хосмогийн хязгаарлалт <strong>яг тэнцүү (binding)</strong> байна.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Энгийн үгээр</div>
+    <p>«Нөөц дутагдалгүй, илүүдэлтэй бол тэр нөөцийн үнэ 0 байна — учир нь илүүдэлтэй зүйлийг нэмж авах хэрэггүй. Харин бүтээгдэхүүн бодитоор үйлдвэрлэгдэж байгаа бол түүнд орсон нөөцийн үнэ яг тэр бүтээгдэхүүний ашигтай тэнцэх ёстой.»</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.4.5 · Хэрэглээ → 7.6, 7.7</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 19. ИНТЕРАКТИВ 3 — БИЕ БИЕЭ НӨХӨХ ШАЛГУУР ══════════ -->
+<section class="slide" data-sec="7.4" id="csSlide" data-notes="5 минут. Карт бүрд эхлээд оюутнаас асуу: «Энэ нөөц үлдсэн үү?» Дараа нь товшуул. Гол ойлголт: «Модон урлал»-д ХОЁР нөөц ч бүрэн ашиглагдсан тул хоёр сүүдрийн үнэ ч эерэг гарсан. Хэрэв нэг нөөц илүүдэлтэй байсан бол түүний үнэ 0 байх байсан.">
+  <div class="s-tag">Интерактив · Бие биеэ нөхөх сул төлөвийн шалгуур</div>
+  <h2 class="title">Хос бүрийг <em>өөрөө шалга</em></h2>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:14px" id="csGrid">
+    <div class="d7-card" data-cs="1" data-ok="0">
+      <div class="d7-h">Хос 1 · Хязгаарлалт ↔ y₁</div>
+      <div class="d7-q">Мод: 4x₁+2x₂ ≤ <b>100</b><br>Оновчтой цэгт 4(20)+2(10) = <b>100</b></div>
+      <button class="d7-btn d7-opt" data-v="1">Тийм — нөөц үлдсэн (s₁ &gt; 0)</button>
+      <button class="d7-btn d7-opt" data-v="0">Үгүй — бүрэн ашиглагдсан (s₁ = 0)</button>
+      <div class="d7-a">s₁ = 0 тул хязгаарлалт <b>хатуу</b> → y₁ тэг байх албагүй. Бодит утга: <b>y₁ = 10,000₮</b> (эерэг).</div>
+    </div>
+    <div class="d7-card" data-cs="2" data-ok="0">
+      <div class="d7-h">Хос 2 · Хязгаарлалт ↔ y₂</div>
+      <div class="d7-q">Цаг: 2x₁+4x₂ ≤ <b>80</b><br>Оновчтой цэгт 2(20)+4(10) = <b>80</b></div>
+      <button class="d7-btn d7-opt" data-v="1">Тийм — нөөц үлдсэн (s₂ &gt; 0)</button>
+      <button class="d7-btn d7-opt" data-v="0">Үгүй — бүрэн ашиглагдсан (s₂ = 0)</button>
+      <div class="d7-a">s₂ = 0 тул хязгаарлалт <b>хатуу</b> → y₂ тэг байх албагүй. Бодит утга: <b>y₂ = 5,000₮</b> (эерэг).</div>
+    </div>
+    <div class="d7-card" data-cs="3" data-ok="1">
+      <div class="d7-h">Хос 3 · x₁ ↔ хязгаарлалт</div>
+      <div class="d7-q">Ширээ: оновчтой шийдэд <b>x₁ = 20</b>. Ширээ үйлдвэрлэгдэж байна уу?</div>
+      <button class="d7-btn d7-opt" data-v="1">Тийм — x₁ &gt; 0</button>
+      <button class="d7-btn d7-opt" data-v="0">Үгүй — x₁ = 0</button>
+      <div class="d7-a">x₁ &gt; 0 тул Хосмогийн 1-р хязгаарлалт <b>яг тэнцүү</b>: 4(10) + 2(5) = <b>50</b> ✓</div>
+    </div>
+    <div class="d7-card" data-cs="4" data-ok="1">
+      <div class="d7-h">Хос 4 · x₂ ↔ хязгаарлалт</div>
+      <div class="d7-q">Сандал: оновчтой шийдэд <b>x₂ = 10</b>. Сандал үйлдвэрлэгдэж байна уу?</div>
+      <button class="d7-btn d7-opt" data-v="1">Тийм — x₂ &gt; 0</button>
+      <button class="d7-btn d7-opt" data-v="0">Үгүй — x₂ = 0</button>
+      <div class="d7-a">x₂ &gt; 0 тул Хосмогийн 2-р хязгаарлалт <b>яг тэнцүү</b>: 2(10) + 4(5) = <b>40</b> ✓</div>
+    </div>
+  </div>
+  <div class="gamebar" style="margin-top:14px">
+    <span id="csScore">0 / 4 шалгагдсан</span>
+    <button id="csReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.4.5 → 7.6.6</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 20. 7.5 СҮҮДРИЙН ҮНЭ ══════════ -->
+<section class="slide" data-sec="7.5" data-notes="Практик хэсэг. Тоо: y₁ = 10,000₮, y₂ = 5,000₮. Зах зээлийн үнэ 8,000₮ бол авах (2,000₮ цэвэр ашиг), 15,000₮ бол авахгүй. Баруун доод хүснэгт нь мэдрэмжийн шинжилгээтэй уялдааг харуулна — сүүдрийн үнэ мөнхийн биш.">
+  <div class="s-tag">7.5.1–7.5.3 · Сүүдрийн үнэ ба Хосмог хувьсагч</div>
+  <h2 class="title">y<sub>i</sub> = <em>сүүдрийн үнэ</em></h2>
+  <div class="split wide">
+    <div>
+      <div class="def">
+        <div class="lbl">⚠ Маш чухал харилцаа</div>
+        <p><strong>yᵢ = Анхдагч хязгаарлалт i-ийн сүүдрийн үнэ.</strong> «Модон урлал»-ын жишээгээр: <strong>y₁ = модны сүүдрийн үнэ = 10</strong> (мянган төгрөгөөр), <strong>y₂ = цагийн сүүдрийн үнэ = 5</strong>. Утга нь: 1 м³ мод нэмэгдвэл ашиг <strong>10,000₮</strong> өснө.</p>
+      </div>
+      <p class="lead" style="font-size:15.5px;margin-top:12px">Сүүдрийн үнэ (Бүлэг 5.6.2) гэдэг нь хязгаарлалтын баруун тал (b) 1 нэгжээр нэмэгдэхэд Z хэдээр өөрчлөгдөхийг харуулна. Хосмог бодлогыг бодвол <strong>тусад нь тооцоолох шаардлагагүй</strong>.</p>
+    </div>
+    <div>
+      <div class="grid" style="gap:11px;margin-top:0">
+        <div class="card green"><div class="k">Зах зээлийн үнэ 8,000₮</div><p style="font-size:14.5px"><strong>→ Худалдан авах ашигтай.</strong> 10,000 &gt; 8,000 — нэмэлт мод бүр 10,000₮-ийн ашиг үүсгэх ба 8,000₮-өөр авбал <strong>2,000₮ цэвэр ашиг</strong> гарна.</p></div>
+        <div class="card"><div class="k">Зах зээлийн үнэ 15,000₮</div><p style="font-size:14.5px"><strong>→ Худалдан авахгүй байх нь дээр.</strong> 10,000 &lt; 15,000 — худалдан авалтын зардал нэмэгдэх ашгаас илүү гарна.</p></div>
+      </div>
+      <table class="t sm" style="margin-top:12px">
+        <thead><tr><th>Нөөц</th><th>Сүүдрийн үнэ (y)</th><th>Хүчинтэй муж (Бүлэг 5.6)</th></tr></thead>
+        <tbody>
+        <tr><td class="k">Мод (100 м³)</td><td>10,000₮</td><td>[40 – 160] м³</td></tr>
+        <tr><td class="k">Цаг (80 цаг)</td><td>5,000₮</td><td>[50 – 200] цаг</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.5.1–7.5.3 · 7.8.4 мэдрэмжийн шинжилгээтэй уялдаа</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 21. 7.6.1–7.6.4 ══════════ -->
+<section class="slide" data-sec="7.6" data-notes="Одоо бүх дүрмийг нэг дор хэрэглэнэ. Хосмог хэлбэрийг оюутнаар гараар бичүүл — 2 минут өг, дараа нь баруун талыг үзүүл. Мянган төгрөгийн тэмдэглэгээг заавал сануул: 50,000₮ → 50.">
+  <div class="s-tag">7.6.1–7.6.4 · «Модон урлал» ХХК-ийн хосмог хэлбэр</div>
+  <h2 class="title">Анхдагчаас <em>Хосмог</em> руу</h2>
+  <div class="split wide">
+    <div class="formula" style="margin-top:0">
+      <div class="fl">
+        <span style="font-size:14px;color:rgba(255,255,255,.6)">Анхдагч (7.6.1)</span><br>
+        max Z = <span class="c">50000</span>x₁ + <span class="c">40000</span>x₂<br>
+        4x₁ + 2x₂ <span class="op">≤</span> <span class="c">100</span> &nbsp;(мод)<br>
+        2x₁ + 4x₂ <span class="op">≤</span> <span class="c">80</span> &nbsp;(цаг)<br>
+        x₁, x₂ <span class="op">≥ 0</span>
+      </div>
+      <div class="cap">2 хувьсагч · 2 хязгаарлалт</div>
+    </div>
+    <div class="formula" style="margin-top:0">
+      <div class="fl">
+        <span style="font-size:14px;color:rgba(255,255,255,.6)">Хосмог (7.6.2)</span><br>
+        min W = <span class="c">100</span>y₁ + <span class="c">80</span>y₂<br>
+        4y₁ + 2y₂ <span class="op">≥</span> <span class="c">50000</span> &nbsp;(ширээ)<br>
+        2y₁ + 4y₂ <span class="op">≥</span> <span class="c">40000</span> &nbsp;(сандал)<br>
+        y₁, y₂ <span class="op">≥ 0</span>
+      </div>
+      <div class="cap">⚠ Цаашид бүх мөнгөн дүнг мянган төгрөгөөр (50,000₮ → 50)</div>
+    </div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card accent"><div class="k">7.6.3 · Хувьсагчийн утга</div><p style="font-size:14.5px"><strong>y₁</strong> = модны 1 м³-ийн сүүдрийн үнэ · <strong>y₂</strong> = 1 цагийн сүүдрийн үнэ. Зорилго: компанийн бүх нөөцийг хамгийн бага хэдэн төгрөгөөр «зөв» үнэлж болохыг олох.</p></div>
+    <div class="card accent"><div class="k">7.6.4 · Яагаад «≥» вэ?</div><p style="font-size:14.5px">1 ширээ хийхэд шаардагдах нөөцийн нийт үнэлгээ 1 ширээнээс олох ашгаас <strong>доогуур байж болохгүй</strong> — эс тэгвэл бүтээгдэхүүн хийхийн оронд нөөцийг шууд зарах нь ашигтай болно.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.6.1–7.6.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 22. 7.6.5 ГРАФИК ══════════ -->
+<section class="slide" data-sec="7.6" data-notes="Гол ялгаа: «≥» тэмдэгтэй тул боломжит муж координатын эхээс ЗАЙДУУ, дээш чиглэсэн ХЯЗГААРГҮЙ муж болно. Хамгийн бага W хайж байгаа тул шийд нь мужийн ДООД ирмэг дээрх оройн цэг дээр байрлана. Огтлолцлын тооцоог самбарт дахин хий.">
+  <div class="s-tag">7.6.5 · Хосмог бодлогыг графикаар шийдэх</div>
+  <h2 class="title">Хязгааргүй муж, <em>доод ирмэг</em></h2>
+  <div class="split wide">
+    <div class="plotbox" style="margin-top:0">
+      <svg id="dualPlot" viewBox="0 0 430 300" style="width:100%;height:auto"></svg>
+      <div class="cap">Зураг 7.1 · Хосмог бодлогын боломжит муж ба оновчтой цэг (10, 5)</div>
+    </div>
+    <div>
+      <table class="t sm" style="margin-top:0">
+        <thead><tr><th>Оройн цэг (y₁, y₂)</th><th>W = 100y₁ + 80y₂</th></tr></thead>
+        <tbody>
+        <tr><td class="k">(0, 25) — зөвхөн 1-р хязгаарлалт хатуу</td><td>100×0 + 80×25 = 2,000 (мянга)</td></tr>
+        <tr><td class="k">(20, 0) — зөвхөн 2-р хязгаарлалт хатуу</td><td>100×20 + 80×0 = 2,000 (мянга)</td></tr>
+        <tr><td class="k">(10, 5) — хоёр хязгаарлалт зэрэг хатуу</td><td><strong>1,400 (мянга) ← оновчтой (min)</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="def" style="margin-top:12px">
+        <div class="lbl">Огтлолцлын цэгийг олох</div>
+        <p>4y₁ + 2y₂ = 50 ба 2y₁ + 4y₂ = 40. Эхнийхийг 2-оор үржүүлбэл 8y₁ + 4y₂ = 100; хоёр дахийг хасвал <strong>6y₁ = 60 ⟹ y₁ = 10</strong>; дараа нь 4(10) + 2y₂ = 50 ⟹ <strong>y₂ = 5</strong>.<br>Оновчтой шийд: <strong>y₁ = 10,000₮, y₂ = 5,000₮, W = 1,400,000₮</strong>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.6.5 · Зураг 7.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 23. 7.6.6–7.6.8 ══════════ -->
+<section class="slide" data-sec="7.6" data-notes="Хичээлийн оргил цэг. Z* = W* = 1,400,000₮ — самбарт том бич. Бие биеэ нөхөх сул төлөвийн шалгалт нь 19-р слайдын интерактивын алгебр баталгаа. Захиралд өгөх зөвлөгөөг чангаар уншуул.">
+  <div class="s-tag">7.6.6–7.6.8 · Z = W шалгах ба эдийн засгийн шийдвэр</div>
+  <h2 class="title">Z* = W* = <em>1,400,000₮</em></h2>
+  <div class="grid g2">
+    <table class="t sm" style="margin-top:0">
+      <thead><tr><th>Бүлэг</th><th>Арга</th><th>Оновчтой утга</th></tr></thead>
+      <tbody>
+      <tr><td class="k">5.5</td><td>Анхдагч — симплекс арга</td><td>Z* = 1,400,000₮</td></tr>
+      <tr><td class="k">7.6</td><td>Хосмог — графикийн арга</td><td>W* = 1,400,000₮</td></tr>
+      </tbody>
+    </table>
+    <table class="t sm" style="margin-top:0">
+      <thead><tr><th>Бие биеэ нөхөх шалгалт</th><th>Орлуулга</th><th>Үр дүн</th></tr></thead>
+      <tbody>
+      <tr><td class="k">1-р хязгаарлалт (ширээ)</td><td>4(10) + 2(5)</td><td>= 50 ✓ (хатуу)</td></tr>
+      <tr><td class="k">2-р хязгаарлалт (сандал)</td><td>2(10) + 4(5)</td><td>= 40 ✓ (хатуу)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="lead" style="font-size:15.5px;margin-top:14px">Анхдагч дахь x₁ = 20 &gt; 0, x₂ = 10 &gt; 0 тул Хосмогийн хоёр хязгаарлалт хоёулаа хатуу байх ёстой — <strong>Бие биеэ нөхөх сул төлөвийн теорем алгебрын хувьд бүрэн шалгагдлаа.</strong> Мөн s₁ = s₂ = 0 (хоёр нөөц бүрэн ашиглагдсан) тул y₁, y₂ аль нь ч 0 биш.</p>
+  <div class="def">
+    <div class="lbl">7.6.8 · Захиралд өгөх эцсийн зөвлөгөө</div>
+    <p>«Манай бүх нөөц яг одоо <strong>1.4 сая төгрөг</strong> үйлдвэрлэж байна. Хэн нэгэн бүх нөөцийг маань худалдаж авъя гэвэл бид хамгийн багадаа 1.4 сая нэхэх ёстой. Модыг <strong>10,000₮-өөс бага</strong> үнээр авах боломжтой бол шууд авах хэрэгтэй; цагийн нэмэлт хөлс <strong>5,000₮-өөс бага</strong> бол илүү цагаар ажиллуулах нь ашигтай.»</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.6.6–7.6.8</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 24. 7.7.1–7.7.2 ══════════ -->
+<section class="slide" data-sec="7.7" data-notes="Шинэ кейс — ажилчны хөлс. Захирлын асуулт хоёр талтай гэдгийг онцол: (1) юу үйлдвэрлэх вэ — Анхдагч, (2) 1 цагийн ажил хэдэн төгрөгийн үнэ цэнтэй вэ — Хосмог. Оройн цэгүүдийг оюутнаар шалгуул.">
+  <div class="s-tag">7.7.1–7.7.2 · Кейс: «Од Тоглоом» ХХК</div>
+  <h2 class="title">Ажилчны хөлсний <em>хосмог бодлого</em></h2>
+  <div class="split wide">
+    <div>
+      <p class="lead" style="font-size:15.5px">«Од Тоглоом» ХХК робот ба хүүхэлдэй тоглоом үйлдвэрлэдэг. <strong>Инженер</strong> долоо хоногт дээд тал нь <strong>40 цаг</strong>, <strong>энгийн ажилчин 45 цаг</strong> ажиллана. 1 робот = 2 инженер цаг + 1 ажилчны цаг, ашиг <strong>80,000₮</strong>. 1 хүүхэлдэй = 1 инженер цаг + 3 ажилчны цаг, ашиг <strong>60,000₮</strong>.</p>
+      <div class="def">
+        <div class="lbl">Захирлын хоёр талт асуулт</div>
+        <p>(1) Юу хэдийг үйлдвэрлэх вэ? (2) Инженер ба ажилчны 1 цагийн ажил хэдэн төгрөгийн үнэ цэнтэй вэ?</p>
+      </div>
+      <table class="t sm" style="margin-top:12px">
+        <thead><tr><th>Оройн цэг</th><th>Z (мянга)</th></tr></thead>
+        <tbody>
+        <tr><td class="k">(0, 0) · (0, 15) · (20, 0)</td><td>0 · 900 · 1,600</td></tr>
+        <tr><td class="k">(15, 10) — огтлолцол</td><td><strong>1,800 ← оновчтой</strong></td></tr>
+        </tbody>
+      </table>
+      <p class="lead" style="font-size:14.5px;margin-top:10px">Оновчтой цэгт 2(15)+10 = <strong>40</strong> ба 15+3(10) = <strong>45</strong> — хоёр нөөц ч бүрэн ашиглагдсан. Энэ нь <strong>Бие биеэ нөхөх сул төлөвийн теоремыг</strong> хэрэглэх боломж өгнө.</p>
+    </div>
+    <div>
+      <div class="formula" style="margin-top:0">
+        <div class="fl">
+          <span style="font-size:14px;color:rgba(255,255,255,.6)">Анхдагч (7.7.2) · мянган төгрөг</span><br>
+          max Z = <span class="c">80</span>x₁ + <span class="c">60</span>x₂<br>
+          2x₁ + 1x₂ <span class="op">≤</span> <span class="c">40</span> &nbsp;(инженерийн цаг)<br>
+          1x₁ + 3x₂ <span class="op">≤</span> <span class="c">45</span> &nbsp;(ажилчны цаг)<br>
+          x₁, x₂ <span class="op">≥ 0</span>
+        </div>
+        <div class="cap">x₁ = робот · x₂ = хүүхэлдэй · оновчтой шийд: x₁ = 15, x₂ = 10, Z = 1,800,000₮</div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.7.1–7.7.2 · Z = 1,800,000₮</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 25. 7.7.3–7.7.5 + 7.8 ══════════ -->
+<section class="slide" data-sec="7.7" data-notes="Системийг самбарт бод: y₂ = 80 − 2y₁ → y₁ + 3(80 − 2y₁) = 60 → −5y₁ = −180 → y₁ = 36, y₂ = 8. Дараа нь менежментийн дүгнэлт: инженерийн 1 цаг 36,000₮, ажилчных 8,000₮. Энэ бол шударга хөлсний тоон үндэслэл.">
+  <div class="s-tag">7.7.3–7.7.5 · Хосмог бодлого ба шударга хөлс</div>
+  <h2 class="title">Инженерийн 1 цаг = <em>36,000₮</em></h2>
+  <div class="split wide">
+    <div class="formula" style="margin-top:0">
+      <div class="fl">
+        min W = <span class="c">40</span>y₁ + <span class="c">45</span>y₂<br>
+        2y₁ + 1y₂ <span class="op">≥</span> <span class="c">80</span> &nbsp;(робот)<br>
+        1y₁ + 3y₂ <span class="op">≥</span> <span class="c">60</span> &nbsp;(хүүхэлдэй)<br>
+        y₁, y₂ <span class="op">≥ 0</span><br>
+        <span style="font-size:15px;color:rgba(255,255,255,.72)">x₁ &gt; 0, x₂ &gt; 0 тул хоёр хязгаарлалт хатуу:</span><br>
+        y₁ = <span class="c">36</span> &nbsp;·&nbsp; y₂ = <span class="c">8</span> &nbsp;·&nbsp; <span class="op">W = 40(36) + 45(8) = 1,800</span>
+      </div>
+      <div class="cap">Z* = 1,800,000₮ = W* ✓ — хосмогийн үндсэн теорем дахин баталгаажлаа</div>
+    </div>
+    <div>
+      <div class="grid" style="gap:11px;margin-top:0">
+        <div class="card green"><div class="k">Шударга цалингийн үндэс</div><p style="font-size:14.5px">Инженерийн 1 цагийн бодит үр өгөөж <strong>36,000₮</strong>, энгийн ажилчных <strong>8,000₮</strong> — үндсэн ба илүү цагийн хөлс тогтоох тоон үндэслэл.</p></div>
+        <div class="card accent"><div class="k">Зардлыг оновчлох</div><p style="font-size:14.5px">Гаднаас нэмэлт инженер хөлслөх зардал цагт <strong>36,000₮-өөс бага</strong> бол хөлслөх нь ашигтай; их бол ашиггүй.</p></div>
+        <div class="card accent"><div class="k">7.8 · Бизнесийн шийдвэрт</div><p style="font-size:14.5px">Нөөцийн үнэлгээ · худалдан авалт ба илүүдэл нөөц зарах доод үнэ · төслүүдийн харьцуулалт · мэдрэмжийн шинжилгээтэй хослох.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.7.3–7.7.5 · 7.8</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 26. ДӨРВӨН ЗАМ — НЭГ ТОО ══════════ -->
+<section class="slide" data-sec="—" data-notes="Бүлгийн гоо сайхны цэг. Дөрвөн огт өөр математик зам нэг л 1,400,000₮ дээр нийлж байна. Урвуу матрицын тооцоог самбарт дахин хий — y = cᵦᵀ × A⁻¹ нь симплексийн Z мөртэй яг таарна.">
+  <div class="s-tag">7.5.4 · Гурван арга, нэг тоо</div>
+  <h2 class="title">Дөрвөн зам — <em>нэг тоо</em></h2>
+  <div class="split wide">
+    <div class="formula" style="margin-top:0">
+      <div class="fl" style="font-size:17px;line-height:1.9">
+        A⁻¹ = [ <span class="c">1/3</span> &nbsp; <span class="c">−1/6</span> ; &nbsp; <span class="c">−1/6</span> &nbsp; <span class="c">1/3</span> ] &nbsp;·&nbsp; cᵦᵀ = [50000, 40000]<br>
+        <span class="op">y = cᵦᵀ × A⁻¹</span><br>
+        y₁ = 50000×(1/3) + 40000×(−1/6) = 16666.7 − 6666.7 = <span class="c">10,000₮</span><br>
+        y₂ = 50000×(−1/6) + 40000×(1/3) = −8333.3 + 13333.3 = <span class="c">5,000₮</span>
+      </div>
+      <div class="cap">Симплекс, Хосмог бодлого, урвуу матриц — гурван арга нэг л тоог өгч байна</div>
+    </div>
+    <div>
+      <table class="t sm" style="margin-top:0">
+        <thead><tr><th>Бүлэг</th><th>Арга</th><th>x₁</th><th>x₂</th><th>Ашиг / Үнэлгээ</th></tr></thead>
+        <tbody>
+        <tr><td class="k">3.5</td><td>Графикийн арга</td><td>20</td><td>10</td><td>Z = 1,400,000₮</td></tr>
+        <tr><td class="k">4.6</td><td>Матрицын арга (AX = B)</td><td>20</td><td>10</td><td>Z = 1,400,000₮</td></tr>
+        <tr><td class="k">5.5</td><td>Симплекс арга</td><td>20</td><td>10</td><td>Z = 1,400,000₮</td></tr>
+        <tr><td class="k">7.6</td><td>Хосмог (y₁ = 10, y₂ = 5)</td><td>—</td><td>—</td><td>W = 1,400,000₮</td></tr>
+        </tbody>
+      </table>
+      <p class="lead" style="font-size:15px;margin-top:12px">Дөрвөн огт өөр математик зам — гурав нь «юу үйлдвэрлэх вэ», нэг нь «нөөц хэдэн төгрөг үнэтэй вэ» гэдгийг хайсан ч — эцэст нь <strong>яг ижил 1,400,000₮ дээр нийлж байна.</strong></p>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7.5.4 · Дөрвөн аргын нэгдсэн харьцуулалт</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 27. ГОЛ САНАА ══════════ -->
+<section class="slide" data-sec="—" data-notes="Таван гол санаа. Оюутнаар нэг бүрчлэн давтуулж хэлүүл. Ялангуяа 3 ба 4-ийг — шалгалтад заавал орно.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Таван гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt">Аливаа <b>Анхдагч бодлогын</b> цаана математикийн хатуу дүрмээр холбогдсон <b>Хосмог бодлого</b> үргэлж оршдог — нэг зоосны толгой ба сүүл.</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt">Хосмогийг <b>дөрвөн алхмаар</b> байгуулна: max ↔ min · хувьсагч ↔ хязгаарлалт · тэмдгийн эсрэг харилцаа · коэффициент байраа солих (A → <b>Aᵀ</b>).</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt"><b>Сул хосмогийн теорем</b>: боломжит шийдүүдийн хувьд үргэлж Z ≤ W. <b>Хүчтэй хосмогийн теорем</b>: оновчтой цэгт <b>Z* = W*</b>.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt"><b>Бие биеэ нөхөх сул төлөвийн теорем</b>: нөөц илүүдэлтэй бол түүний сүүдрийн үнэ 0; бүтээгдэхүүн үйлдвэрлэгдэж байвал харгалзах хосмог хязгаарлалт хатуу.</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt">Хосмог хувьсагч <b>y = Сүүдрийн үнэ</b>. «Модон урлал»: y₁ = 10,000₮, y₂ = 5,000₮, <b>Z* = W* = 1,400,000₮</b>. «Од Тоглоом»: y₁ = 36,000₮, y₂ = 8,000₮, <b>Z* = W* = 1,800,000₮</b>.</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 7 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 28. ТӨГСГӨЛ ══════════ -->
+<section class="slide closing dark" data-sec="—" data-notes="Дараагийн 1.5 цаг — дадлага: Дасгал 1, 3, 5, 7. Дараагийн долоо хоног Бүлэг 8: тээврийн бодлого, MODI аргын u, v хувьсагч нь мөн адил Хосмог хувьсагчийн онцгой хэлбэр (Бүлэг 8.5.1).">
+  <h2>Симплексээр нэг тооцоолол хийхдээ та <em>хоёр бодлого</em> бодож байсан.<br>Одоо та түүнийг <em>харж</em> чадна.</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    Бүлэг 8-т тээврийн бодлогыг үзнэ — MODI аргад ашиглагдах u, v хувьсагч нь мөн адил Хосмог хувьсагчийн нэгэн онцгой хэлбэр гэдгийг Бүлэг 8.5.1-т дэлгэрэнгүй үзнэ.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 8.1–8.3</span>
+    <span>🔗 LP Suite → Хэрэгсэл → duality</span>
+  </div>
+</section>
+
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 28</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+window.DECK = {
+  lesson: 'Хичээл 12',
+  course: 'Бүлэг 7 — Хосмог бодлого (Duality)',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'7.1',  label:'Танилцуулга'},
+    {k:'7.2',  label:'Анхдагч ба Хосмог'},
+    {k:'7.3',  label:'Байгуулах дүрэм'},
+    {k:'7.4',  label:'Үндсэн теорем'},
+    {k:'7.5',  label:'Сүүдрийн үнэ'},
+    {k:'7.6',  label:'Модон урлал'},
+    {k:'7.7',  label:'Кейс'},
+    {k:'end',  label:'Дүгнэлт'}
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Өнөөдрийн хичээл'},
+    {p:'intro', s:'Сурах зорилт'},
+    {p:'7.1',   s:'7.1 · Хосмог бодлогын танилцуулга'},
+    {p:'7.1',   s:'7.1.1 · Хосмог бодлого гэж юу вэ?'},
+    {p:'7.1',   s:'7.1.2 · Түүхэн үүсэл'},
+    {p:'7.1',   s:'7.1.3–7.1.4 · Ач холбогдол'},
+    {p:'7.2',   s:'7.2.2–7.2.4 · Нэг бодлого, хоёр нүд'},
+    {p:'7.3',   s:'7.3 · Байгуулах дүрэм'},
+    {p:'7.3',   s:'7.3.1–7.3.2 · Ерөнхий дүрэм'},
+    {p:'7.3',   s:'Интерактив · Анхдагч → Хосмог хөрвүүлэгч'},
+    {p:'7.3',   s:'7.3.3–7.3.4 · Тэмдгийн эсрэг харилцаа'},
+    {p:'7.3',   s:'Интерактив · Мэдлэг шалгах тест'},
+    {p:'7.4',   s:'7.4 · Хосмогийн үндсэн теорем'},
+    {p:'7.4',   s:'7.4.1–7.4.2 · Z* = W*'},
+    {p:'7.4',   s:'7.4.3–7.4.4 · Сул ба хүчтэй хосмог'},
+    {p:'7.4',   s:'Интерактив · Теорем шалгагч'},
+    {p:'7.4',   s:'7.4.5 · Бие биеэ нөхөх сул төлөв'},
+    {p:'7.4',   s:'Интерактив · Бие биеэ нөхөх шалгуур'},
+    {p:'7.5',   s:'7.5 · Сүүдрийн үнэ ба Хосмог хувьсагч'},
+    {p:'7.6',   s:'7.6.1–7.6.4 · Хосмог хэлбэр'},
+    {p:'7.6',   s:'7.6.5 · Графикаар шийдэх'},
+    {p:'7.6',   s:'7.6.6–7.6.8 · Z = W шалгах'},
+    {p:'7.7',   s:'7.7.1–7.7.2 · Од Тоглоом ХХК'},
+    {p:'7.7',   s:'7.7.3–7.7.5 · Хосмог ба шударга хөлс'},
+    {p:'end',   s:'7.5.4 · Дөрвөн зам — нэг тоо'},
+    {p:'end',   s:'Бүлгийн хураангуй'},
+    {p:'end',   s:''}
+  ]
+};
+</script>
+
+<script>
+/* ═════════ ИНТЕРАКТИВ 1 · Анхдагч → Хосмог хөрвүүлэгч ═════════ */
+(function(){
+  if(!document.getElementById('convSlide')) return;
+  var cur = 0;
+  var TXT = [
+    'Товчоо дарж Хосмог бодлогыг алхам алхмаар угсарна уу.',
+    '<b>Алхам 1.</b> max ↔ min шилжинэ. Анхдагч бодлого <b>max</b> тул Хосмог нь <b>min</b> болно.',
+    '<b>Алхам 2.</b> Хязгаарлалт → хувьсагч. Анхдагчийн 2 хязгаарлалт (мод, цаг) Хосмогийн 2 хувьсагч <b>y₁, y₂</b> болов.',
+    '<b>Алхам 3.</b> Коэффициентийн матриц хөрвүүлэгдэнэ: мөр ↔ багана. Мөр нь «мод, цаг» байснаа «x₁, x₂» болж, багана нь «y₁, y₂» болов. (Энэ жишээнд A тэгш хэмтэй тул Aᵀ = A — гэхдээ зарчим хэвээр.)',
+    '<b>Алхам 4.</b> Коэффициентүүд байраа солино: b = (100, 80) → Хосмогийн <b>зорилгын функц</b>; c = (50000, 40000) → Хосмогийн <b>баруун гар тал</b>.',
+    '<b>Алхам 5.</b> ≤ → ≥ болно. Хосмог бодлого бэлэн: <b>min W = 100y₁ + 80y₂</b>, 4y₁+2y₂ ≥ 50000, 2y₁+4y₂ ≥ 40000, y₁, y₂ ≥ 0.'
+  ];
+  var $ = function(id){ return document.getElementById(id); };
+  var cells = {c00:$('c00'), c01:$('c01'), c10:$('c10'), c11:$('c11')};
+  var P = [[0,0],[0,1],[1,0],[1,1]];
+  function place(k, r, c, mv){
+    var el = cells[k];
+    el.style.left = (62 + c*62) + 'px';
+    el.style.top  = (26 + r*62) + 'px';
+    el.className = 'd7-cell' + (mv ? ' mv' : '');
+  }
+  function hl(el, on){ if(el) el.className = on ? 'hl' : ''; }
+  function render(){
+    /* Анхдагч талын тодруулга */
+    hl($('cvMax'), cur === 1);
+    hl($('cvC1'), cur === 4); hl($('cvC2'), cur === 4);
+    hl($('cvB1'), cur === 2 || cur === 4); hl($('cvB2'), cur === 2 || cur === 4);
+    hl($('cvA11'), cur === 3); hl($('cvA12'), cur === 3);
+    hl($('cvA21'), cur === 3); hl($('cvA22'), cur === 3);
+    var les = document.querySelectorAll('#convSlide .cvLe');
+    for(var i=0;i<les.length;i++) les[i].className = 'cvLe' + (cur === 5 ? ' hl' : '');
+
+    /* Матриц */
+    var t = cur >= 3;
+    place('c00', 0, 0, false);
+    place('c11', 1, 1, false);
+    place('c01', t ? 1 : 0, t ? 0 : 1, t);
+    place('c10', t ? 0 : 1, t ? 1 : 0, t);
+    $('lbC0').textContent = t ? 'y₁' : 'x₁';
+    $('lbC1').textContent = t ? 'y₂' : 'x₂';
+    $('lbR0').textContent = t ? 'x₁' : 'мод';
+    $('lbR1').textContent = t ? 'x₂' : 'цаг';
+
+    /* Хосмог тал */
+    $('dr1').className = 'd7-row' + (cur >= 1 ? ' sh' : '');
+    $('dr2').className = 'd7-row' + (cur >= 2 ? ' sh' : '');
+    $('dr3').className = 'd7-row' + (cur >= 2 ? ' sh' : '');
+    $('dr4').className = 'd7-row' + (cur >= 2 ? ' sh' : '');
+    $('dvB').textContent = cur >= 4 ? '100y₁ + 80y₂' : '…';
+    $('dc1').textContent = cur >= 4 ? '50000' : '…';
+    $('dc2').textContent = cur >= 4 ? '40000' : '…';
+    $('ds1').textContent = cur >= 5 ? '≥' : (cur >= 2 ? '?' : '…');
+    $('ds2').textContent = cur >= 5 ? '≥' : (cur >= 2 ? '?' : '…');
+    $('dvTag').textContent = cur >= 2 ? '2 хувьсагч (y₁, y₂) · 2 хязгаарлалт' : '—';
+
+    $('cvTxt').innerHTML = TXT[cur];
+    var bs = document.querySelectorAll('#convSlide [data-cv]');
+    for(var j=0;j<bs.length;j++)
+      bs[j].className = 'd7-btn' + (+bs[j].dataset.cv <= cur ? ' on' : '');
+  }
+  document.querySelectorAll('#convSlide [data-cv]').forEach(function(b){
+    b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    b.addEventListener('click', function(){ cur = +b.dataset.cv; render(); });
+  });
+  $('cvNext').addEventListener('mousedown', function(e){ e.preventDefault(); });
+  $('cvNext').addEventListener('click', function(){ cur = cur >= 5 ? 5 : cur + 1; render(); });
+  $('cvReset').addEventListener('mousedown', function(e){ e.preventDefault(); });
+  $('cvReset').addEventListener('click', function(){ cur = 0; render(); });
+  render();
+})();
+
+/* ═════════ ИНТЕРАКТИВ 2 · Сул/хүчтэй хосмогийн теорем шалгагч ═════════ */
+(function(){
+  if(!document.getElementById('wdSlide')) return;
+  var $ = function(id){ return document.getElementById(id); };
+  var svg = $('wdPlot');
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(n, a){ var e = document.createElementNS(NS, n); for(var k in a) e.setAttribute(k, a[k]); return e; }
+  function fmt(v){ return v.toLocaleString('en-US'); }
+  var MAXV = 2500;                       /* мянган төгрөг */
+  function px(v){ return 40 + v * (1000 / MAXV); }
+
+  function draw(Z, W, pOk, dOk){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    var axY = 56;
+    svg.appendChild(el('line', {x1:40, y1:axY, x2:1040, y2:axY, stroke:'var(--line-strong)', 'stroke-width':2}));
+    for(var v=0; v<=MAXV; v+=500){
+      svg.appendChild(el('line', {x1:px(v), y1:axY, x2:px(v), y2:axY+7, stroke:'var(--line-strong)', 'stroke-width':1.5}));
+      var t = el('text', {x:px(v), y:axY+24, 'text-anchor':'middle', fill:'var(--ink-mute)', 'font-size':'13', 'font-family':'var(--mono)'});
+      t.textContent = (v/1000).toFixed(1) + ' сая';
+      svg.appendChild(t);
+    }
+    if(pOk && dOk && W >= Z){
+      svg.appendChild(el('rect', {x:px(Z), y:axY-9, width:Math.max(px(W)-px(Z),1), height:18,
+        fill:'var(--indigo-bg)', stroke:'var(--indigo)', 'stroke-width':1, rx:4}));
+      if(W - Z > 60){
+        var g = el('text', {x:(px(Z)+px(W))/2, y:axY+5, 'text-anchor':'middle', fill:'var(--indigo)',
+          'font-size':'13', 'font-family':'var(--mono)'});
+        g.textContent = 'зөрүү ' + fmt((W-Z)*1000) + '₮';
+        svg.appendChild(g);
+      }
+    }
+    function mark(v, color, label, up, ok){
+      var x = px(v);
+      var y1 = up ? axY-10 : axY+10, y2 = up ? axY-30 : axY+30;
+      svg.appendChild(el('line', {x1:x, y1:y1, x2:x, y2:y2, stroke:color, 'stroke-width':3,
+        opacity: ok ? 1 : .35}));
+      svg.appendChild(el('circle', {cx:x, cy:y1, r:6, fill:color, opacity: ok ? 1 : .35}));
+      var t = el('text', {x:x, y: up ? y2-8 : y2+16, 'text-anchor':'middle', fill:color,
+        'font-size':'15', 'font-weight':'600', 'font-family':'var(--mono)', opacity: ok ? 1 : .4});
+      t.textContent = label;
+      svg.appendChild(t);
+    }
+    mark(Z, 'var(--green)', 'Z = ' + fmt(Z*1000) + '₮', true, pOk);
+    mark(W, 'var(--gold)', 'W = ' + fmt(W*1000) + '₮', false, dOk);
+  }
+
+  function upd(){
+    var x1 = +$('wsx1').value, x2 = +$('wsx2').value;
+    var y1 = +$('wsy1').value, y2 = +$('wsy2').value;
+    $('wx1').textContent = x1; $('wx2').textContent = x2;
+    $('wy1').textContent = y1; $('wy2').textContent = y2;
+    var Z = 50*x1 + 40*x2, W = 100*y1 + 80*y2;
+    var pOk = (4*x1 + 2*x2 <= 100) && (2*x1 + 4*x2 <= 80);
+    var dOk = (4*y1 + 2*y2 >= 50) && (2*y1 + 4*y2 >= 40);
+    $('wZ').textContent = fmt(Z*1000);
+    $('wW').textContent = fmt(W*1000);
+    $('wpF').className = 'd7-fl ' + (pOk ? 'y' : 'n');
+    $('wpF').textContent = pOk ? 'боломжит ✓' : 'боломжит биш ✗';
+    $('wdF').className = 'd7-fl ' + (dOk ? 'y' : 'n');
+    $('wdF').textContent = dOk ? 'боломжит ✓' : 'боломжит биш ✗';
+    var m;
+    if(!pOk || !dOk){
+      m = '<b style="color:var(--rust)">Теорем зөвхөн БОЛОМЖИТ шийдүүдэд хүчинтэй.</b> Улаан тэмдэгтэй талаа боломжит муж руу буцаана уу.';
+    } else if(Z === W){
+      m = '<b>Z = W = ' + fmt(Z*1000) + '₮ — хүчтэй хосмогийн теорем!</b> Хоёр тоо нийлж, хоёр бодлого хоёулаа оновчтой шийддээ хүрлээ.';
+    } else {
+      m = '<b>Z ≤ W ✓</b> — сул хосмогийн теорем биелж байна. Зөрүү: ' + fmt((W-Z)*1000) + '₮. Z-г W-ээс их болгож үзээрэй — боломжгүй.';
+    }
+    $('wdTxt').innerHTML = m;
+    draw(Z, W, pOk, dOk);
+  }
+  ['wsx1','wsx2','wsy1','wsy2'].forEach(function(id){
+    $(id).addEventListener('input', upd);
+  });
+  $('wdOpt').addEventListener('mousedown', function(e){ e.preventDefault(); });
+  $('wdOpt').addEventListener('click', function(){
+    $('wsx1').value = 20; $('wsx2').value = 10;
+    $('wsy1').value = 10; $('wsy2').value = 5;
+    upd();
+  });
+  upd();
+})();
+
+/* ═════════ ИНТЕРАКТИВ 3 · Бие биеэ нөхөх сул төлөвийн шалгуур ═════════ */
+(function(){
+  if(!document.getElementById('csSlide')) return;
+  var done = 0;
+  var cards = document.querySelectorAll('#csGrid .d7-card');
+  function score(){
+    document.getElementById('csScore').textContent = done + ' / 4 шалгагдсан';
+  }
+  cards.forEach(function(card){
+    var ok = card.dataset.ok;
+    var ans = card.querySelector('.d7-a');
+    var btns = card.querySelectorAll('.d7-opt');
+    btns.forEach(function(b){
+      b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      b.addEventListener('click', function(){
+        if(card.classList.contains('done')) return;
+        card.classList.add('done');
+        btns.forEach(function(o){
+          o.className = 'd7-btn d7-opt ' + (o.dataset.v === ok ? 'ok' : (o === b ? 'bad' : ''));
+        });
+        ans.classList.add('sh');
+        done++; score();
+      });
+    });
+  });
+  document.getElementById('csReset').addEventListener('mousedown', function(e){ e.preventDefault(); });
+  document.getElementById('csReset').addEventListener('click', function(){
+    done = 0; score();
+    cards.forEach(function(card){
+      card.classList.remove('done');
+      card.querySelector('.d7-a').classList.remove('sh');
+      card.querySelectorAll('.d7-opt').forEach(function(o){ o.className = 'd7-btn d7-opt'; });
+    });
+  });
+  score();
+})();
+
+/* ═════════ ИНТЕРАКТИВ 4 · Мэдлэг шалгах тест ═════════ */
+(function(){
+  if(!document.getElementById('quizSlide')) return;
+  var right = 0;
+  var cards = document.querySelectorAll('#quizGrid .d7-card');
+  function score(){
+    document.getElementById('quizScore').textContent = right + ' / 3 зөв';
+  }
+  cards.forEach(function(card){
+    var ans = card.querySelector('.d7-a');
+    var btns = card.querySelectorAll('.d7-opt');
+    btns.forEach(function(b){
+      b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      b.addEventListener('click', function(){
+        if(card.classList.contains('done')) return;
+        card.classList.add('done');
+        btns.forEach(function(o){
+          o.className = 'd7-btn d7-opt ' + (o.dataset.ok === '1' ? 'ok' : (o === b ? 'bad' : ''));
+        });
+        ans.classList.add('sh');
+        if(b.dataset.ok === '1') right++;
+        score();
+      });
+    });
+  });
+  document.getElementById('quizReset').addEventListener('mousedown', function(e){ e.preventDefault(); });
+  document.getElementById('quizReset').addEventListener('click', function(){
+    right = 0; score();
+    cards.forEach(function(card){
+      card.classList.remove('done');
+      card.querySelector('.d7-a').classList.remove('sh');
+      card.querySelectorAll('.d7-opt').forEach(function(o){ o.className = 'd7-btn d7-opt'; });
+    });
+  });
+  score();
+})();
+
+/* ═════════ Зураг 7.1 · Хосмог бодлогын боломжит муж ═════════ */
+(function(){
+  var svg = document.getElementById('dualPlot');
+  if(!svg) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(n, a, txt){
+    var e = document.createElementNS(NS, n);
+    for(var k in a) e.setAttribute(k, a[k]);
+    if(txt !== undefined) e.textContent = txt;
+    return e;
+  }
+  function sx(v){ return 46 + v * (354/25); }
+  function sy(v){ return 250 - v * (230/30); }
+
+  /* боломжит муж */
+  svg.appendChild(el('polygon', {
+    points: [sx(0)+','+sy(25), sx(10)+','+sy(5), sx(20)+','+sy(0), sx(25)+','+sy(0),
+             sx(25)+','+sy(30), sx(0)+','+sy(30)].join(' '),
+    fill:'var(--green)', 'fill-opacity':'.13', stroke:'var(--green)', 'stroke-width':1, 'stroke-dasharray':'3 3'}));
+
+  /* тэнхлэг */
+  svg.appendChild(el('line', {x1:sx(0), y1:sy(0), x2:sx(25), y2:sy(0), stroke:'var(--line-strong)', 'stroke-width':1.6}));
+  svg.appendChild(el('line', {x1:sx(0), y1:sy(0), x2:sx(0), y2:sy(30), stroke:'var(--line-strong)', 'stroke-width':1.6}));
+  for(var i=5;i<=25;i+=5){
+    svg.appendChild(el('line', {x1:sx(i), y1:sy(0), x2:sx(i), y2:sy(0)+5, stroke:'var(--line-strong)', 'stroke-width':1}));
+    svg.appendChild(el('text', {x:sx(i), y:sy(0)+18, 'text-anchor':'middle', fill:'var(--ink-mute)',
+      'font-size':'10', 'font-family':'var(--mono)'}, i));
+  }
+  for(var j=5;j<=30;j+=5){
+    svg.appendChild(el('line', {x1:sx(0)-5, y1:sy(j), x2:sx(0), y2:sy(j), stroke:'var(--line-strong)', 'stroke-width':1}));
+    svg.appendChild(el('text', {x:sx(0)-9, y:sy(j)+4, 'text-anchor':'end', fill:'var(--ink-mute)',
+      'font-size':'10', 'font-family':'var(--mono)'}, j));
+  }
+  svg.appendChild(el('text', {x:sx(25), y:sy(0)+30, 'text-anchor':'end', fill:'var(--ink-soft)',
+    'font-size':'12', 'font-family':'var(--mono)'}, 'y₁ (модны үнэ)'));
+  svg.appendChild(el('text', {x:sx(0)-6, y:sy(30)-8, 'text-anchor':'start', fill:'var(--ink-soft)',
+    'font-size':'12', 'font-family':'var(--mono)'}, 'y₂ (цагийн үнэ)'));
+
+  /* хязгаарлалтын шулуунууд */
+  svg.appendChild(el('line', {x1:sx(0), y1:sy(25), x2:sx(12.5), y2:sy(0),
+    stroke:'var(--green)', 'stroke-width':2.4}));
+  svg.appendChild(el('line', {x1:sx(0), y1:sy(10), x2:sx(20), y2:sy(0),
+    stroke:'var(--indigo)', 'stroke-width':2.4}));
+  svg.appendChild(el('text', {x:sx(1.2), y:sy(18.2), fill:'var(--green)', 'font-size':'11',
+    'font-family':'var(--mono)'}, '4y₁+2y₂ = 50'));
+  svg.appendChild(el('text', {x:sx(1.6), y:sy(5.2), fill:'var(--indigo)', 'font-size':'11',
+    'font-family':'var(--mono)'}, '2y₁+4y₂ = 40'));
+
+  /* зорилгын шулуун W = 1400 */
+  svg.appendChild(el('line', {x1:sx(0), y1:sy(17.5), x2:sx(14), y2:sy(0),
+    stroke:'var(--gold)', 'stroke-width':2, 'stroke-dasharray':'6 4'}));
+  svg.appendChild(el('text', {x:sx(14.6), y:sy(0)-8, fill:'var(--gold)', 'font-size':'11',
+    'font-family':'var(--mono)'}, 'W = 1400'));
+
+  /* оройн цэгүүд */
+  [[0,25,'(0, 25) · 2000'],[20,0,'(20, 0) · 2000']].forEach(function(p){
+    svg.appendChild(el('circle', {cx:sx(p[0]), cy:sy(p[1]), r:4.5, fill:'var(--paper)',
+      stroke:'var(--ink-mute)', 'stroke-width':2}));
+    svg.appendChild(el('text', {x:sx(p[0])+8, y:sy(p[1])-7, fill:'var(--ink-mute)', 'font-size':'10',
+      'font-family':'var(--mono)'}, p[2]));
+  });
+  svg.appendChild(el('circle', {cx:sx(10), cy:sy(5), r:7, fill:'var(--rust)'}));
+  svg.appendChild(el('text', {x:sx(10)+12, y:sy(5)-9, fill:'var(--rust)', 'font-size':'12',
+    'font-weight':'600', 'font-family':'var(--mono)'}, '(10, 5) · W* = 1400'));
+})();
+</script>
+<script src="deck.js"></script>
+</body>
+</html>

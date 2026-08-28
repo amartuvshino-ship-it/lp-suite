@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 8 — Симплекс: оновчлолын үе шат ба бүрэн шийдэл</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+
+<div id="viewport"><div id="stage">
+
+<!-- 1 · НҮҮР -->
+<section class="slide cover" data-sec="—" data-notes="Тавтай морил. Өнөөдөр симплекс алгоритмын зүрх — оновчлолын үе шат (итераци). Өмнөх хичээлд хүснэгт зохиож сурсан, өнөөдөр түүнийг эргүүлж, «Модон урлал»-ын бодлогыг бүрэн эцэслэнэ. Гол интерактив нь 17-р слайдын Симплекс тоглуулагч — тэнд 5–8 минут зарцуулна.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Симплекс: оновчлолын үе шат ба <em>бүрэн шийдэл</em></h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 8</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 5.4–5.5</span>
+    <span class="pill">4 интерактив</span>
+  </div>
+</section>
+
+<!-- 2 · ЮУ ҮЗЭХ ВЭ -->
+<section class="slide" data-sec="—" data-notes="Өнөөдрийн зургаан блок. 5.4 нь нэг үе шатны механик, 5.5 нь бүрэн бодолт. Симплекс тоглуулагчийг заавал бүтнээр нь явуул.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">5.4.1–5.4.2</div><h3>Үе шат гэж юу вэ?</h3><p>Математик, менежмент, геометрийн гурван утга + үе шат бүрийн 5 алхам.</p></div>
+    <div class="card accent"><div class="k">5.4.3–5.4.4</div><h3>Орох багана, гарах мөр</h3><p>Хамгийн бага сөрөг тоо ба хамгийн бага харьцааны тест.</p></div>
+    <div class="card accent"><div class="k">5.4.5</div><h3>Ялгагч элемент</h3><p>Симплекс аргын гол цөм — мөрийн үйлдлийн төв.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Симплекс тоглуулагч</h3><p>Хоёр үе шатыг алхам алхмаар өөрсдөө эргүүлнэ.</p></div>
+    <div class="card accent"><div class="k">5.5</div><h3>Бүрэн шийдэл</h3><p>«Модон урлал»-ыг эхнээс нь дуустал: x₁ = 20, x₂ = 10, Z = 1,400,000₮.</p></div>
+    <div class="card green"><div class="k">5.5.6</div><h3>Гурван аргын нийлбэр</h3><p>График, матриц, симплекс — ижил хариу. Яагаад?</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 8 · Бүлэг 5.4–5.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 3 · СУРАХ ЗОРИЛТ -->
+<section class="slide" data-sec="—" data-notes="Дадлагын даалгавар яг эдгээрийг шалгана. Ялангуяа 3-р зорилт — гараар нэг үе шат бүтэн эргүүлэх чадвар.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span><strong>Оновчлолын үе шатны</strong> математик, менежмент, геометрийн утгыг тайлбарлах</span></li>
+    <li><span class="b">2</span><span><strong>Орох багана</strong> ба <strong>гарах мөрийг</strong> дүрмээр нь зөв сонгож, ялгагч элементийг олох</span></li>
+    <li><span class="b">3</span><span>Мөрийн үйлдэл хийж <strong>шинэ симплекс хүснэгт</strong> гаргах</span></li>
+    <li><span class="b">4</span><span>Z мөрөөр <strong>оновчтой эсэхийг</strong> шалгаж, эцсийн хүснэгтээс шийдийг тайлах</span></li>
+    <li><span class="b">5</span><span><strong>«Модон урлал»</strong> ХХК-ийн бодлогыг симплекс аргаар бүрэн бодох</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 8 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- 4 · DIVIDER 5.4 -->
+<section class="slide divider dark" data-sec="5.4" data-notes="Шинэ блок. Гол санаа: симплекс бол нэг том тооцоо биш, олон удаа давтагдах жижиг алхмуудын дараалал.">
+  <div class="num">5.4</div>
+  <h2>Оновчлолын үе шат (Iteration)</h2>
+  <p class="sub">Нэг оройн цэгээс дараагийн, илүү сайн оройн цэг рүү шилжих алхам.</p>
+  <div class="s-foot"><span>Бүлэг 5.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 5 · 5.4.1 ГУРВАН УТГА -->
+<section class="slide" data-sec="5.4" data-notes="Гурван утгыг гурван оюутнаар давтуулж хэлүүл. Шатрын зүйрлэлийг заавал ярь — итераци гэдэг үг оюутнуудад хийсвэр санагддаг.">
+  <div class="s-tag">5.4.1 · Оновчлолын үе шатны утга</div>
+  <h2 class="title">Нэг үе шат — <em>гурван утга</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">Математик</div><h3>Мөрийн үйлдэл</h3><p>Row operation хийж хүснэгтийг шинэчлэх.</p></div>
+    <div class="card accent"><div class="k">Менежмент</div><h3>Шинэ төлөвлөгөө</h3><p>Нэг үйлдвэрлэлийн төлөвлөгөөнөөс дараагийн, илүү сайн төлөвлөгөө рүү шилжих.</p></div>
+    <div class="card accent"><div class="k">Геометр</div><h3>Дараагийн орой</h3><p>Боломжит мужийн нэг оройноос дараагийн оройд шилжих.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Зүйрлэл — шатар</div>
+    <p>Та нэг <strong>нүүдэл</strong> хийгээд, нөхцөл байдлаа хараад илүү сайн дараагийн нүүдлээ хийдэг. Нүүдэл бүр бол нэг итераци. Бид хамгийн сүүлчийн, <strong>мад тавих</strong> нүүдэл хүртэл итераци хийсээр байна.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.4.1</span><span class="pg"></span></div>
+</section>
+
+<!-- 6 · 5.4.2 ТАВАН АЛХАМ -->
+<section class="slide" data-sec="5.4" data-notes="Энэ бол өнөөдрийн ясан хүрээ. Оюутнууд эдгээр 5 алхмыг цээжлэх ёстой — Симплекс тоглуулагч яг эдгээрийг дараалуулж харуулна.">
+  <div class="s-tag">5.4.2 · Үе шат бүрд юу хийх вэ?</div>
+  <h2 class="title">Нэг үе шатны <em>таван алхам</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span><strong>Орох баганыг сонгох</strong> — шинэ суурь хувьсагчийг тодорхойлно</span></li>
+    <li><span class="b">2</span><span><strong>Гарах мөрийг сонгох</strong> — суурьтайгаа салах хуучин хувьсагчийг тодорхойлно</span></li>
+    <li><span class="b">3</span><span><strong>Ялгагч элементийг тодорхойлох</strong> — орох багана ба гарах мөрийн огтлолцол</span></li>
+    <li><span class="b">4</span><span><strong>Мөрийн үйлдэл</strong> хийж хүснэгтийг шинэчлэх</span></li>
+    <li><span class="b">5</span><span><strong>Оновчтой эсэхийг шалгах</strong> — Z мөрөнд сөрөг тоо байна уу?</span></li>
+  </ul>
+  <div class="s-foot"><span>Бүлэг 5.4.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 7 · 5.4.3 ОРОХ БАГАНА -->
+<section class="slide" data-sec="5.4" data-notes="Дүрэм: хамгийн бага (хамгийн сөрөг) тоо. Оюутнууд «хамгийн бага» гэдгийг «абсолют утгаараа хамгийн бага» гэж андуурдаг — заавал тодруул.">
+  <div class="s-tag">5.4.3 · Орох багана (Pivot Column)</div>
+  <h2 class="title">Аль хувьсагчийг <em>суурьт оруулах</em> вэ?</h2>
+  <div class="split wide">
+    <div>
+      <div class="def">
+        <div class="lbl">Дүрэм</div>
+        <p>Z мөрөнд байгаа <strong>сөрөг тоонуудаас хамгийн багыг</strong> нь агуулсан баганыг сонгоно.</p>
+      </div>
+      <p class="lead" style="margin-top:16px">«Модон урлал»-ын Z мөрөнд <strong>−50</strong>, <strong>−40</strong> гэсэн хоёр сөрөг тоо байна. −50 нь −40-өөс жижиг (илүү сөрөг) тул <strong>x₁ (ширээ) багана</strong> орох багана болно.</p>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card accent"><div class="k">Эдийн засгийн утга</div><p style="font-size:15px">Ширээ (50 мянган ₮ ашигтай) нь сандлаас (40 мянган ₮) илүү ашигтай тул компани эхлээд <strong>дан ширээ</strong> хийхээр шийдэж байна.</p></div>
+      <div class="card"><div class="k">Буруу сонговол?</div><p style="font-size:15px">Бага ашигтай барааг түрүүлж үйлдвэрлээд, оновчтой шийд рүү очих <strong>замаа уртасгана</strong>.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.4.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 8 · ИНТЕРАКТИВ 1 · ОРОХ БАГАНА СОНГОГЧ -->
+<section class="slide" data-sec="5.4" id="colSlide" data-notes="ИНТЕРАКТИВ 1 · 3 минут. Эхлээд оюутнуудаас гараар санал асуу, дараа нь товш. s₁, s₂ дээр дарж үзүүл — сөрөг биш багана орох багана болохгүй гэдгийг харуул.">
+  <div class="s-tag">Интерактив · Орох багана сонгогч</div>
+  <h2 class="title">Аль багана нь <em>орох багана</em> вэ?</h2>
+  <div class="def" style="padding:12px 18px">
+    <div class="lbl">Анхны хүснэгтийн Z мөр</div>
+    <p style="font-size:15px">Доорх дөрвөн баганын аль нь орох багана болохыг товшиж сонгоно уу.</p>
+  </div>
+  <div id="colPick" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px">
+    <button class="cbtn" data-ok="1" data-v="x₁" data-msg="Зөв ✓ — −50 бол Z мөрийн хамгийн бага (хамгийн сөрөг) тоо. Тиймээс x₁ (ширээ) багана орох багана болно. Ширээ нэг бүр 50 мянган ₮ ашигтай — компани эхлээд түүнийг үйлдвэрлэнэ." style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">x₁ (Ширээ)<br><span style="font-size:26px;font-weight:700;color:var(--rust)">−50</span></button>
+    <button class="cbtn" data-v="x₂" data-msg="Буруу ✗ — −40 сөрөг мөн боловч −50-өөс ИХ. Дүрэм: сөрөг тоонуудаас хамгийн багыг нь сонгоно. Ийм сонголт хийвэл бага ашигтай барааг түрүүлж үйлдвэрлээд, оновчтой шийд рүү очих замаа уртасгана." style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">x₂ (Сандал)<br><span style="font-size:26px;font-weight:700;color:var(--rust)">−40</span></button>
+    <button class="cbtn" data-v="s₁" data-msg="Буруу ✗ — 0 бол сөрөг тоо биш. Зөвхөн СӨРӨГ коэффициенттэй багана л ашгийг нэмэгдүүлэх боломж үлдээсэн байдаг. s₁ багана энэ боломжийг санал болгохгүй." style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">s₁ (Мод)<br><span style="font-size:26px;font-weight:700;color:var(--ink-mute)">0</span></button>
+    <button class="cbtn" data-v="s₂" data-msg="Буруу ✗ — 0 бол сөрөг тоо биш. Хэрэв Z мөрөнд ердөө нэг ч сөрөг тоо үлдээгүй бол орох багана байхгүй буюу шийд аль хэдийн оновчтой болсон гэсэн үг." style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">s₂ (Цаг)<br><span style="font-size:26px;font-weight:700;color:var(--ink-mute)">0</span></button>
+  </div>
+  <div id="colMsg" style="margin-top:18px;min-height:66px;font-size:16px;line-height:1.55;padding:14px 18px;border:1px dashed var(--line);border-radius:12px;color:var(--ink-soft)">Багана сонгоно уу — тайлбар энд гарна.</div>
+  <div class="s-foot"><span>Бүлэг 5.4.3 · Дүрэм: Z мөрийн хамгийн бага сөрөг тоо</span><span class="pg"></span></div>
+</section>
+
+<!-- 9 · 5.4.4 ГАРАХ МӨР -->
+<section class="slide" data-sec="5.4" data-notes="Хамгийн бага харьцааны тест. Гол зүйрлэл: 'Биднийг хамгийн түрүүнд зогсоох нөөц аль вэ?' Хэрэв 40-ийг сонговол байхгүй мод хэрэглэнэ гэсэн үг.">
+  <div class="s-tag">5.4.4 · Гарах мөр (Pivot Row)</div>
+  <h2 class="title">Хамгийн бага <em>харьцааны тест</em></h2>
+  <div class="def" style="padding:12px 18px">
+    <div class="lbl">Дүрэм · Minimum Ratio Test</div>
+    <p style="font-size:15.5px">RHS-ийг сонгосон баганын <strong>эерэг тоонуудад</strong> хувааж, гарсан харьцаанаас <strong>хамгийн багыг</strong> нь сонгоно.</p>
+  </div>
+  <table class="t sm" style="margin-top:14px">
+    <thead><tr><th style="width:22%">Мөр</th><th style="width:26%">RHS ÷ x₁ багана</th><th style="width:16%">Харьцаа</th><th>Тайлбар</th></tr></thead>
+    <tbody>
+      <tr><td class="k">s₁ (Мод)</td><td>100 / 4</td><td><strong style="color:var(--green)">25</strong> (хамгийн бага)</td><td>Зөвхөн ширээ хийвэл мод ердөө <strong>25 ширээнд</strong> хүрнэ</td></tr>
+      <tr><td class="k">s₂ (Цаг)</td><td>80 / 2</td><td>40</td><td>Цаг <strong>40 ширээнд</strong> хүрэлцэнэ</td></tr>
+    </tbody>
+  </table>
+  <p class="lead" style="margin-top:14px;font-size:17px">25 &lt; 40 тул <strong>s₁ мөр гарах мөр</strong>. Мод бол хамгийн хатуу хязгаарлагч нөөц. Хэрэв 40-ийг сонговол үйлдвэрт <strong>байхгүй мод</strong> хэрэглэж ширээ хийхийг оролдоно: хувьсагч сөрөг болж, боломжгүй шийд гарна.</p>
+  <div class="s-foot"><span>Бүлэг 5.4.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 10 · ИНТЕРАКТИВ 2 · ХАРЬЦААНЫ ШАЛГУУР ДАСГАЛ -->
+<section class="slide" data-sec="5.4" id="ratSlide" data-notes="ИНТЕРАКТИВ 2 · 4 минут. Хоёр дасгалыг зэрэг бүү нээ — эхлээд зүүнийг, дараа нь баруунг. Гурав дахь карт (a ≤ 0) нь ирээдүйн Big-M ба хязгааргүй шийдтэй холбогдоно.">
+  <div class="s-tag">Интерактив · Харьцааны шалгуурын дасгал</div>
+  <h2 class="title">Аль мөр <em>гарах</em> вэ?</h2>
+  <div class="grid g3" id="ratDrill">
+    <div class="card" data-drill="1"><div class="k">Дасгал 1 · Орох багана x₁</div>
+      <button class="rrow" data-ok="1" data-msg="Зөв ✓ 100 / 4 = 25 — хамгийн бага эерэг харьцаа. Гарах мөр: s₁." style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">s₁ мөр · b = 100 · a = 4</button>
+      <button class="rrow" data-msg="Буруу ✗ 80 / 2 = 40. 40 &gt; 25 тул s₂ мөр гарахгүй. Хамгийн БАГА харьцааг сонгоно." style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">s₂ мөр · b = 80 · a = 2</button>
+      <div class="fb" style="margin-top:11px;font-size:13.5px;line-height:1.5;color:var(--ink-mute);min-height:54px">Мөрөө товшино уу.</div>
+    </div>
+    <div class="card" data-drill="2"><div class="k">Дасгал 2 · Орох багана x₂</div>
+      <button class="rrow" data-msg="Буруу ✗ 25 / 0.5 = 50. 50 &gt; 10 тул x₁ мөр гарахгүй." style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">x₁ мөр · b = 25 · a = 0.5</button>
+      <button class="rrow" data-ok="1" data-msg="Зөв ✓ 30 / 3 = 10 — хамгийн бага эерэг харьцаа. Гарах мөр: s₂, ялгагч элемент 3." style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">s₂ мөр · b = 30 · a = 3</button>
+      <div class="fb" style="margin-top:11px;font-size:13.5px;line-height:1.5;color:var(--ink-mute);min-height:54px">Мөрөө товшино уу.</div>
+    </div>
+    <div class="card green" data-drill="3"><div class="k">Яагаад зарим мөрийг алгасах вэ?</div>
+      <button class="rrow" data-ok="1" data-msg="Хуваалт тодорхойгүй болно (b / 0). Тухайн мөр орох хувьсагчийг огт хязгаарлахгүй тул харьцаа тооцохгүй, мөрийг алгасна." style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">a = 0 бол? ▸</button>
+      <button class="rrow" data-ok="1" data-msg="Харьцаа сөрөг гарна. Сөрөг харьцааг сонговол хувьсагч сөрөг болж, математикийн хувьд боломжгүй шийд гарна. Тиймээс зөвхөн ЭЕРЭГ тоонуудад хуваана." style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">a &lt; 0 бол? ▸</button>
+      <div class="fb" style="margin-top:11px;font-size:13.5px;line-height:1.5;color:var(--ink-mute);min-height:54px">Товшиж хариуг харна уу.</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.4.4 · RHS-ийг зөвхөн эерэг тоонуудад хуваана</span><span class="pg"></span></div>
+</section>
+
+<!-- 11 · 5.4.5 ЯЛГАГЧ ЭЛЕМЕНТ -->
+<section class="slide" data-sec="5.4" data-notes="Хичээлийн онолын оргил. 'Үүнийг сайн ойлговол симплекс аргын мөн чанарыг бүрэн ойлгосон хэрэг' гэдгийг чангаар хэл.">
+  <div class="s-tag">5.4.5 · Ялгагч элемент (Pivot Element)</div>
+  <h2 class="title">Симплекс аргын <em>гол цөм</em></h2>
+  <div class="def">
+    <div class="lbl">Тодорхойлолт</div>
+    <p>Ялгагч элемент гэдэг нь <strong>орох багана ба гарах мөрийн огтлолцол</strong> дээрх тоо. «Модон урлал»-ын жишээнд x₁ багана, s₁ мөрийн огтлолцол дээрх <strong>4</strong> гэсэн тоо — энэ бол ялгагч элемент.</p>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card accent"><div class="k">Үүрэг 1</div><h3>Гол мөрийг нэгж болгоно</h3><p>Ялгагч элемент дараагийн үе шатанд гол мөрийг <strong>1 болгоно</strong>.</p></div>
+    <div class="card accent"><div class="k">Үүрэг 2</div><h3>Бусад мөрт 0 үлдээнэ</h3><p>Бусад бүх мөрийн тухайн баганад <strong>0</strong> үлдэж, шинэ суурь хувьсагч цэвэр, <strong>ганцаарчилсан</strong> хэлбэрт орно.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.4.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 12 · ЯЛГАГЧ ЭЛЕМЕНТИЙГ ХЭРХЭН АШИГЛАХ -->
+<section class="slide" data-sec="5.4" data-notes="Самбар дээр эдгээр гурван мөрийн үйлдлийг гараар давтуулж бичүүл. Тэмдгийн алдаа хамгийн олон энд гардаг: Z мөрт НЭМЖ байгааг онцол.">
+  <div class="s-tag">5.4.5 · Мөрийн үйлдэл</div>
+  <h2 class="title">Ялгагч элементийг хэрхэн <em>ашиглах</em> вэ?</h2>
+  <div class="formula">
+    <div class="fl" style="font-size:19px">
+      <span style="font-size:15px;color:rgba(255,255,255,.7)">(1) Гол мөрийг ялгагч элементэд хуваана — s₁ мөр ÷ <span class="c">4</span>:</span><br>
+      [4, 2, 1, 0, 100] ÷ <span class="c">4</span> = <span class="op">[1, 0.5, 0.25, 0, 25]</span> &nbsp;→ шинэ x₁ мөр<br>
+      <span style="font-size:15px;color:rgba(255,255,255,.7)">(2) Бусад мөрийг цэвэрлэж, ялгагч баганад 0 үлдээнэ:</span><br>
+      [2, 4, 0, 1, 80] − 2·[1, 0.5, 0.25, 0, 25] = <span class="op">[0, 3, −0.5, 1, 30]</span><br>
+      [−50, −40, 0, 0, 0] + 50·[1, 0.5, 0.25, 0, 25] = <span class="op">[0, −15, 12.5, 0, 1250]</span>
+    </div>
+    <div class="cap">s₂ мөр − 2·(шинэ x₁ мөр) &nbsp;·&nbsp; Z мөр + 50·(шинэ x₁ мөр)</div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.4.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 13 · ЭДИЙН ЗАСГИЙН УТГА -->
+<section class="slide" data-sec="5.4" data-notes="Талхны зүйрлэлийг заавал ярь — энэ нь оюутнуудад хамгийн их санагддаг хэсэг. Гол санаа: анхаарлаа нөөцөөс бүтээгдэхүүн рүү шилжүүлж байна.">
+  <div class="s-tag">5.4.5 · Ялгагч элементийн эдийн засгийн утга</div>
+  <h2 class="title">«4 нэгж мод»-оос <em>«1 ширхэг ширээ»</em> рүү</h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Анхны хязгаарлалт <strong>4x₁ + 2x₂ + s₁ = 100</strong> дахь <strong>4</strong> нь «1 ширхэг ширээ хийхэд 4 нэгж мод орно» гэсэн технологийн коэффициент. Бид энэ 4-ийг 1 болгож байгаа нь <strong>нэгж бүтээгдэхүүнд ногдох нөөцийн харьцааг</strong> тооцож байна гэсэн үг.</p>
+      <div class="def" style="margin-top:14px">
+        <div class="lbl">Зүйрлэл</div>
+        <p>«4 ширхэг талх 10,000 төгрөг» гэхээс «<strong>1 ширхэг талх 2,500 төгрөг</strong>» гэж ярих нь тооцоо хийхэд хамаагүй хялбар.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card"><div class="k">Цагийн мөр: 2 → 0</div><p style="font-size:14.5px">25 ширээ хийхэд зарцуулагдах цагийг цагийн нөөцөөс хасаж, <strong>үлдэгдлийг</strong> тооцох — нөөцийн дахин хуваарилалт.</p></div>
+      <div class="card"><div class="k">Z мөр: −50 → 0</div><p style="font-size:14.5px">Ширээний нэгж бүрээс олох 50,000₮-ийн ашгийг <strong>нийт ашиг руу (Z = 1250)</strong> шилжүүлж, тухайн боломжийг ашигласныг тэмдэглэнэ.</p></div>
+      <div class="card green"><p style="font-size:14.5px;color:var(--green);font-weight:500">«Ширээнээс нэмж ашиг олох боломж шавхагдлаа — сандлаас ашиг нэмж олох боломж байна уу?»</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.4.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 14 · 5.4.6 1-Р ҮЕ ШАТНЫ ХҮСНЭГТ -->
+<section class="slide" data-sec="5.4" data-notes="Эхний үе шатны үр дүн. Суурь баганад s₁ байхаа больж x₁ орсныг заавал заа. Z мөрөнд −15 үлдсэн тул зогсохгүй.">
+  <div class="s-tag">5.4.6 · Модон урлалын 1-р оновчлолын үе шат</div>
+  <h2 class="title">Шинэ <em>хүснэгт</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:16%">Суурь</th><th>x₁ (Ширээ)</th><th>x₂ (Сандал)</th><th>s₁ (Мод)</th><th>s₂ (Цаг)</th><th>RHS</th></tr></thead>
+    <tbody>
+      <tr><td class="k">x₁</td><td>1</td><td>0.5</td><td>0.25</td><td>0</td><td><strong>25</strong></td></tr>
+      <tr><td class="k">s₂</td><td>0</td><td>3</td><td>−0.5</td><td>1</td><td><strong>30</strong></td></tr>
+      <tr><td class="k">Z</td><td>0</td><td style="color:var(--rust);font-weight:600">−15</td><td>12.5</td><td>0</td><td><strong>1250</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card accent"><div class="k">Одоогийн шийд</div><p style="font-size:15px">x₁ = 25, x₂ = 0, Z = 1250 (мянган төгрөгөөр) = <strong>1,250,000₮</strong></p></div>
+    <div class="card"><div class="k">Оновчтой юу?</div><p style="font-size:15px">Z мөрөнд сөрөг тоо (x₂ баганад <strong>−15</strong>) байсаар байна. Тиймээс <strong>оновчлол үргэлжилнэ</strong>.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.4.6</span><span class="pg"></span></div>
+</section>
+
+<!-- 15 · DIVIDER 5.5 -->
+<section class="slide divider dark" data-sec="5.5" data-notes="Хоёр дахь блок. Одоо бүх зүйлийг нэгтгэж, бодлогыг эхнээс нь дуустал явуулна. Дараагийн слайдууд бол дадлагын загвар.">
+  <div class="num">5.5</div>
+  <h2>Модон урлалын бүрэн симплекс шийдэл</h2>
+  <p class="sub">Бүлэг 2.7-т тавилтыг нь хийж, Бүлэг 3.5-т графикаар, Бүлэг 4.6-т матрицаар шийдсэн бодлогыг эндээс цааш симплекс аргаар бодъё.</p>
+  <div class="s-foot"><span>Бүлэг 5.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 16 · 5.5.1–5.5.2 САНУУЛГА БА АНХНЫ ХҮСНЭГТ -->
+<section class="slide" data-sec="5.5" data-notes="Хоёр слайдын агуулгыг нэгтгэсэн. Зүүн талын каноник хэлбэр 5.2.4-өөс, баруун талын хүснэгт 5.3.2-оос ирж байгааг сануул.">
+  <div class="s-tag">5.5.1–5.5.2 · Бодлогын сануулга ба анхны хүснэгт</div>
+  <h2 class="title">Хаанаас <em>эхэлж</em> байна вэ?</h2>
+  <div class="split wide">
+    <div class="formula" style="margin:0">
+      <div class="fl" style="font-size:18px">
+        Z = <span class="c">50,000</span>x₁ + <span class="c">40,000</span>x₂ &nbsp;<span class="op">→ max</span><br>
+        4x₁ + 2x₂ + s₁ <span class="op">=</span> 100<br>
+        2x₁ + 4x₂ + s₂ <span class="op">=</span> 80<br>
+        x₁, x₂, s₁, s₂ <span class="op">≥ 0</span>
+      </div>
+      <div class="cap">5.2.4 · Каноник хэлбэр</div>
+    </div>
+    <div>
+      <table class="t sm">
+        <thead><tr><th>Суурь</th><th>x₁</th><th>x₂</th><th>s₁</th><th>s₂</th><th>RHS</th></tr></thead>
+        <tbody>
+          <tr><td class="k">s₁</td><td>4</td><td>2</td><td>1</td><td>0</td><td>100</td></tr>
+          <tr><td class="k">s₂</td><td>2</td><td>4</td><td>0</td><td>1</td><td>80</td></tr>
+          <tr><td class="k">Z</td><td style="color:var(--rust);font-weight:600">−50</td><td style="color:var(--rust);font-weight:600">−40</td><td>0</td><td>0</td><td>0</td></tr>
+        </tbody>
+      </table>
+      <p class="lead" style="margin-top:12px;font-size:15.5px">Эхлэл: x₁ = 0, x₂ = 0, Z = 0 — координатын эх дээрх орой.</p>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.5.1–5.5.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 17 · ИНТЕРАКТИВ 3 · СИМПЛЕКС ТОГЛУУЛАГЧ -->
+<section class="slide" data-sec="5.5" id="simxSlide" data-notes="ЭНЭ БОЛ ХИЧЭЭЛИЙН ЗҮРХ. 8–10 минут. Алхам бүрийн өмнө оюутнуудаас 'одоо юу болох вэ?' гэж асуугаад дараа нь товш. 13 алхам, хоёр үе шат. Эцэст нь x₁ = 20, x₂ = 10, Z = 1,400,000₮ дээр зогсоно. Хэрэв цаг гарвал ↺ Эхнээс дараад оюутнаар удирдуул.">
+  <div class="s-tag">Интерактив · Симплекс тоглуулагч</div>
+  <h2 class="title">Хүснэгтийг <em>алхам алхмаар</em> эргүүлье</h2>
+  <div style="display:grid;grid-template-columns:1.28fr .92fr;gap:20px;align-items:start;margin-top:6px">
+    <div>
+      <table class="t sm" id="sxTable">
+        <thead><tr><th style="width:15%">Суурь</th><th>x₁</th><th>x₂</th><th>s₁</th><th>s₂</th><th>RHS</th><th style="width:19%">Харьцаа</th></tr></thead>
+        <tbody id="sxBody"></tbody>
+      </table>
+      <div style="display:flex;gap:14px;margin-top:12px;font-size:12.5px;color:var(--ink-mute);flex-wrap:wrap">
+        <span><b style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--rust);vertical-align:-1px"></b> Орох багана</span>
+        <span><b style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--indigo);vertical-align:-1px"></b> Гарах мөр</span>
+        <span><b style="display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--gold);vertical-align:-1px"></b> Ялгагч элемент</span>
+      </div>
+    </div>
+    <div class="def" style="margin:0;min-height:214px">
+      <div class="lbl" id="sxHead">Эхлэл</div>
+      <p id="sxBody2" style="font-size:14.5px;line-height:1.6"></p>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;margin-top:16px">
+    <button id="sxPrev" style="font:inherit;font-size:14px;font-weight:600;padding:11px 18px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);cursor:pointer">‹ Буцах</button>
+    <button id="sxNext" style="font:inherit;font-size:14px;font-weight:600;padding:11px 22px;border:1px solid var(--green);border-radius:10px;background:var(--green);color:#fff;cursor:pointer">Дараагийн алхам ›</button>
+    <button id="sxReset" style="font:inherit;font-size:14px;font-weight:600;padding:11px 18px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);cursor:pointer">↺ Эхнээс</button>
+    <span id="sxCount" style="font-size:13.5px;color:var(--ink-mute);margin-left:6px">Алхам 1 / 13</span>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.5.2 → 5.5.5 · Хоёр оновчлолын үе шат</span><span class="pg"></span></div>
+</section>
+
+<!-- 18 · 5.5.4 2-Р ҮЕ ШАТНЫ ТООЦОО -->
+<section class="slide" data-sec="5.5" data-notes="Тоглуулагчийн дараа тооцоог бичгээр давтана. −0.1667, 0.3333 гэсэн бутархайг эмээхгүй байхыг сануул — хүснэгтэд 0.167, 0.333 гэж дугуйруулж бичдэг.">
+  <div class="s-tag">5.5.4 · 2-р оновчлолын үе шат</div>
+  <h2 class="title">Хоёр дахь <em>мөрийн үйлдэл</em></h2>
+  <div class="def" style="padding:12px 18px">
+    <div class="lbl">Сонголт</div>
+    <p style="font-size:15px">Орох багана: цорын ганц сөрөг тоо <strong>−15</strong> (x₂ баганад) → <strong>x₂</strong>. Харьцаа: x₁ мөр 25 / 0.5 = 50, s₂ мөр 30 / 3 = <strong>10</strong> → гарах мөр <strong>s₂</strong>, ялгагч элемент <strong>3</strong>.</p>
+  </div>
+  <div class="formula" style="margin-top:14px">
+    <div class="fl" style="font-size:18px">
+      [0, 3, −0.5, 1, 30] ÷ <span class="c">3</span> = <span class="op">[0, 1, −0.1667, 0.3333, 10]</span><br>
+      [1, 0.5, 0.25, 0, 25] − 0.5·[0, 1, −0.1667, 0.3333, 10] = <span class="op">[1, 0, 0.3333, −0.1667, 20]</span><br>
+      [0, −15, 12.5, 0, 1250] + 15·[0, 1, −0.1667, 0.3333, 10] = <span class="op">[0, 0, 10, 5, 1400]</span>
+    </div>
+    <div class="cap">Гол мөр ÷ 3 &nbsp;·&nbsp; x₁ мөр − 0.5·(шинэ x₂ мөр) &nbsp;·&nbsp; Z мөр + 15·(шинэ x₂ мөр)</div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.5.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 19 · ЭЦСИЙН ХҮСНЭГТ -->
+<section class="slide" data-sec="5.5" data-notes="Эцсийн хүснэгт. Z мөрийн 0, 0, 10, 5 — бүгд сөрөг биш. Энэ бол зогсох дохио. 10 ба 5-ын утга (сүүдэр үнэ) Бүлэг 7-д тайлагдана гэдгийг дурдаж болно.">
+  <div class="s-tag">5.5.4 · Шинэ хүснэгт</div>
+  <h2 class="title">Эцсийн <em>симплекс хүснэгт</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:16%">Суурь</th><th>x₁</th><th>x₂</th><th>s₁</th><th>s₂</th><th>RHS</th></tr></thead>
+    <tbody>
+      <tr><td class="k">x₁</td><td>1</td><td>0</td><td>0.333</td><td>−0.167</td><td><strong style="color:var(--green)">20</strong></td></tr>
+      <tr><td class="k">x₂</td><td>0</td><td>1</td><td>−0.167</td><td>0.333</td><td><strong style="color:var(--green)">10</strong></td></tr>
+      <tr><td class="k">Z</td><td>0</td><td>0</td><td>10</td><td>5</td><td><strong style="color:var(--green)">1400</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="def" style="margin-top:16px">
+    <div class="lbl">Зогсох нөхцөл</div>
+    <p>Z мөрөнд сөрөг тоо байхгүй болов (<strong>0, 0, 10, 5 — бүгд ≥ 0</strong>) → <strong>оновчтой шийд олдлоо</strong>.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.5.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 20 · 5.5.5 ШИЙДИЙГ ТАЙЛАХ -->
+<section class="slide" data-sec="5.5" data-notes="Хүснэгтээс хариу уншиж сурах нь чухал: суурь баганад байгаа хувьсагч RHS-ийн утгаа авна, суурьт байхгүй хувьсагч 0 байна.">
+  <div class="s-tag">5.5.5 · Оновчтой шийдийг тайлах</div>
+  <h2 class="title">Хүснэгт юу <em>хэлж</em> байна вэ?</h2>
+  <div class="checks">
+    <div class="chk"><span class="m">✓</span><span class="tx"><b>x₁ = 20</b> ширээ — суурь баганад x₁ байгаа тул RHS-ийн 20 гэсэн утгаа авна</span></div>
+    <div class="chk"><span class="m">✓</span><span class="tx"><b>x₂ = 10</b> сандал — суурь баганад x₂ байгаа тул RHS-ийн 10 гэсэн утгаа авна</span></div>
+    <div class="chk"><span class="m">✓</span><span class="tx"><b>s₁ = 0</b> — мод бүрэн ашиглагдсан (суурьт байхгүй хувьсагч 0 байна)</span></div>
+    <div class="chk"><span class="m">✓</span><span class="tx"><b>s₂ = 0</b> — цаг бүрэн ашиглагдсан</span></div>
+    <div class="chk"><span class="m">✓</span><span class="tx"><b>Z = 1,400,000₮</b> ашиг — Z мөрийн RHS дэх 1400 (мянган төгрөгөөр)</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.5.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 21 · ХҮЧИНТЭЙ ХЯЗГААРЛАЛТ -->
+<section class="slide" data-sec="5.5" data-notes="Binding Constraint — шинэ нэр томьёо. Асуулт: 'Хэрэв мод нэмж авбал ашиг өснө үү?' гэж асуугаад Бүлэг 7 руу татаж болно.">
+  <div class="s-tag">5.5.5 · Хүчинтэй хязгаарлалт (Binding Constraint)</div>
+  <h2 class="title">Суурьт s₁, s₂ <em>байхгүй</em> — юу гэсэн үг вэ?</h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Эцсийн хүснэгтийн суурь баганад s₁, s₂ <strong>байхгүй</strong> байгааг анзаараарай — энэ нь <strong>100 м³ мод</strong>, <strong>80 цаг</strong> хоёулаа бүрэн, үлдэгдэлгүй ашиглагдсан гэсэн үг.</p>
+      <div class="def" style="margin-top:14px">
+        <div class="lbl">Нэр томьёо</div>
+        <p>Эдийн засагт үүнийг <strong>хүчинтэй хязгаарлалт (Binding Constraint)</strong> гэнэ: яг эдгээр хоёр нөөц үйлдвэрлэлийг хязгаарлаж буй гол хүчин зүйл юм.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card accent"><div class="k">Мод</div><h3>4·20 + 2·10 = 100</h3><p>Агуулахын 100 м³ мод бүрэн зарцуулагдав — үлдэгдэл s₁ = 0.</p></div>
+      <div class="card accent"><div class="k">Ажлын цаг</div><h3>2·20 + 4·10 = 80</h3><p>Мужааны 80 цаг бүрэн зарцуулагдав — үлдэгдэл s₂ = 0.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.5.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 22 · 5.5.6 ХАРЬЦУУЛАЛТ -->
+<section class="slide" data-sec="5.5" data-notes="Гурван арга, нэг хариу. Энэ бол бүлгийн сэтгэл хөдөлгөм төгсгөл: оройн цэгийн онол ажиллаж байна.">
+  <div class="s-tag">5.5.6 · Хариунуудын харьцуулалт</div>
+  <h2 class="title">Гурван арга, <em>нэг хариу</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:40%">Арга</th><th>x₁ (Ширээ)</th><th>x₂ (Сандал)</th><th>Z (ашиг)</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Бүлэг 3.5 — графикийн арга</td><td>20</td><td>10</td><td>1,400,000₮ ✓</td></tr>
+      <tr><td class="k">Бүлэг 4.6 — матрицын арга</td><td>20</td><td>10</td><td>1,400,000₮ ✓</td></tr>
+      <tr><td class="k">Бүлэг 5.5 — симплекс арга</td><td>20</td><td>10</td><td>1,400,000₮ ✓</td></tr>
+    </tbody>
+  </table>
+  <div class="def" style="margin-top:18px">
+    <div class="lbl">Яагаад ижил гарав?</div>
+    <p>Гурван ялгаатай аргаар (зурах, матрицын алгебр, алгоритмын давталт) яг ижил хариу гарч байгаа нь <strong>тохиолдлын зүйл биш</strong>. Энэ бол математикийн тохирлын баттай нотолгоо бөгөөд <strong>оройн цэгийн онол</strong> (Бүлэг 3.3) яагаад шугаман программчлалын онолын үндэс болдгийг харуулж байна.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.5.6</span><span class="pg"></span></div>
+</section>
+
+<!-- 23 · ИНТЕРАКТИВ 4 · ОНОВЧЛОЛЫН НӨХЦӨЛ ШАЛГАХ ТЕСТ -->
+<section class="slide" data-sec="5.5" id="quizSlide" data-notes="ИНТЕРАКТИВ 4 · 3 минут. Хурдан тест. Бүгд зөв хариулж чадвал хичээл ойлгогдсон. Буруу хариулсан бол холбогдох слайд руу буцаж болно.">
+  <div class="s-tag">Интерактив · Оновчлолын нөхцөл шалгах тест</div>
+  <h2 class="title">Зогсох уу, <em>үргэлжлүүлэх</em> үү?</h2>
+  <div class="grid g3" id="qz">
+    <div class="card" data-q><div class="k">Асуулт 1</div><h3 style="font-size:16px">Z мөр: 0, −15, 12.5, 0. Юу хийх вэ?</h3>
+      <button class="qa" data-ok="1" data-msg="Зөв ✓ −15 бол сөрөг тоо — ашиг нэмэгдүүлэх боломж үлдсэн байна. x₂ орох багана болж, дараагийн үе шат эхэлнэ." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Оновчлолыг үргэлжлүүлнэ</button>
+      <button class="qa" data-msg="Буруу ✗ Z мөрөнд сөрөг тоо байвал шийд оновчтой БИШ. Дор хаяж нэг үе шат үлдсэн." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Зогсоно — оновчтой шийд</button>
+      <div class="fb" style="margin-top:10px;font-size:13px;line-height:1.5;color:var(--ink-mute);min-height:60px">Хариугаа сонгоно уу.</div>
+    </div>
+    <div class="card" data-q><div class="k">Асуулт 2</div><h3 style="font-size:16px">Z мөр: 0, 0, 10, 5. Юу хийх вэ?</h3>
+      <button class="qa" data-msg="Буруу ✗ Сөрөг тоо байхгүй тул үргэлжлүүлэх шаардлагагүй — цаашид ашиг нэмэгдэхгүй." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Оновчлолыг үргэлжлүүлнэ</button>
+      <button class="qa" data-ok="1" data-msg="Зөв ✓ 0, 0, 10, 5 — бүгд ≥ 0. Оновчтой шийд олдлоо: x₁ = 20, x₂ = 10, Z = 1,400,000₮." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Зогсоно — оновчтой шийд</button>
+      <div class="fb" style="margin-top:10px;font-size:13px;line-height:1.5;color:var(--ink-mute);min-height:60px">Хариугаа сонгоно уу.</div>
+    </div>
+    <div class="card" data-q><div class="k">Асуулт 3</div><h3 style="font-size:16px">Суурь баганад s₁, s₂ алга. Юу гэсэн үг вэ?</h3>
+      <button class="qa" data-msg="Буруу ✗ Эсрэгээрээ — суурьт байхгүй хувьсагч 0 утгатай, өөрөөр хэлбэл үлдэгдэл БАЙХГҮЙ." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Нөөц илүүдэлтэй үлдсэн</button>
+      <button class="qa" data-ok="1" data-msg="Зөв ✓ s₁ = 0, s₂ = 0 — мод, цаг хоёулаа бүрэн ашиглагдсан. Эдгээр нь хүчинтэй хязгаарлалт (Binding Constraint)." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Хоёр нөөц бүрэн ашиглагдсан</button>
+      <div class="fb" style="margin-top:10px;font-size:13px;line-height:1.5;color:var(--ink-mute);min-height:60px">Хариугаа сонгоно уу.</div>
+    </div>
+  </div>
+  <div class="gamebar">
+    <span id="qzScore">0 / 3 зөв</span>
+    <button id="qzReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 5.4.2 (5) · 5.5.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 24 · ГОЛ САНАА -->
+<section class="slide" data-sec="—" data-notes="Таван гол санаа. Оюутнаар нэг бүрчлэн давтуулж хэлүүл. Ялангуяа 2, 3-ыг — дадлагад тэднийг л хэрэглэнэ.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Таван гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt">Нэг <b>оновчлолын үе шат</b> = нэг оройн цэгээс дараагийн, илүү сайн орой руу шилжих алхам — мөрийн үйлдлээр гүйцэтгэнэ.</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt"><b>Орох багана</b>: Z мөрийн хамгийн бага сөрөг тоо. <b>Гарах мөр</b>: RHS ÷ (эерэг элемент) харьцаанаас хамгийн бага нь.</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt"><b>Ялгагч элемент</b> бол орох багана ба гарах мөрийн огтлолцол — гол мөрийг 1 болгож, бусад мөрт 0 үлдээнэ.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt">Z мөрөнд <b>сөрөг тоо байхгүй болбол</b> зогсоно. «Модон урлал»-д хоёр үе шат хангалттай байв.</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt">Оновчтой шийд: <b>x₁ = 20, x₂ = 10, Z = 1,400,000₮</b>; s₁ = s₂ = 0 — мод ба цаг хоёулаа <b>хүчинтэй хязгаарлалт</b>.</span></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 8 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- 25 · ТӨГСГӨЛ -->
+<section class="slide closing dark" data-sec="—" data-notes="Дараагийн 1.5 цаг — дадлага, LP Suite → Хичээл 8 → Симплекс хэрэгсэл. Дараагийн долоо хоног Big-M арга: ≥ ба = хязгаарлалттай бодлогод юу өөрчлөгдөх вэ?">
+  <h2>Хоёр үе шат. <em>1,400,000₮</em>.<br>Алгоритм <em>зогслоо</em>.</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    Гэвч бүх бодлого ийм цэвэрхэн эхэлдэггүй. Хязгаарлалт нь ≥ эсвэл = бол анхны суурь хаанаас олох вэ? Бүлэг 6-д <strong>Big-M арга</strong> хариулна.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 6.1–6.3</span>
+    <span>🔗 LP Suite → Хичээл 8 → Симплекс хэрэгсэл</span>
+  </div>
+</section>
+
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 25</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+window.DECK = {
+  lesson: 'Хичээл 8',
+  course: 'Бүлэг 5 — Симплекс арга',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'5.4',   label:'Оновчлолын үе шат'},
+    {k:'5.5',   label:'Бүрэн шийдэл'},
+    {k:'end',   label:'Дүгнэлт'}
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Танилцуулга · Юу үзэх вэ'},
+    {p:'intro', s:'Танилцуулга · Сурах зорилт'},
+    {p:'5.4',   s:'5.4 · Оновчлолын үе шат'},
+    {p:'5.4',   s:'5.4.1 · Үе шатны утга'},
+    {p:'5.4',   s:'5.4.2 · Таван алхам'},
+    {p:'5.4',   s:'5.4.3 · Орох багана'},
+    {p:'5.4',   s:'Интерактив · Орох багана сонгогч'},
+    {p:'5.4',   s:'5.4.4 · Гарах мөр'},
+    {p:'5.4',   s:'Интерактив · Харьцааны шалгуур'},
+    {p:'5.4',   s:'5.4.5 · Ялгагч элемент'},
+    {p:'5.4',   s:'5.4.5 · Мөрийн үйлдэл'},
+    {p:'5.4',   s:'5.4.5 · Эдийн засгийн утга'},
+    {p:'5.4',   s:'5.4.6 · 1-р үе шатны хүснэгт'},
+    {p:'5.5',   s:'5.5 · Бүрэн симплекс шийдэл'},
+    {p:'5.5',   s:'5.5.1–5.5.2 · Анхны хүснэгт'},
+    {p:'5.5',   s:'Интерактив · Симплекс тоглуулагч'},
+    {p:'5.5',   s:'5.5.4 · 2-р оновчлолын үе шат'},
+    {p:'5.5',   s:'5.5.4 · Эцсийн хүснэгт'},
+    {p:'5.5',   s:'5.5.5 · Шийдийг тайлах'},
+    {p:'5.5',   s:'5.5.5 · Хүчинтэй хязгаарлалт'},
+    {p:'5.5',   s:'5.5.6 · Хариунуудын харьцуулалт'},
+    {p:'5.5',   s:'Интерактив · Оновчлолын нөхцөл'},
+    {p:'end',   s:'Хураангуй · Таван гол санаа'},
+    {p:'end',   s:''}
+  ]
+};
+</script>
+
+<script>
+/* ── ИНТЕРАКТИВ 1 · Орох багана сонгогч ─────────────────────────── */
+(function(){
+  var box = document.getElementById('colPick');
+  if(!box) return;
+  var msg = document.getElementById('colMsg');
+  var btns = box.querySelectorAll('.cbtn');
+  function reset(){
+    for(var i=0;i<btns.length;i++){
+      btns[i].style.background = 'transparent';
+      btns[i].style.borderColor = 'var(--line)';
+    }
+  }
+  for(var i=0;i<btns.length;i++){
+    (function(b){
+      b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+      b.addEventListener('click', function(){
+        reset();
+        var ok = b.getAttribute('data-ok') === '1';
+        b.style.background = ok ? 'var(--green-bg)' : 'var(--rust-bg)';
+        b.style.borderColor = ok ? 'var(--green)' : 'var(--rust)';
+        msg.textContent = b.getAttribute('data-msg');
+        msg.style.color = ok ? 'var(--green)' : 'var(--rust)';
+        msg.style.borderStyle = 'solid';
+        msg.style.borderColor = ok ? 'var(--green)' : 'var(--rust)';
+      });
+    })(btns[i]);
+  }
+})();
+
+/* ── ИНТЕРАКТИВ 2 · Харьцааны шалгуурын дасгал ──────────────────── */
+(function(){
+  var wrap = document.getElementById('ratDrill');
+  if(!wrap) return;
+  var cards = wrap.querySelectorAll('[data-drill]');
+  for(var i=0;i<cards.length;i++){
+    (function(card){
+      var fb = card.querySelector('.fb');
+      var rows = card.querySelectorAll('.rrow');
+      for(var j=0;j<rows.length;j++){
+        (function(r){
+          r.addEventListener('mousedown', function(e){ e.preventDefault(); });
+          r.addEventListener('click', function(){
+            for(var k=0;k<rows.length;k++){
+              rows[k].style.background = 'transparent';
+              rows[k].style.borderColor = 'var(--line)';
+            }
+            var ok = r.getAttribute('data-ok') === '1';
+            r.style.background = ok ? 'var(--green-bg)' : 'var(--rust-bg)';
+            r.style.borderColor = ok ? 'var(--green)' : 'var(--rust)';
+            fb.textContent = r.getAttribute('data-msg');
+            fb.style.color = ok ? 'var(--green)' : 'var(--rust)';
+          });
+        })(rows[j]);
+      }
+    })(cards[i]);
+  }
+})();
+
+/* ── ИНТЕРАКТИВ 3 · Симплекс тоглуулагч ─────────────────────────── */
+(function(){
+  var body = document.getElementById('sxBody');
+  if(!body) return;
+
+  var T0  = [['s₁','4','2','1','0','100'],['s₂','2','4','0','1','80'],['Z','−50','−40','0','0','0']];
+  var T1p = [['x₁','1','0.5','0.25','0','25'],['s₂','2','4','0','1','80'],['Z','−50','−40','0','0','0']];
+  var T1  = [['x₁','1','0.5','0.25','0','25'],['s₂','0','3','−0.5','1','30'],['Z','0','−15','12.5','0','1250']];
+  var T2p = [['x₁','1','0.5','0.25','0','25'],['x₂','0','1','−0.167','0.333','10'],['Z','0','−15','12.5','0','1250']];
+  var T2  = [['x₁','1','0','0.333','−0.167','20'],['x₂','0','1','−0.167','0.333','10'],['Z','0','0','10','5','1400']];
+
+  var S = [
+    { t:T0, col:-1, row:-1, piv:false, rat:null, zc:0,
+      h:'Эхлэл · Анхны симплекс хүснэгт',
+      b:'Суурь хувьсагч s₁ = 100, s₂ = 80. Одоогийн шийд <b>x₁ = 0, x₂ = 0, Z = 0</b> — координатын эх дээрх орой. Z мөрөнд сөрөг тоо байгаа тул оновчлол эхэлнэ.' },
+
+    { t:T0, col:0, row:-1, piv:false, rat:null, zc:0,
+      h:'1-р үе шат · (1) Орох багана',
+      b:'Z мөрөнд <b>−50</b>, <b>−40</b> гэсэн хоёр сөрөг тоо байна. −50 нь −40-өөс жижиг (илүү сөрөг) тул <b>x₁ (ширээ) багана орох багана</b> болно.<br><br>Ширээ 50 мянган ₮ ашигтай тул компани эхлээд дан ширээ хийхээр шийдэж байна.' },
+
+    { t:T0, col:0, row:0, piv:false, rat:['100 / 4 = 25','80 / 2 = 40',''], zc:0,
+      h:'1-р үе шат · (2) Гарах мөр',
+      b:'Хамгийн бага харьцааны тест: s₁ мөр <b>25</b>, s₂ мөр 40. 25 &lt; 40 тул <b>s₁ (мод) мөр гарах мөр</b>.<br><br>Зөвхөн ширээ хийвэл мод ердөө 25 ширээнд хүрнэ — мод бол хамгийн хатуу хязгаарлагч нөөц.' },
+
+    { t:T0, col:0, row:0, piv:true, rat:['100 / 4 = 25','80 / 2 = 40',''], zc:0,
+      h:'1-р үе шат · (3) Ялгагч элемент',
+      b:'Орох багана ба гарах мөрийн огтлолцол дээрх <b>4</b> — ялгагч элемент.<br><br>Гол мөрийг үүнд хуваана: [4, 2, 1, 0, 100] ÷ 4 = <b>[1, 0.5, 0.25, 0, 25]</b>.' },
+
+    { t:T1p, col:0, row:0, piv:true, rat:null, zc:0,
+      h:'1-р үе шат · (3) Гол мөр нэгж болов',
+      b:'s₁ мөр → <b>x₁ мөр</b>. Ялгагч элемент 1 боллоо.<br><br>Орох хувьсагч <b>x₁</b>, гарах хувьсагч <b>s₁</b>. Бусад мөр хараахан цэвэрлэгдээгүй байна.' },
+
+    { t:T1, col:0, row:-1, piv:false, rat:null, zc:0,
+      h:'1-р үе шат · (4) Бусад мөрийг 0 болгов',
+      b:'s₂ мөр − 2·(шинэ x₁ мөр) = <b>[0, 3, −0.5, 1, 30]</b><br>Z мөр + 50·(шинэ x₁ мөр) = <b>[0, −15, 12.5, 0, 1250]</b><br><br>x₁ баганад одоо 1, 0, 0 — цэвэр ганцаарчилсан хэлбэр.' },
+
+    { t:T1, col:-1, row:-1, piv:false, rat:null, zc:-1,
+      h:'1-р үе шат · (5) Оновчтой юу?',
+      b:'Одоогийн шийд: <b>x₁ = 25, s₂ = 30, Z = 1,250,000₮</b>.<br><br>Гэвч Z мөрөнд <b>−15</b> (x₂ баганад) хэвээр байна → оновчтой <b>БИШ</b>. Оновчлол үргэлжилнэ.' },
+
+    { t:T1, col:1, row:-1, piv:false, rat:null, zc:0,
+      h:'2-р үе шат · (1) Орох багана',
+      b:'Z мөрөнд байгаа <b>цорын ганц сөрөг тоо −15</b> (x₂ баганад) → <b>x₂ орох багана</b> болно.<br><br>Одоо сандлаас нэмж ашиг олох боломжийг шалгаж байна.' },
+
+    { t:T1, col:1, row:1, piv:false, rat:['25 / 0.5 = 50','30 / 3 = 10',''], zc:0,
+      h:'2-р үе шат · (2) Гарах мөр',
+      b:'Харьцааны тест: x₁ мөр 50, s₂ мөр <b>10</b>. 10 &lt; 50 тул <b>гарах мөр s₂</b>.' },
+
+    { t:T1, col:1, row:1, piv:true, rat:['25 / 0.5 = 50','30 / 3 = 10',''], zc:0,
+      h:'2-р үе шат · (3) Ялгагч элемент',
+      b:'Ялгагч элемент <b>3</b>. Гол мөрийг 3-т хуваана:<br>[0, 3, −0.5, 1, 30] ÷ 3 = <b>[0, 1, −0.1667, 0.3333, 10]</b>.' },
+
+    { t:T2p, col:1, row:1, piv:true, rat:null, zc:0,
+      h:'2-р үе шат · (3) Гол мөр нэгж болов',
+      b:'s₂ мөр → <b>x₂ мөр</b>. Орох хувьсагч <b>x₂</b>, гарах хувьсагч <b>s₂</b>.' },
+
+    { t:T2, col:1, row:-1, piv:false, rat:null, zc:0,
+      h:'2-р үе шат · (4) Бусад мөрийг 0 болгов',
+      b:'x₁ мөр − 0.5·(шинэ x₂ мөр) = <b>[1, 0, 0.3333, −0.1667, 20]</b><br>Z мөр + 15·(шинэ x₂ мөр) = <b>[0, 0, 10, 5, 1400]</b>' },
+
+    { t:T2, col:-1, row:-1, piv:false, rat:null, zc:1,
+      h:'2-р үе шат · (5) Оновчтой шийд ✓',
+      b:'Z мөрөнд сөрөг тоо байхгүй болов (<b>0, 0, 10, 5 — бүгд ≥ 0</b>) → <b>оновчтой шийд олдлоо</b>.<br><br><b>x₁ = 20 ширээ · x₂ = 10 сандал · s₁ = 0 · s₂ = 0 · Z = 1,400,000₮</b>' }
+  ];
+
+  var i = 0;
+  var head  = document.getElementById('sxHead');
+  var text  = document.getElementById('sxBody2');
+  var cnt   = document.getElementById('sxCount');
+  var bN    = document.getElementById('sxNext');
+  var bP    = document.getElementById('sxPrev');
+  var bR    = document.getElementById('sxReset');
+
+  function render(){
+    var s = S[i], html = '';
+    for(var r=0; r<s.t.length; r++){
+      var isZ = (s.t[r][0] === 'Z');
+      var rowBg = '';
+      if(s.row === r) rowBg = 'background:var(--indigo-bg)';
+      else if(isZ && s.zc === 1) rowBg = 'background:var(--green-bg)';
+      else if(isZ && s.zc === -1) rowBg = 'background:var(--rust-bg)';
+      html += '<tr style="' + rowBg + '">';
+      html += '<td class="k">' + s.t[r][0] + '</td>';
+      for(var c=0; c<5; c++){
+        var st = '';
+        if(s.piv && s.row === r && s.col === c) st = 'background:var(--gold);color:#fff;font-weight:700';
+        else if(s.col === c) st = 'background:var(--rust-bg);color:var(--rust);font-weight:600';
+        html += '<td style="' + st + '">' + s.t[r][c+1] + '</td>';
+      }
+      var rt = (s.rat && s.rat[r]) ? s.rat[r] : '—';
+      var rs = 'color:var(--ink-mute);font-size:12.5px';
+      if(s.rat && s.row === r) rs = 'color:var(--green);font-weight:700;font-size:12.5px';
+      html += '<td style="' + rs + '">' + rt + '</td>';
+      html += '</tr>';
+    }
+    body.innerHTML = html;
+    head.textContent = s.h;
+    text.innerHTML = s.b;
+    cnt.textContent = 'Алхам ' + (i+1) + ' / ' + S.length;
+    bP.disabled = (i === 0);
+    bN.disabled = (i === S.length - 1);
+    bP.style.opacity = bP.disabled ? '.4' : '1';
+    bN.style.opacity = bN.disabled ? '.4' : '1';
+    bN.textContent = (i === S.length - 1) ? 'Дууслаа ✓' : 'Дараагийн алхам ›';
+  }
+
+  bN.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  bP.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  bR.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  bN.addEventListener('click', function(){ if(i < S.length-1){ i++; render(); } });
+  bP.addEventListener('click', function(){ if(i > 0){ i--; render(); } });
+  bR.addEventListener('click', function(){ i = 0; render(); });
+  render();
+})();
+
+/* ── ИНТЕРАКТИВ 4 · Оновчлолын нөхцөл шалгах тест ───────────────── */
+(function(){
+  var wrap = document.getElementById('qz');
+  if(!wrap) return;
+  var cards = wrap.querySelectorAll('[data-q]');
+  var score = document.getElementById('qzScore');
+  var rst   = document.getElementById('qzReset');
+  var done  = [];
+
+  function upd(){
+    var n = 0;
+    for(var i=0;i<done.length;i++) if(done[i]) n++;
+    score.textContent = n + ' / ' + cards.length + ' зөв';
+  }
+  function wire(card, idx){
+    var fb = card.querySelector('.fb');
+    var opts = card.querySelectorAll('.qa');
+    for(var j=0;j<opts.length;j++){
+      (function(o){
+        o.addEventListener('mousedown', function(e){ e.preventDefault(); });
+        o.addEventListener('click', function(){
+          for(var k=0;k<opts.length;k++){
+            opts[k].style.background = 'transparent';
+            opts[k].style.borderColor = 'var(--line)';
+          }
+          var ok = o.getAttribute('data-ok') === '1';
+          o.style.background = ok ? 'var(--green-bg)' : 'var(--rust-bg)';
+          o.style.borderColor = ok ? 'var(--green)' : 'var(--rust)';
+          fb.textContent = o.getAttribute('data-msg');
+          fb.style.color = ok ? 'var(--green)' : 'var(--rust)';
+          done[idx] = ok;
+          upd();
+        });
+      })(opts[j]);
+    }
+  }
+  for(var i=0;i<cards.length;i++){ done.push(false); wire(cards[i], i); }
+  rst.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  rst.addEventListener('click', function(){
+    for(var i=0;i<cards.length;i++){
+      done[i] = false;
+      var fb = cards[i].querySelector('.fb');
+      fb.textContent = 'Хариугаа сонгоно уу.';
+      fb.style.color = 'var(--ink-mute)';
+      var opts = cards[i].querySelectorAll('.qa');
+      for(var j=0;j<opts.length;j++){
+        opts[j].style.background = 'transparent';
+        opts[j].style.borderColor = 'var(--line)';
+      }
+    }
+    upd();
+  });
+  upd();
+})();
+</script>
+<script src="deck.js"></script>
+</body>
+</html>

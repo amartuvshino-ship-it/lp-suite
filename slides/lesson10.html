@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 10 — Big-M: каноник алгебр ба хувьсагчдын утга</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ——— Хичээл 10-ын өөрийн интерактив загвар ——— */
+.l10two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px;flex:1;align-items:start}
+.l10seg{display:flex;gap:8px;flex-wrap:wrap}
+.l10seg button{flex:1;min-width:0;font-family:var(--body);font-size:15px;font-weight:600;
+  padding:10px 8px;border-radius:10px;border:1.5px solid var(--line-strong);
+  background:var(--paper);color:var(--ink-soft);cursor:pointer;transition:all .25s var(--ease)}
+.l10seg button:hover{border-color:var(--green)}
+.l10seg button.sel{background:var(--green);border-color:var(--green);color:var(--on-accent)}
+.l10seg button.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.l10seg button.bad{background:var(--rust-bg);border-color:var(--rust);color:var(--rust)}
+.l10seg.mono button{font-family:var(--mono);font-size:18px;font-weight:600}
+.l10seg.sm button{font-size:13.5px;padding:9px 6px}
+.l10orig{font-family:var(--mono);font-size:19px;color:var(--ink);background:var(--muted);
+  border-radius:10px;padding:12px 14px;margin-top:11px;text-align:center;min-height:47px}
+.l10fb{margin-top:12px;font-size:14px;line-height:1.58;color:var(--ink-soft);
+  background:var(--muted);border-radius:10px;padding:11px 13px;min-height:70px}
+.l10fb.ok{background:var(--green-bg);color:var(--ink)}
+.l10fb.bad{background:var(--rust-bg);color:var(--ink)}
+.l10fb b{color:var(--ink)}
+.l10eq{font-family:var(--mono);font-size:21px;line-height:1.75;display:flex;flex-wrap:wrap;
+  gap:0 7px;align-items:baseline;min-height:70px;margin-top:6px}
+.l10eq span{opacity:0;transform:translateY(9px);transition:opacity .3s var(--ease),transform .3s var(--ease)}
+.l10eq span.on{opacity:1;transform:none}
+.l10eq span.hl{color:var(--green);font-weight:600}
+.l10eq span.art{color:var(--rust);font-weight:600}
+.l10chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.l10chip{font-size:12.5px;padding:6px 11px;border-radius:20px;border:1px solid var(--line-strong);
+  color:var(--ink-soft);background:var(--muted)}
+.l10chip.g{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.l10chip.r{background:var(--rust-bg);border-color:var(--rust);color:var(--rust)}
+.l10note{margin-top:10px;font-size:13.5px;line-height:1.55;color:var(--ink-mute)}
+.l10hint{font-size:11.5px;letter-spacing:.06em;color:var(--ink-mute);margin-top:9px}
+.l10quiz{margin-top:18px;display:flex;flex-direction:column;gap:9px}
+.l10q{font-size:18px;line-height:1.55;color:var(--ink);background:var(--indigo-bg);
+  border-left:4px solid var(--indigo);border-radius:10px;padding:13px 16px}
+.l10opt{text-align:left;font-family:var(--body);font-size:15px;line-height:1.5;padding:11px 15px;
+  border-radius:11px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink-soft);
+  cursor:pointer;transition:all .25s var(--ease);display:flex;gap:11px;align-items:flex-start}
+.l10opt:hover{border-color:var(--line-strong)}
+.l10opt .n{flex:0 0 24px;height:24px;border-radius:7px;background:var(--muted);color:var(--ink-mute);
+  font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.l10opt.ok{border-color:var(--green);background:var(--green-bg);color:var(--ink)}
+.l10opt.ok .n{background:var(--green);color:var(--on-accent)}
+.l10opt.bad{border-color:var(--rust);background:var(--rust-bg);color:var(--ink)}
+.l10opt.bad .n{background:var(--rust);color:#fff}
+.l10mini{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+.l10mini .h{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);
+  font-weight:600;margin-bottom:5px}
+.l10mini p{font-size:14.5px;line-height:1.55;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+<!-- 1 · НҮҮР -->
+<section class="slide cover" data-sec="—" data-notes="Тавтай морил. Бүлэг 5-ын симплекс аргыг сайн санаж байгаа эсэхийг эхлээд асуу. Өнөөдөр бид алгоритмыг өөрчлөхгүй — зөвхөн гарааны хүснэгтийг хэрхэн байгуулахыг сурна. Дунд нь дөрвөн интерактив байгаа: 11-р слайдын Каноник хувиргагч бол хичээлийн зүрх.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Big-M: каноник алгебр ба <em>хувьсагчдын утга</em></h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 10</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 6.1–6.4</span>
+    <span class="pill">4 интерактив дасгал</span>
+  </div>
+</section>
+
+<!-- 2 · АГУУЛГА -->
+<section class="slide" data-sec="—" data-notes="Өнөөдрийн дөрвөн блок. 6.2 бол хамгийн чухал нь — тэнд алгебрын гурван дүрэм гарна. 6.3 нь утгын тайлбар, 6.4 нь M-ийн тэмдэг. Бүтэн бодолт энэ хичээлд алга — тэр нь Бүлэг 6.6-гийн «Хиам» ХХК-ийн жишээ.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">6.1</div><h3>Big-M аргын танилцуулга</h3><p>Юу вэ, хэзээ ашиглах вэ, яагаад «M» гэж нэрлэсэн бэ, симплекстэй ямар холбоотой вэ?</p></div>
+    <div class="card accent"><div class="k">6.2</div><h3>Каноник хэлбэрийн алгебр</h3><p>≤, ≥, = гурван төрлийн хязгаарлалт тус бүрд ямар хувьсагч нэмэгдэх вэ?</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Каноник хувиргагч</h3><p>Төрлөө сонгож, таамаглаад, тэгшитгэл нүдэн дээр угсрахыг харна.</p></div>
+    <div class="card accent"><div class="k">6.3</div><h3>Хувьсагчдын эдийн засгийн утга</h3><p>+S, −S, +A гурав менежерийн хувьд юуг илэрхийлдэг вэ?</p></div>
+    <div class="card accent"><div class="k">6.4</div><h3>M — торгуулийн систем</h3><p>Яагаад маш том тоо вэ? Min ба Max бодлогод тэмдэг нь яагаад эсрэг вэ?</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Карт тоглоом · тест</h3><p>Дөрвөн хувьсагчийн үүрэг + торгуулийн тэмдэг сонгогч + мэдлэг шалгах тест.</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 10 · Бүлэг 6.1–6.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 3 · СУРАХ ЗОРИЛТ -->
+<section class="slide" data-sec="—" data-notes="Хичээлийн эцэст оюутан эдгээрийг чаддаг байх ёстой. Ялангуяа 2-р зорилт — гурван дүрмийг цээжээр хэлж чаддаг байх нь Бүлэг 6.6-гийн бодолтын урьдчилсан нөхцөл.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Big-M аргыг <strong>хэзээ</strong> хэрэглэхийг тодорхойлж, энгийн симплекс аргатай ямар холбоотойг тайлбарлах</span></li>
+    <li><span class="b">2</span><span>≤, ≥, = гурван төрлийн хязгаарлалтыг <strong>каноник хэлбэрт</strong> алдаагүй хувиргах</span></li>
+    <li><span class="b">3</span><span><strong>Нэмэлт, Илүүдэл, Зохиомол</strong> хувьсагчийн эдийн засгийн утгыг ялган тайлбарлах</span></li>
+    <li><span class="b">4</span><span>Min ба Max бодлогод <strong>M-ийн тэмдгийг</strong> зөв сонгож, яагаад эсрэг байдгийг үндэслэх</span></li>
+    <li><span class="b">5</span><span>Эцсийн шийдэд <strong>A &gt; 0</strong> үлдсэн тохиолдлыг оношилж, дүгнэлт гаргах</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 10 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- 4 · ЗААГЛАХ 6.1 -->
+<section class="slide divider dark" data-sec="6.1" data-notes="Танилцуулгын блок. Гол санаа: Big-M бол шинэ алгоритм биш, симплексийн өргөтгөл. Оюутнууд үүнийг эхнээс нь ойлговол цаашид айхгүй.">
+  <div class="num">6.1</div>
+  <h2>Big-M аргын танилцуулга</h2>
+  <p class="sub">Шинэ алгоритм биш — Бүлэг 5-ын симплекс аргын өргөтгөл. Зөвхөн «хаанаас эхлэх вэ» гэдэг нь өөрчлөгдөнө.</p>
+  <div class="s-foot"><span>Бүлэг 6.1</span><span class="pg"></span></div>
+</section>
+
+<!-- 5 · 6.1.1 -->
+<section class="slide" data-sec="6.1" data-notes="Max ба Min бодлогын логикийн ялгааг эхлээд асуу: «Хамгийн их ашиг» vs «Хамгийн бага зардал». Min бодлогод ≥ хязгаарлалт байнга гарч ирдэг тул энгийн симплекс шууд ажиллахгүй — энэ бол хичээлийн эхлэлийн цэг.">
+  <div class="s-tag">6.1.1 · Big-M арга гэж юу вэ?</div>
+  <h2 class="title">Max ба Min — <em>тэс өөр логик</em></h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Max бодлого «Байгаа нөөцөөрөө хамгийн их ашгийг хэрхэн олох вэ?» гэж асуудаг бол Min бодлого «Өгөгдсөн шаардлагыг хамгийн бага зардлаар хэрхэн хангах вэ?» гэсэн асуулт руу чиглэдэг.</p>
+      <div class="def">
+        <div class="lbl">Гол асуудал</div>
+        <p>Min бодлогод <strong>≥ хязгаарлалт</strong> орж ирдэг тул түүнийг энгийн симплекс аргаар шууд бодох боломжгүй. Ийм бодлогыг <strong>M-арга (Big-M Method)</strong> буюу их торгуулийн аргаар боддог.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card accent"><div class="k">Тодорхойлолт</div><h3 style="font-size:17px">Симплекс алгоритмын өргөтгөл</h3><p>≥ болон = хязгаарлалттай бодлогыг каноник хэлбэрт оруулж, дараа нь яг ижил симплекс процедураар бодох боломж олгоно.</p></div>
+      <div class="card green"><div class="k">«M» гэж юу вэ?</div><h3 style="font-size:17px">Маш том эерэг тоо — торгууль</h3><p>Үүрэг нь ганцхан: зохиомол хувьсагчийг оновчтой шийдээс <strong>албадан хөөх</strong>.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.1.1 · Бүтэн бодолт → Бүлэг 6.6</span><span class="pg"></span></div>
+</section>
+
+<!-- 6 · 6.1.2 -->
+<section class="slide" data-sec="6.1" data-notes="Дөрвөн нөхцөл. Практик зөвлөгөө: оюутан бодлого хараад эхлээд хязгаарлалтын тэмдгүүдийг гүйлгэж хардаг байх ёстой. Ганц ч ≥ эсвэл = байвал Big-M шаардагдана. Дөрөв дэх нөхцөл нь бусад гурвын математик шалтгаан.">
+  <div class="s-tag">6.1.2 · Хэзээ ашиглах вэ?</div>
+  <h2 class="title">Дөрвөн <em>дохио</em></h2>
+  <div class="checks">
+    <div class="chk yes"><span class="m">≥</span><span class="tx">Хязгаарлалтын систем дотор <b>≥ (их буюу тэнцүү)</b> тэмдэгтэй хязгаарлалт байгаа үед</span></div>
+    <div class="chk yes"><span class="m">=</span><span class="tx">Хязгаарлалтын систем дотор <b>= (тэнцүү)</b> тэмдэгтэй хязгаарлалт байгаа үед</span></div>
+    <div class="chk yes"><span class="m">↓</span><span class="tx">Ялангуяа <b>Min буюу минимумчлах</b> бодлогод — тухайлбал орц найрлагын буюу диетийн бодлогод (доод хязгаарын шаардлагатай тул ≥ хязгаарлалт байнга гарч ирдэг)</span></div>
+    <div class="chk no"><span class="m">✗</span><span class="tx">Бүлэг 5-т үзсэн <b>энгийн симплекс арга ажиллахгүй</b> үед — гарааны симплекс хүснэгтэд бэлэн <b>нэгж матриц (Identity Matrix)</b> шууд үүсэхгүй байгаа тохиолдолд</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.1.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 7 · 6.1.3 -->
+<section class="slide" data-sec="6.1" data-notes="Торгуулийн зүйрлэл: мөнгөн торгууль хүлээсэн хүн түүнээсээ хурдан ангижрахыг хичээдэг. Алгоритм ч яг тэгж ажилладаг. Энэ зүйрлэлийг оюутнууд хамгийн сайн санадаг тул заавал ярь.">
+  <div class="s-tag">6.1.3 · Яагаад Big-M нэр өгсөн вэ?</div>
+  <h2 class="title">«M» бол <em>торгууль</em></h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">«M» гэдэг нэр нь торгуулийн хэмжээг илэрхийлэх маш том тооноос гаралтай. Практикт M-ийг бодлогын бусад бүх коэффициентээс хэдэн зуу, хэдэн мянга дахин том байхаар сонгодог.</p>
+      <div class="def">
+        <div class="lbl">Санах зүйрлэл</div>
+        <p>Яг л мөнгөн <strong>торгууль хүлээсэн хүн</strong> түүнээсээ аль болох хурдан ангижрахыг хичээдэгтэй адил — алгоритм өөрөө Aᵢ хувьсагчийг аль болох хурдан <strong>0 болгохыг автоматаар эрмэлздэг</strong>.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card accent"><div class="k">Зорилгын функцэд</div><h3 style="font-size:17px">Aᵢ нь +M (Min) эсвэл −M (Max) коэффициенттэй орно</h3><p>Тиймээс Aᵢ-г эерэг утгатай (0-ээс их) орхих нь симплекс алгоритмын хувьд маш ашиггүй, маш өндөр өртөгтэй сонголт болно.</p></div>
+      <div class="card green"><div class="k">Өөр нэр</div><h3 style="font-size:17px">Торгуулийн арга (Penalty Method)</h3><p>Энэ зарчмаас улбаалж уг аргыг ингэж бас нэрлэдэг.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.1.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 8 · 6.1.4 -->
+<section class="slide" data-sec="6.1" data-notes="Хамгийн тайвшруулах слайд: алгоритм өөрчлөгдөхгүй. «Яаж ажилладаг» тал нь хэвээр, зөвхөн «хаанаас эхэлдэг» тал нь өөрчлөгдөнө. Бүлэг 5.2-ын Модон урлалын хүснэгтийг сануул.">
+  <div class="s-tag">6.1.4 · Симплекс аргатай уялдаа</div>
+  <h2 class="title">Big-M = симплекс + <em>тусгай эхлэл</em></h2>
+  <div class="grid g2">
+    <div class="card green"><div class="k">Өөрчлөгдөхгүй</div><h3>Алгоритмын үндсэн логик</h3><p>Орох баганыг сонгох · гарах мөрийг тодорхойлох · ялгагч элементээр хүснэгтийг шинэчлэх — Бүлэг 5-ын бүх алхам <strong>яг хэвээрээ</strong> хэрэглэгдэнэ.</p></div>
+    <div class="card accent"><div class="k">Өөрчлөгдөнө</div><h3>Гарааны хүснэгтийг байгуулах</h3><p>Зөвхөн нэг зүйл өөр: <strong>гарааны симплекс хүснэгтийг хэрхэн байгуулах вэ</strong> гэдэг асуудал.</p></div>
+  </div>
+  <div class="checks" style="margin-top:16px">
+    <div class="chk yes"><span class="m">≤</span><span class="tx">Бүлэг 5.2-т «Модон урлал» ХХК-ийн жишээнд <b>зөвхөн ≤ хязгаарлалт</b> байсан тул нэмэлт хувьсагчид (+S) шууд суурь (Basic) хувьсагч болж, гарааны хүснэгт цэвэр <b>нэгж матрицтай</b> эхэлж байсан</span></div>
+    <div class="chk no"><span class="m">≥</span><span class="tx"><b>≥ болон = хязгаарлалттай</b> үед ийм бэлэн суурь автоматаар үүсдэггүй тул <b>зохиомол хувьсагч (+A)</b> ашиглан суурийг зохиомлоор бүрдүүлдэг</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.1.4 · Бүлэг 5-ын логик үргэлжлэл</span><span class="pg"></span></div>
+</section>
+
+<!-- 9 · ЗААГЛАХ 6.2 -->
+<section class="slide divider dark" data-sec="6.2" data-notes="Энэ бол Big-M аргын гол цөм. Дараагийн 5 слайд бол хичээлийн хамгийн чухал хэсэг — гурван алгебрын дүрэм. Оюутнууд эндээс тэмдэглэл авах ёстой.">
+  <div class="num">6.2</div>
+  <h2>Каноник хэлбэрийн алгебр</h2>
+  <p class="sub">Хязгаарлалтын төрөл бүрд тохирсон хувиргалт хийж бодлогыг каноник хэлбэрт оруулна — энэ бол тодорхой дүрэмтэй, алгебрын шинжтэй үйлдэл.</p>
+  <div class="s-foot"><span>Бүлэг 6.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 10 · 6.2.1 -->
+<section class="slide" data-sec="6.2" data-notes="Гурван хэлбэрийн харьцуулалт. Онцлох мөр: «Хязгаарлалт» — стандарт хэлбэр зөвхөн ≤, каноник хэлбэр зөвхөн =. Оюутнууд стандарт ба каноникыг байнга андуурдаг тул энэ хүснэгтийг заавал зурж тэмдэглүүл.">
+  <div class="s-tag">6.2.1 · Каноник хэлбэрийн шаардлага</div>
+  <h2 class="title">Ерөнхий · Стандарт · <em>Каноник</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:22%">Шинж чанар</th><th>Ерөнхий хэлбэр</th><th>Стандарт хэлбэр</th><th>Каноник хэлбэр</th></tr></thead>
+    <tbody>
+    <tr><td class="k">Зорилго</td><td>Max / Min</td><td>Max</td><td>Max / Min</td></tr>
+    <tr><td class="k">Хязгаарлалт</td><td>=, ≤, ≥</td><td>Зөвхөн ≤</td><td><strong>Зөвхөн =</strong></td></tr>
+    <tr><td class="k">Хувьсагч</td><td>Дурын</td><td>x ≥ 0</td><td>x ≥ 0</td></tr>
+    <tr><td class="k">Хэрэглээ</td><td>Бодлогын тавилт</td><td>График арга, хосмог онол</td><td>Симплекс арга (компьютерийн тооцоолол)</td></tr>
+    </tbody>
+  </table>
+  <div class="def" style="margin-top:16px">
+    <div class="lbl">Каноник хэлбэрийн шаардлага</div>
+    <p>Бүх хязгаарлалт <strong>тэгшитгэл (=)</strong> · бүх хувьсагч <strong>≥ 0</strong> (үл сөрөг байх нөхцөл) · зорилго Max эсвэл Min аль ч байж болно — үүнийг <strong>M-ийн тэмдгээр</strong> зохицуулна (6.4.3).</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.2.1</span><span class="pg"></span></div>
+</section>
+
+<!-- 11 · ИНТЕРАКТИВ 1 · КАНОНИК ХУВИРГАГЧ -->
+<section class="slide" data-sec="6.2" id="cvSlide" data-notes="ЭНЭ БОЛ ХИЧЭЭЛИЙН ЗҮРХ. 7–8 минут. Дараалал: (1) төрлөө сонго, (2) оюутнуудаас ГАРААР санал асууж таамаглуул, (3) дараа нь таамаглалын товчийг дар. Гурван төрлийг бүгдийг нь дараалан гүйлгэ. Тоонууд номын 6.2.2–6.2.4-ийн жишээтэй яг ижил: 100, 12, 15.">
+  <div class="s-tag">Интерактив · Бүлэг 6.2.2–6.2.4</div>
+  <h2 class="title">Каноник <em>хувиргагч</em></h2>
+  <div class="l10two">
+    <div class="sim-panel">
+      <h4>1 · Хязгаарлалтын төрлөө сонго</h4>
+      <div class="l10seg mono" id="cvType">
+        <button data-t="le">≤</button><button data-t="ge">≥</button><button data-t="eq">=</button>
+      </div>
+      <div class="l10orig" id="cvOrig">— төрлөө сонгоно уу —</div>
+      <h4 style="margin-top:14px">2 · Таамаглал: ямар хувьсагч нэмэгдэх вэ?</h4>
+      <div class="l10seg sm" id="cvGuess">
+        <button data-g="le">+s нэмэлт</button>
+        <button data-g="ge">−s ба +A</button>
+        <button data-g="eq">+A зохиомол</button>
+      </div>
+      <div class="l10fb" id="cvFb">Эхлээд төрлөө сонгоод, дараа нь таамаглаж товшино уу.</div>
+    </div>
+    <div class="sim-panel">
+      <h4>3 · Каноник хэлбэр</h4>
+      <div class="l10eq" id="cvEq"></div>
+      <div class="l10chips" id="cvChips"></div>
+      <div class="l10note" id="cvNote">Тэгшитгэл таамаглалын дараа нүдэн дээр угсарна.</div>
+      <div class="l10hint">▸ Гурван төрлийг бүгдийг нь туршаад үзээрэй</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Таамаглаад дараа нь шалга · Хүснэгт 6.2.5-ын гурван дүрэм</span><span class="pg"></span></div>
+</section>
+
+<!-- 12 · 6.2.2 + 6.2.4 -->
+<section class="slide" data-sec="6.2" data-notes="Хоёр амархан тохиолдол. ≤ нь Бүлэг 5.2-т үзсэн давталт. = нь хамгийн богино дүрэм: сул ч, илүүдэл ч хувьсагч огт шаардлагагүй. Дараагийн слайд бол хэцүү нь.">
+  <div class="s-tag">6.2.2 ба 6.2.4 · Хоёр энгийн тохиолдол</div>
+  <h2 class="title">≤ → <em>+S</em> &nbsp;·&nbsp; = → <em>+A</em></h2>
+  <div class="formula">
+    <div class="fl">
+      a₁x₁ + a₂x₂ <span class="op">≤</span> b &nbsp;→&nbsp; a₁x₁ + a₂x₂ <span class="c">+ s</span> = b &nbsp;<span style="font-size:16px">(s ≥ 0)</span><br>
+      a₁x₁ + a₂x₂ <span class="op">=</span> b &nbsp;→&nbsp; a₁x₁ + a₂x₂ <span class="c">+ A</span> = b &nbsp;<span style="font-size:16px">(A ≥ 0)</span>
+    </div>
+    <div class="cap">Жишээ: 4x₁ + 2x₂ ≤ 100 → 4x₁ + 2x₂ + s₁ = 100 &nbsp;·&nbsp; 3x₁ + 2x₂ = 15 → 3x₁ + 2x₂ + A = 15</div>
+  </div>
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card green"><div class="k">≤ · Нэмэлт хувьсагч</div><h3 style="font-size:17px">«s» бол ашиглагдаагүй үлдэгдэл</h3><p>Компьютер тэнцэтгэл бишийг ойлгодоггүй тул түүнийг тэгшитгэл болгоно. Тэнцэтгэл бишийг тэгшитгэл болгоход <strong>s ≥ 0</strong> гэсэн нөхцөл дагалдана.</p></div>
+    <div class="card accent"><div class="k">= · Зохиомол хувьсагч</div><h3 style="font-size:17px">Сул ч, илүүдэл ч хувьсагч хэрэггүй</h3><p>Хязгаарлалт аль хэдийн тэгшитгэл байгаа тул симплекс аргыг эхлүүлэхэд зайлшгүй хэрэгтэй <strong>зохиомол хувьсагч л</strong> нэмэгдэнэ.</p></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.2.2 · 6.2.4 · «Модон урлал» ХХК → Бүлэг 5.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 13 · 6.2.3 -->
+<section class="slide" data-sec="6.2" data-notes="Хамгийн чухал слайд. Хоёр алхмыг ЗААВАЛ салгаж тайлбарла. Алхам 1-ийн дараа яагаад зогсож болохгүйг самбар дээр тоогоор үзүүл: x₁=x₂=0 үед −s=12 → s=−12 < 0 — боломжгүй. Тэгээд л Алхам 2 гарч ирнэ.">
+  <div class="s-tag">6.2.3 · ≥ хязгаарлалт → −S + A</div>
+  <h2 class="title">Бүлэг 6-гийн <em>гол алгебр</em></h2>
+  <div class="formula">
+    <div class="fl">
+      <span style="font-size:16px;color:rgba(255,255,255,.7)">Алхам 1. Илүүдэл хувьсагчийг хасна:</span><br>
+      a₁x₁ + a₂x₂ <span class="op">≥</span> b &nbsp;→&nbsp; a₁x₁ + a₂x₂ <span class="c">− s</span> = b<br>
+      <span style="font-size:16px;color:rgba(255,255,255,.7)">Алхам 2. Зохиомол хувьсагч нэмнэ:</span><br>
+      a₁x₁ + a₂x₂ <span class="c">− s</span> <span class="c">+ A</span> = b &nbsp;<span style="font-size:16px">(s, A ≥ 0)</span>
+    </div>
+    <div class="cap">Жишээ: 2x₁ + 3x₂ ≥ 12 &nbsp;→&nbsp; 2x₁ + 3x₂ − s + A = 12</div>
+  </div>
+  <div class="def" style="margin-top:16px">
+    <div class="lbl">Яагаад Алхам 2 зайлшгүй хэрэгтэй вэ?</div>
+    <p>Симплекс алгоритм эхлэхэд суурь хувьсагчийн утга сөрөг биш байх ёстой. Гэвч x₁ = x₂ = 0 үед −s = b &gt; 0 болох тул <strong>s = −b &lt; 0</strong> буюу сөрөг гарна — энэ нь боломжгүй. Иймд «s»-ийг шууд суурь болгож эхлэх боломжгүй.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.2.3 · A = 0 байх ёстой → Бүлэг 6.3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 14 · 6.2.5 + 6.2.6 -->
+<section class="slide" data-sec="6.2" data-notes="Гурван дүрмийн хураангуй хүснэгт — оюутнууд үүнийг цээжлэх ёстой. Шалгалтын гол асуулт эндээс гарна. Доод def нь 6.2.6: каноник хэлбэр бол тэмдэглэгээний хувиргалт биш, алгебрын урьдчилсан нөхцөл.">
+  <div class="s-tag">6.2.5–6.2.6 · Гурван төрлийн хувьсагчийн хураангуй</div>
+  <h2 class="title">Гурван дүрэм — <em>цээжил</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:32%">Хязгаарлалтын тэмдэг</th><th style="width:44%">Нэмэгдэх хувьсагч</th><th>Тэмдэг</th></tr></thead>
+    <tbody>
+    <tr><td class="k">≤ (бага буюу тэнцүү)</td><td>Нэмэлт хувьсагч <span class="en">Slack</span></td><td><strong>+S</strong></td></tr>
+    <tr><td class="k">≥ (их буюу тэнцүү)</td><td>Илүүдэл хувьсагч <span class="en">Surplus</span> + зохиомол хувьсагч <span class="en">Artificial</span></td><td><strong>−S болон +A</strong></td></tr>
+    <tr><td class="k">= (тэнцүү)</td><td>Зохиомол хувьсагч <span class="en">Artificial</span></td><td><strong>+A</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="def" style="margin-top:18px">
+    <div class="lbl">6.2.6 · Алгебрын зайлшгүй шаардлага</div>
+    <p>Каноник хэлбэр бол зүгээр нэг тэмдэглэгээний хувиргалт биш — энэ бол <strong>компьютерийн тооцоолол хийх боломжийг нээж өгдөг алгебрын урьдчилсан нөхцөл</strong> юм. Симплекс алгоритм зөвхөн тэгшитгэлт систем дээр Гаусс-Жорданы мөрийн үйлдэл хийдэг.</p>
+  </div>
+  <div class="s-foot"><span>Хүснэгт 6.2.5</span><span class="pg"></span></div>
+</section>
+
+<!-- 15 · ЗААГЛАХ 6.3 -->
+<section class="slide divider dark" data-sec="6.3" data-notes="Утгын блок. Уншигчид ялангуяа −S ба +A хоёрыг андуурч болзошгүй — энэ бол багшийн анхаарах гол цэг. Дараагийн слайд бол карт тоглоом, эхлээд тоглуулаад дараа нь тайлбарла.">
+  <div class="num">6.3</div>
+  <h2>Хувьсагчдын эдийн засгийн утга</h2>
+  <p class="sub">Гурван төрлийн хувьсагч тус бүр өөр өөр практик утгатай. Ялангуяа «−S» ба «+A» хоёрыг андуурч болзошгүй.</p>
+  <div class="s-foot"><span>Бүлэг 6.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 16 · ИНТЕРАКТИВ 2 · КАРТ ТОГЛООМ -->
+<section class="slide" data-sec="6.3" id="roleSlide" data-notes="5 минут. Карт бүрийг ЭХЛЭЭД оюутнаар таамаглуулаад дараа нь товшиж нээ. Карт дээр зөвхөн алгебрын шинж тэмдэг бичсэн — оюутан хувьсагчийн нэр, утгыг таах ёстой. Ногоон карт = эцсийн шийдэд байвал хэвийн, улаан = тааруу.">
+  <div class="s-tag">Интерактив · Бүлэг 6.3.1–6.3.3</div>
+  <h2 class="title">Хувьсагчийн үүрэг — <em>таарууллаа юу?</em></h2>
+  <div class="game" id="roleGrid" style="grid-template-columns:repeat(4,1fr)">
+    <button class="gc yes" data-name="+S · Нэмэлт хувьсагч" data-ic="✓" data-why="Slack — ашиглагдаагүй үлдсэн нөөц, сул зогсолт. 100 цагийн фондоос 80 цаг зарцуулбал S = 20 цаг. Сүүдрийн үнэ нь 0.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">≤ хязгаарлалтад «+» тэмдгээр нэмэгдэнэ.<br>2x₁ + 3x₂ + S = 100</div>
+      <div class="tap">▸ товшиж нэрийг нь харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc yes" data-name="−S · Илүүдэл хувьсагч" data-ic="✓" data-why="Surplus — төлөвлөгөөний давалт. Доод тал нь 40 г уураг шаардсан ч 45 г гарвал S = 5. Муу зүйл биш, зөвхөн доод хязгаараас давсан.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">≥ хязгаарлалтаас «−» тэмдгээр хасагдана.<br>x₁ + x₂ − S = 40</div>
+      <div class="tap">▸ товшиж нэрийг нь харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc no" data-name="+A · Зохиомол хувьсагч" data-ic="✗" data-why="Artificial — бодит утга огт агуулдаггүй, зөвхөн симплексийг эхлүүлэх математикийн хэрэглүүр. Эцсийн шийдэд үлдвэл бодлого шийдгүй.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">≥ ба = хязгаарлалтад албадан нэмэгдэнэ.<br>x₁ + x₂ − S + A = 40</div>
+      <div class="tap">▸ товшиж нэрийг нь харах</div>
+      <div class="ans"></div>
+    </button>
+    <button class="gc no" data-name="M · Торгууль" data-ic="M" data-why="Penalty — зорилгын функцэд A-гийн хажууд зогсоно: Min бодлогод +M, Max бодлогод −M. Бусад бүх коэффициентээс хамаагүй том байх ёстой.">
+      <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
+      <div class="q">Хязгаарлалтад биш, зорилгын функцэд гарч ирдэг маш том тоо.<br>Z = 5x₁ + 3x₂ + M·A</div>
+      <div class="tap">▸ товшиж нэрийг нь харах</div>
+      <div class="ans"></div>
+    </button>
+  </div>
+  <div class="gamebar">
+    <span id="roleScore">0 / 4 нээгдсэн</span>
+    <button id="roleReset">Дахин эхлүүлэх</button>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.3 · Дөрвөн үүрэг</span><span class="pg"></span></div>
+</section>
+
+<!-- 17 · 6.3.1 + 6.3.2 -->
+<section class="slide" data-sec="6.3" data-notes="Хоёр «жинхэнэ» хувьсагч. Гол ялгаа: S нь ≤-д нэмэгдэж үлдэгдлийг, −S нь ≥-ээс хасагдаж давалтыг хэмжинэ. Хоёулаа эцсийн шийдэд гарвал ХЭВИЙН. Тоон жишээг заавал давт: 20 цаг, 5 грамм.">
+  <div class="s-tag">6.3.1 ба 6.3.2 · Хоёр бодит хувьсагч</div>
+  <h2 class="title">Үлдэгдэл ба <em>давалт</em></h2>
+  <div class="split">
+    <div>
+      <div class="l10mini"><div class="h">+S · Нэмэлт хувьсагч (Slack)</div><p>Боломжит нөөцийн <strong>дээд хязгаар</strong> буюу ≤ хязгаарлалтад нэмэгдэж ордог.<br>2x₁ + 3x₂ + S = 100</p></div>
+      <div class="def" style="margin-top:12px">
+        <div class="lbl">Менежерийн өнцгөөс</div>
+        <p>S &gt; 0 гарвал тухайн нөөц <strong>бүрэн ашиглагдаж дуусаагүй</strong>. Хязгаарлагч хүчин зүйл (Bottleneck) биш тул нэмж худалдан авах шаардлагагүй — сүүдрийн үнэ нь 0.</p>
+      </div>
+      <p class="l10note">Жишээ: 100 цагийн фонд байснаас 80 цагт багтаан гүйцэтгэвэл <strong>S = 20 цаг</strong> — сул үлдсэн нөөц.</p>
+    </div>
+    <div>
+      <div class="l10mini"><div class="h">−S · Илүүдэл хувьсагч (Surplus)</div><p>Заавал биелүүлэх <strong>доод хязгаар</strong> буюу ≥ хязгаарлалтаас хасагдаж ордог.<br>x₁ + x₂ − S = 40</p></div>
+      <div class="def" style="margin-top:12px">
+        <div class="lbl">Менежерийн өнцгөөс</div>
+        <p>S &gt; 0 гарвал байгууллага тавигдсан <strong>доод стандартыг давуулан биелүүлсэн</strong>. Энэ нь муу зүйл биш.</p>
+      </div>
+      <p class="l10note">Жишээ: тэжээлд доод тал нь 40 г уураг шаардсан ч 45 г болбол <strong>S = 5 г</strong> — стандартаас давсан илүүдэл.</p>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.3.1 · 6.3.2</span><span class="pg"></span></div>
+</section>
+
+<!-- 18 · 6.3.3 -->
+<section class="slide" data-sec="6.3" data-notes="Хамгийн чухал утга. A бол ЖИНХЭНЭ хувьсагч БИШ. Сөрөг үр дагаврыг тодоор хэл: A > 0 үлдвэл бодлого шийдгүй (Infeasible). Энэ дүгнэлтийг 24-р слайдын тестээр дахин шалгана.">
+  <div class="s-tag">6.3.3 · Зохиомол хувьсагч (+A)</div>
+  <h2 class="title">«Жинхэнэ» хувьсагч <em>биш</em></h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">≥ эсвэл = хязгаарлалттай үед эхний шийдийг олохын тулд албадан нэмдэг: x₁ + x₂ − S + A = 40. Практикт <strong>ямар ч бодит утга агуулдаггүй</strong> — энэ бол зөвхөн симплекс алгоритмыг эхлүүлэх математикийн хэрэглүүр.</p>
+      <div class="l10mini" style="margin-top:14px"><div class="h">Менежерийн өнцгөөс</div><p>Симплекс арга анх хаанаас эхлэхээ мэддэггүй тул зохиомол нөөцөөр стандартыг <strong>түр хангадаг</strong>. Гэхдээ энэ нөөц маш өндөр өртөгтэй (Big-M торгуультай) учраас менежер аль болох хурдан зохиомол аргаас салж, <strong>бодит бүтээгдэхүүнээрээ</strong> шаардлагыг хангахыг эрмэлздэг.</p></div>
+    </div>
+    <div>
+      <div class="chk no" style="margin-top:0"><span class="m">✗</span><span class="tx"><b>Сөрөг үр дагавар:</b> бодолт дуусахад <b>A &gt; 0</b> хэвээр үлдвэл эдийн засгийн маш ноцтой асуудал үүснэ</span></div>
+      <div class="def" style="margin-top:12px">
+        <div class="lbl">Хатуу онош</div>
+        <p>«Компани өөрийн <strong>бодит нөөцөөрөө</strong> энэ зорилтод хүрч чадахгүй, систем <strong>шийдгүй байдалд оржээ (Infeasible)</strong>».</p>
+      </div>
+      <p class="l10note">Иймд оновчтой шийдэд <strong>A = 0</strong> байх ёстой — Big-M аргын бүх торгуулийн систем яг үүний төлөө ажилладаг.</p>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 19 · 6.3 ХАРЬЦУУЛСАН ХҮСНЭГТ -->
+<section class="slide" data-sec="6.3" data-notes="Гурван хувьсагчийн эцсийн харьцуулалт. Сүүлийн багана хамгийн чухал: Хэвийн / Хэвийн / Тааруу. Оюутнаас «Яагаад гурав дахь нь тааруу вэ?» гэж асуугаад хариулт хүл.">
+  <div class="s-tag">6.3 · Гурван хувьсагчийн харьцуулалт</div>
+  <h2 class="title">Эцсийн шийдэд байвал <em>сайн уу?</em></h2>
+  <table class="t sm">
+    <thead><tr><th style="width:16%">Хувьсагч</th><th style="width:11%">Үйлдэл</th><th style="width:12%">Үүсэх нөхцөл</th><th>Эдийн засгийн утга санаа</th><th style="width:26%">Эцсийн шийдэд байвал сайн уу?</th></tr></thead>
+    <tbody>
+    <tr><td class="k">+S <span class="en">Slack</span></td><td>Нэмнэ (+)</td><td>≤</td><td>Ашиглагдаагүй үлдсэн нөөц, сул зогсолт.</td><td><strong>Хэвийн.</strong> Тухайн нөөц илүүдэлтэй байна гэсэн үг.</td></tr>
+    <tr><td class="k">−S <span class="en">Surplus</span></td><td>Хасна (−)</td><td>≥</td><td>Шаардлагыг давуулан биелүүлсэн илүүдэл.</td><td><strong>Хэвийн.</strong> Стандартаас давсан үзүүлэлт.</td></tr>
+    <tr><td class="k">+A <span class="en">Artificial</span></td><td>Нэмнэ (+)</td><td>≥ болон =</td><td>Анхны тэнцвэрийг олохын тулд гаднаас оруулсан өндөр өртөгт торгууль.</td><td><strong>Тааруу.</strong> Хэрэв эцэст нь үлдвэл бодлого шийдгүй.</td></tr>
+    </tbody>
+  </table>
+  <div class="def" style="margin-top:18px">
+    <div class="lbl">Санах дүрэм</div>
+    <p>+S ба −S бол <strong>бодит</strong> хэмжигдэхүүн (үлдэгдэл, давалт) — тэдгээр эцсийн шийдэд гарах нь хэвийн. +A бол <strong>зохиомол</strong> — эцсийн шийдэд заавал 0 болсон байх ёстой.</p>
+  </div>
+  <div class="s-foot"><span>Хүснэгт 6.3</span><span class="pg"></span></div>
+</section>
+
+<!-- 20 · ЗААГЛАХ 6.4 -->
+<section class="slide divider dark" data-sec="6.4" data-notes="Сүүлийн блок. Хамгийн олон алдаа гардаг газар — M-ийн тэмдэг. Дараагийн гурван слайдыг нэг дор бэлд: онол → интерактив → дүрэм.">
+  <div class="num">6.4</div>
+  <h2>M — торгуулийн систем</h2>
+  <p class="sub">Зохиомол хувьсагчийг оновчтой шийдэд орохгүй байхаар албадах нь Big-M аргын гол зорилго юм.</p>
+  <div class="s-foot"><span>Бүлэг 6.4</span><span class="pg"></span></div>
+</section>
+
+<!-- 21 · 6.4.1 + 6.4.2 + 6.4.4 -->
+<section class="slide" data-sec="6.4" data-notes="Гурван зүйлийг нэг дор: яагаад том, ямар том, хүснэгтэд яаж бичих. Онцлох: M нь бодлогын АЛЬ Ч коэффициентээс хамаагүй том байх ёстой. Симплекс хүснэгтэд 3M − 5 гэх мэт бэлгэдлийн хэлбэрээр хадгална.">
+  <div class="s-tag">6.4.1–6.4.2 · 6.4.4 · M-ийн үнэ цэнэ</div>
+  <h2 class="title">Яагаад <em>маш том</em> тоо вэ?</h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Зохиомол хувьсагчид зорилгын функцэд маш өндөр торгууль тавьснаар симплекс алгоритм ашгаа өсгөх (эсвэл зардлаа бууруулах) гэсэн байгалийн зорилгынхоо дагуу <strong>A-г автоматаар 0 болгохыг</strong> эрмэлздэг.</p>
+      <div class="def">
+        <div class="lbl">Дүрэм</div>
+        <p>M нь бодлогын <strong>аль ч коэффициентээс хамаагүй том</strong> байх ёстой — эс тэгвээс алгоритм Aᵢ-г бүрэн хөөж чадахгүй байж болзошгүй.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:11px;margin-top:0">
+      <div class="l10mini"><div class="h">Математикийн хувьд</div><p>M → ∞ (хязгааргүй том тоо).</p></div>
+      <div class="l10mini"><div class="h">Практикт</div><p>1 000, 10 000, 100 000 гэх мэт, бусад бүх коэффициентээс мэдэгдэхүйц том тоо (Excel Solver ийм тоог автоматаар оноодог).</p></div>
+      <div class="l10mini"><div class="h">6.4.4 · Симплекс хүснэгтэд</div><p>Z мөрөнд M-ийг <strong>бэлгэдлийн хэлбэрээр</strong> (жишээ нь 3M − 5) хадгалж, тооцооллыг M-ийн коэффициент ба энгийн тогтмол гэсэн хоёр хэсэгт хувааж хийнэ.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.4.1 · 6.4.2 · 6.4.4 → дэлгэрэнгүй Бүлэг 6.6</span><span class="pg"></span></div>
+</section>
+
+<!-- 22 · ИНТЕРАКТИВ 3 · ТОРГУУЛИЙН ТЭМДЭГ -->
+<section class="slide" data-sec="6.4" id="pnSlide" data-notes="5 минут. Оюутнууд энд ХАМГИЙН ИХ алддаг. Санаатайгаар эхлээд Max сонгуулаад буруу хариултыг нь товшуулж, тайлбарыг уншуул: торгууль урамшуулал болж хувирна. Дараа нь зөв хариуг ол. Хоёр төрлийг хоёуланг нь гүйлгэ.">
+  <div class="s-tag">Интерактив · Бүлэг 6.4.3</div>
+  <h2 class="title">Торгуулийн <em>тэмдэг</em> сонгогч</h2>
+  <div class="l10two">
+    <div class="sim-panel">
+      <h4>1 · Бодлогын төрлөө сонго</h4>
+      <div class="l10seg" id="pnType">
+        <button data-p="min">Min · зардал</button><button data-p="max">Max · ашиг</button>
+      </div>
+      <div class="l10orig" id="pnObj">— бодлогын төрлөө сонгоно уу —</div>
+      <h4 style="margin-top:14px">2 · A-гийн коэффициент аль нь вэ?</h4>
+      <div class="l10seg mono" id="pnPick">
+        <button data-s="plus">+M·A</button><button data-s="minus">−M·A</button>
+      </div>
+      <div class="l10hint">▸ Хоёуланг нь туршаад тайлбарыг уншаарай</div>
+    </div>
+    <div class="sim-panel">
+      <h4>3 · Яагаад?</h4>
+      <div class="l10fb" id="pnFb" style="min-height:118px">Тэмдгийг товшиход тайлбар гарч ирнэ.</div>
+      <div class="l10eq" id="pnEq" style="font-size:18px;min-height:52px"></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Анхааруулга: M-ийн тэмдэг Min ба Max бодлогод эсрэг байна</span><span class="pg"></span></div>
+</section>
+
+<!-- 23 · 6.4.3 -->
+<section class="slide" data-sec="6.4" data-notes="Дүрмийн слайд — интерактивын дараа нэгтгэнэ. Товч дүрмийг нэг өгүүлбэрээр цээжлүүл: «M-ийн тэмдэг хамгийн их торгох чиглэлд байх ёстой». Жишээ хоёул номынхтой яг ижил.">
+  <div class="s-tag">6.4.3 · Max ба Min бодлогод M-ийн тэмдэг</div>
+  <h2 class="title">Тэмдэг нь <em>эсрэг</em> байна</h2>
+  <div class="grid g2">
+    <div class="card green"><div class="k">Min бодлого</div><h3>+M·A (эерэг тэмдэг)</h3><p>Зардлыг минимумчлах гэж байгаа тул A &gt; 0 бол нийт зардал <strong>+M·A-гаар асар ихээр өснө</strong>. Тиймээс алгоритм A-г 0 болгохыг эрмэлзэнэ.<br><strong>Z = 5x₁ + 3x₂ + MA₁ + MA₂ → min</strong></p></div>
+    <div class="card accent"><div class="k">Max бодлого</div><h3>−M·A (сөрөг тэмдэг)</h3><p>Ашгийг максимумчлах гэж байгаа тул A &gt; 0 бол нийт ашиг <strong>−M·A-гаар асар ихээр буурна</strong>. Тиймээс алгоритм A-г 0 болгохыг эрмэлзэнэ.<br><strong>Z = 40x₁ + 30x₂ − MA₁ → max</strong></p></div>
+  </div>
+  <div class="def" style="margin-top:18px">
+    <div class="lbl">Товч дүрэм</div>
+    <p>M-ийн тэмдэг <strong>хамгийн их торгох чиглэлд</strong> байх ёстой — Min бодлогод торгууль «+M» (зардлыг өсгөнө), Max бодлогод торгууль «−M» (ашгийг бууруулна).</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.4.3 · «Хиам» ХХК → Бүлэг 6.6</span><span class="pg"></span></div>
+</section>
+
+<!-- 24 · ИНТЕРАКТИВ 4 · ТЕСТ -->
+<section class="slide" data-sec="6.4" id="qzSlide" data-notes="3 минут. Гараа өргүүлж санал асуулга авч эхэл, дараа нь товш. Зөв хариу: 2-р сонголт. Бусад гурвыг товшиход яагаад буруу болохыг тайлбарлана — буруу хариултын тайлбарыг заавал уншуул.">
+  <div class="s-tag">Мэдлэг шалгах тест · Бүлэг 6.3.3</div>
+  <h2 class="title">A &gt; 0 үлдвэл — <em>юу гэсэн үг вэ?</em></h2>
+  <div class="l10quiz" id="qzWrap">
+    <div class="l10q">Симплекс бодолт дуусахад зохиомол хувьсагч <strong>A₁ = 6 &gt; 0</strong> хэвээр үлдлээ. Энэ юу гэсэн үг вэ?</div>
+    <button class="l10opt" data-ok="0" data-why="Буруу. Олон оновчтой шийд гэдэг нь Z мөрөнд суурь бус хувьсагчийн үнэлгээ 0 гарахтай холбоотой ойлголт — зохиомол хувьсагчийн үлдэгдэлтэй ямар ч хамаагүй."><span class="n">1</span><span>Бодлого хэд хэдэн оновчтой шийдтэй байна.</span></button>
+    <button class="l10opt" data-ok="1" data-why="Зөв ✓ Компани өөрийн бодит нөөцөөрөө энэ зорилтод хүрч чадахгүй, систем шийдгүй байдалд оржээ (Infeasible) — Big-M аргын хатуу онош."><span class="n">2</span><span>Компани бодит нөөцөөрөө зорилтод хүрч чадахгүй — <strong>бодлого шийдгүй (Infeasible)</strong>.</span></button>
+    <button class="l10opt" data-ok="0" data-why="Буруу. M-ийг ХЭТ ТОМ сонгосон нь асуудал биш — эсрэгээрээ, M нь бусад коэффициентээс хамаагүй том байх ёстой. Хэт БАГА сонговол л алгоритм A-г хөөж чадахгүй байж болзошгүй."><span class="n">3</span><span>M-ийг хэт том сонгосон тул M-ийг багасгаад дахин бодох хэрэгтэй.</span></button>
+    <button class="l10opt" data-ok="0" data-why="Буруу. Нөөцийн илүүдлийг харуулдаг нь +S (Slack) хувьсагч. +A бол бодит утгагүй зохиомол хувьсагч — түүний үлдэгдлийг нөөцийн илүүдэл гэж уншиж болохгүй."><span class="n">4</span><span>Нөөц илүүдэлтэй байна — S &gt; 0 гарсантай ижил утгатай.</span></button>
+    <div class="l10fb" id="qzFb" style="min-height:56px">Аль нэг хувилбарыг товшино уу.</div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.3.3 · Infeasible онош</span><span class="pg"></span></div>
+</section>
+
+<!-- 25 · ХУРААНГУЙ -->
+<section class="slide" data-sec="—" data-notes="Таван гол санаа. Оюутнаар нэг бүрчлэн давтуулж хэлүүл. Ялангуяа 2 ба 4-ийг цээжээр асуу — дараагийн хичээлийн бодолт бүхэлдээ эдгээр дээр тулгуурлана.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Таван гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt">Big-M бол шинэ алгоритм <b>биш</b> — симплекс + тусгай эхлэл. Алгоритмын логик хэвээр, зөвхөн <b>гарааны хүснэгт</b> байгуулах арга өөрчлөгдөнө.</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt">Гурван дүрэм: <b>≤ → +S</b> (нэмэлт) · <b>≥ → −S ба +A</b> (илүүдэл + зохиомол) · <b>= → +A</b> (зохиомол).</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt"><b>+S</b> = ашиглагдаагүй үлдэгдэл нөөц · <b>−S</b> = стандартаас давсан илүүдэл — хоёулаа эцсийн шийдэд гарвал <b>хэвийн</b>.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt"><b>M-ийн тэмдэг эсрэг</b>: Min бодлогод <b>+M·A</b> (зардлыг өсгөнө), Max бодлогод <b>−M·A</b> (ашгийг бууруулна). M нь бусад бүх коэффициентээс хамаагүй том.</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt">Оновчтой шийдэд <b>A = 0</b> байх ёстой. Хэрэв <b>A &gt; 0</b> үлдвэл бодлого <b>шийдгүй (Infeasible)</b>.</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 6.1–6.4 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- 26 · ТӨГСГӨЛ -->
+<section class="slide closing dark" data-sec="—" data-notes="Дараагийн 1.5 цаг — дадлага: бодлогуудыг каноник хэлбэрт хувиргах. Дараагийн долоо хоног Бүлэг 6.5–6.6: «Хиам» ХХК-ийн диетийн бодлогыг эхнээс нь Big-M аргаар бүрэн бодно.">
+  <h2>Та <em>алгебрыг</em> сурлаа.<br>Одоо түүгээр <em>бодох</em> цаг боллоо.</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    Бүлэг 6.5–6.6-д «Хиам» ХХК-ийн диетийн бодлогыг каноник хэлбэрт оруулж, Big-M симплекс хүснэгтийг алхам алхмаар эргүүлж, бүтэн шийд гаргана.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 6.5–6.6</span>
+    <span>🔗 LP Suite → Хэрэгсэл → bigm</span>
+  </div>
+</section>
+
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 26</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+window.DECK = {
+  lesson: 'Хичээл 10',
+  course: 'Бүлэг 6 — Big-M арга',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'6.1',   label:'Танилцуулга'},
+    {k:'6.2',   label:'Каноник алгебр'},
+    {k:'6.3',   label:'Хувьсагчдын утга'},
+    {k:'6.4',   label:'Торгуулийн систем'},
+    {k:'end',   label:'Дүгнэлт'}
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Агуулга'},
+    {p:'intro', s:'Сурах зорилт'},
+    {p:'6.1',   s:'6.1 · Big-M аргын танилцуулга'},
+    {p:'6.1',   s:'6.1.1 · Big-M арга гэж юу вэ?'},
+    {p:'6.1',   s:'6.1.2 · Хэзээ ашиглах вэ?'},
+    {p:'6.1',   s:'6.1.3 · Яагаад Big-M нэр өгсөн вэ?'},
+    {p:'6.1',   s:'6.1.4 · Симплекс аргатай уялдаа'},
+    {p:'6.2',   s:'6.2 · Каноник хэлбэрийн алгебр'},
+    {p:'6.2',   s:'6.2.1 · Каноник хэлбэрийн шаардлага'},
+    {p:'6.2',   s:'Интерактив · Каноник хувиргагч'},
+    {p:'6.2',   s:'6.2.2 · 6.2.4 · ≤ → +S, = → +A'},
+    {p:'6.2',   s:'6.2.3 · ≥ → −S + A'},
+    {p:'6.2',   s:'6.2.5 · Гурван төрлийн хураангуй'},
+    {p:'6.3',   s:'6.3 · Хувьсагчдын эдийн засгийн утга'},
+    {p:'6.3',   s:'Интерактив · Хувьсагчийн үүрэг'},
+    {p:'6.3',   s:'6.3.1 · 6.3.2 · Нэмэлт ба Илүүдэл'},
+    {p:'6.3',   s:'6.3.3 · Зохиомол хувьсагч'},
+    {p:'6.3',   s:'Хүснэгт 6.3 · Харьцуулалт'},
+    {p:'6.4',   s:'6.4 · M — торгуулийн систем'},
+    {p:'6.4',   s:'6.4.1–6.4.2 · M-ийн үнэ цэнэ'},
+    {p:'6.4',   s:'Интерактив · Торгуулийн тэмдэг'},
+    {p:'6.4',   s:'6.4.3 · Max ба Min-д M-ийн тэмдэг'},
+    {p:'6.4',   s:'Тест · A > 0 үлдвэл?'},
+    {p:'end',   s:'Хураангуй'},
+    {p:'end',   s:''}
+  ]
+};
+</script>
+
+<script>
+/* ——— Интерактив 1 · Каноник хувиргагч ——— */
+(function(){
+  if(!document.getElementById('cvSlide')) return;
+  var DATA = {
+    le: {
+      orig: '4x₁ + 2x₂ ≤ 100',
+      terms: [['4x₁',''],['+',''],['2x₂',''],['+ s₁','hl'],['= 100','']],
+      chips: [['Нэмэлт хувьсагч (Slack) +s₁','g'],['s₁ ≥ 0','g']],
+      note: '«s» бол ашиглагдаагүй үлдэгдэл. Тэнцэтгэл бишийг тэгшитгэл болгоход s ≥ 0 гэсэн нөхцөл дагалдана.',
+      ok: 'Зөв ✓ <b>≤ хязгаарлалтад зөвхөн нэмэлт хувьсагч (+s) нэмнэ.</b> Зохиомол хувьсагч огт хэрэггүй — s нь шууд суурь хувьсагч болж, нэгж матриц бэлэн үүснэ.'
+    },
+    ge: {
+      orig: '2x₁ + 3x₂ ≥ 12',
+      terms: [['2x₁',''],['+',''],['3x₂',''],['− s','hl'],['+ A','art'],['= 12','']],
+      chips: [['Илүүдэл хувьсагч (Surplus) −s','g'],['Зохиомол хувьсагч (Artificial) +A','r'],['s, A ≥ 0','g']],
+      note: 'Алхам 1: илүүдлийг ХАСНА. Алхам 2: x₁ = x₂ = 0 үед s = −12 < 0 болох тул суурь бүрдүүлэхийн тулд A нэмнэ.',
+      ok: 'Зөв ✓ <b>≥ хязгаарлалтад ХОЁР хувьсагч нэмэгдэнэ:</b> эхлээд илүүдэл хувьсагчийг хасаж (−s), дараа нь зохиомол хувьсагчийг нэмнэ (+A).'
+    },
+    eq: {
+      orig: '3x₁ + 2x₂ = 15',
+      terms: [['3x₁',''],['+',''],['2x₂',''],['+ A','art'],['= 15','']],
+      chips: [['Зохиомол хувьсагч (Artificial) +A','r'],['A ≥ 0','g']],
+      note: 'Хязгаарлалт аль хэдийн тэгшитгэл тул сул ч, илүүдэл ч хувьсагч огт шаардлагагүй.',
+      ok: 'Зөв ✓ <b>= хязгаарлалтад зөвхөн зохиомол хувьсагч (+A) нэмнэ.</b> Симплексийг эхлүүлэхэд зайлшгүй хэрэгтэй ганц хувьсагч тэр.'
+    }
+  };
+  var NAME = {le:'≤', ge:'≥', eq:'='};
+  var elType  = document.getElementById('cvType'),
+      elGuess = document.getElementById('cvGuess'),
+      elOrig  = document.getElementById('cvOrig'),
+      elEq    = document.getElementById('cvEq'),
+      elChips = document.getElementById('cvChips'),
+      elNote  = document.getElementById('cvNote'),
+      elFb    = document.getElementById('cvFb');
+  var cur = null, timers = [];
+
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+
+  function reset(){
+    clearTimers();
+    elEq.innerHTML = ''; elChips.innerHTML = '';
+    elNote.textContent = 'Тэгшитгэл таамаглалын дараа нүдэн дээр угсарна.';
+    elFb.className = 'l10fb';
+    Array.prototype.forEach.call(elGuess.children, function(b){ b.className = ''; });
+  }
+
+  function pickType(t){
+    cur = t; reset();
+    Array.prototype.forEach.call(elType.children, function(b){
+      b.className = (b.getAttribute('data-t') === t) ? 'sel' : '';
+    });
+    elOrig.textContent = DATA[t].orig;
+    elFb.innerHTML = '«' + NAME[t] + '» төрлийг сонголоо. <b>Ямар хувьсагч нэмэгдэх вэ?</b> Эхлээд өөрөө таамаглаад дараа нь товшино уу.';
+  }
+
+  function build(){
+    clearTimers();
+    elEq.innerHTML = '';
+    var d = DATA[cur];
+    d.terms.forEach(function(tm, i){
+      var sp = document.createElement('span');
+      sp.textContent = tm[0];
+      if(tm[1]) sp.className = tm[1];
+      elEq.appendChild(sp);
+      timers.push(setTimeout(function(){ sp.classList.add('on'); }, 90 + i * 230));
+    });
+    timers.push(setTimeout(function(){
+      elChips.innerHTML = '';
+      d.chips.forEach(function(c){
+        var s = document.createElement('span');
+        s.className = 'l10chip ' + c[1];
+        s.textContent = c[0];
+        elChips.appendChild(s);
+      });
+      elNote.textContent = d.note;
+    }, 120 + d.terms.length * 230));
+  }
+
+  function guess(g){
+    if(!cur){
+      elFb.className = 'l10fb';
+      elFb.innerHTML = 'Эхлээд <b>1-р алхамд</b> хязгаарлалтын төрлөө сонгоно уу.';
+      return;
+    }
+    Array.prototype.forEach.call(elGuess.children, function(b){
+      var k = b.getAttribute('data-g');
+      b.className = (k === cur) ? 'ok' : (k === g ? 'bad' : '');
+    });
+    if(g === cur){
+      elFb.className = 'l10fb ok';
+      elFb.innerHTML = DATA[cur].ok;
+    }else{
+      elFb.className = 'l10fb bad';
+      elFb.innerHTML = 'Дахин бод ✗ «' + NAME[cur] + '» төрөлд энэ нь тохирохгүй. <b>Ногоон товч</b> зөв хариу — доорх тэгшитгэлээс шалгаарай.';
+    }
+    build();
+  }
+
+  elType.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  elGuess.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  elType.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    pickType(b.getAttribute('data-t'));
+  });
+  elGuess.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    guess(b.getAttribute('data-g'));
+  });
+})();
+
+/* ——— Интерактив 2 · Хувьсагчийн үүрэг тааруулах тоглоом ——— */
+(function(){
+  if(!document.getElementById('roleSlide')) return;
+  var grid  = document.getElementById('roleGrid'),
+      score = document.getElementById('roleScore'),
+      reset = document.getElementById('roleReset');
+  var cards = Array.prototype.slice.call(grid.querySelectorAll('.gc'));
+
+  function refresh(){
+    var n = cards.filter(function(c){ return c.classList.contains('done'); }).length;
+    score.textContent = n + ' / ' + cards.length + ' нээгдсэн';
+  }
+  function open(c){
+    if(c.classList.contains('done')) return;
+    c.classList.add('done');
+    c.querySelector('.ic').textContent  = c.getAttribute('data-ic');
+    c.querySelector('.lbl').textContent = c.getAttribute('data-name');
+    c.querySelector('.ans').textContent = c.getAttribute('data-why');
+    refresh();
+  }
+  cards.forEach(function(c){
+    c.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    c.addEventListener('click', function(){ open(c); });
+  });
+  reset.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  reset.addEventListener('click', function(){
+    cards.forEach(function(c){
+      c.classList.remove('done');
+      c.querySelector('.ic').textContent  = '';
+      c.querySelector('.lbl').textContent = '';
+      c.querySelector('.ans').textContent = '';
+    });
+    refresh();
+  });
+  refresh();
+})();
+
+/* ——— Интерактив 3 · Торгуулийн тэмдэг сонгогч ——— */
+(function(){
+  if(!document.getElementById('pnSlide')) return;
+  var P = {
+    min: {
+      obj: 'Z = 5x₁ + 3x₂ + ?·A₁ + ?·A₂ → min',
+      right: 'plus',
+      eq: 'Z = 5x₁ + 3x₂ + MA₁ + MA₂ → min',
+      ok: 'Зөв ✓ <b>Min бодлогод +M·A (эерэг тэмдэг).</b> Зардлыг минимумчлах гэж байгаа тул A &gt; 0 бол нийт зардал +M·A-гаар асар ихээр өснө. Тиймээс симплекс алгоритм A-г 0 болгохыг эрмэлзэнэ.',
+      bad: 'Буруу ✗ <b>−M·A нь Min бодлогод торгууль биш, шагнал болно.</b> A-г их болгох тусам зорилгын функц буурах тул алгоритм A-г санаатайгаар өсгөж, зохиомол хувьсагч эцсийн шийдэд үлдэнэ.'
+    },
+    max: {
+      obj: 'Z = 40x₁ + 30x₂ + ?·A₁ → max',
+      right: 'minus',
+      eq: 'Z = 40x₁ + 30x₂ − MA₁ → max',
+      ok: 'Зөв ✓ <b>Max бодлогод −M·A (сөрөг тэмдэг).</b> Ашгийг максимумчлах гэж байгаа тул A &gt; 0 бол нийт ашиг −M·A-гаар асар ихээр буурна. Тиймээс симплекс алгоритм A-г 0 болгохыг эрмэлзэнэ.',
+      bad: 'Буруу ✗ <b>+M·A нь Max бодлогод ашгийг өсгөнө.</b> Торгууль урамшуулал болж хувирах тул алгоритм A-г аль болох ИХ болгохыг эрмэлзэж, зохиомол хувьсагч хэзээ ч 0 болохгүй.'
+    }
+  };
+  var elType = document.getElementById('pnType'),
+      elPick = document.getElementById('pnPick'),
+      elObj  = document.getElementById('pnObj'),
+      elFb   = document.getElementById('pnFb'),
+      elEq   = document.getElementById('pnEq');
+  var cur = null, timers = [];
+
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+
+  function pick(p){
+    cur = p; clearTimers();
+    Array.prototype.forEach.call(elType.children, function(b){
+      b.className = (b.getAttribute('data-p') === p) ? 'sel' : '';
+    });
+    Array.prototype.forEach.call(elPick.children, function(b){ b.className = ''; });
+    elObj.textContent = P[p].obj;
+    elEq.innerHTML = '';
+    elFb.className = 'l10fb';
+    elFb.innerHTML = 'Зохиомол хувьсагчийн зорилгын коэффициент аль нь байх ёстой вэ? <b>Товшиж шалгана уу.</b>';
+  }
+
+  function choose(s){
+    if(!cur){
+      elFb.className = 'l10fb';
+      elFb.innerHTML = 'Эхлээд <b>бодлогын төрлөө</b> сонгоно уу.';
+      return;
+    }
+    var d = P[cur], good = (s === d.right);
+    Array.prototype.forEach.call(elPick.children, function(b){
+      var k = b.getAttribute('data-s');
+      b.className = (k === d.right) ? 'ok' : (k === s ? 'bad' : '');
+    });
+    elFb.className = 'l10fb ' + (good ? 'ok' : 'bad');
+    elFb.innerHTML = good ? d.ok : d.bad;
+    clearTimers();
+    elEq.innerHTML = '';
+    var sp = document.createElement('span');
+    sp.className = good ? 'hl' : 'art';
+    sp.textContent = d.eq;
+    elEq.appendChild(sp);
+    timers.push(setTimeout(function(){ sp.classList.add('on'); }, 80));
+  }
+
+  elType.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  elPick.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  elType.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    pick(b.getAttribute('data-p'));
+  });
+  elPick.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    choose(b.getAttribute('data-s'));
+  });
+})();
+
+/* ——— Интерактив 4 · Мэдлэг шалгах тест ——— */
+(function(){
+  if(!document.getElementById('qzSlide')) return;
+  var wrap = document.getElementById('qzWrap'),
+      fb   = document.getElementById('qzFb');
+  var opts = Array.prototype.slice.call(wrap.querySelectorAll('.l10opt'));
+  opts.forEach(function(o){
+    o.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    o.addEventListener('click', function(){
+      var good = o.getAttribute('data-ok') === '1';
+      opts.forEach(function(x){ x.classList.remove('ok','bad'); });
+      if(good){
+        o.classList.add('ok');
+      }else{
+        o.classList.add('bad');
+        opts.forEach(function(x){
+          if(x.getAttribute('data-ok') === '1') x.classList.add('ok');
+        });
+      }
+      fb.className = 'l10fb ' + (good ? 'ok' : 'bad');
+      fb.textContent = o.getAttribute('data-why');
+    });
+  });
+})();
+</script>
+<script src="deck.js"></script>
+</body>
+</html>

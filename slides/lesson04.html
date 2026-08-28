@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Хичээл 4 — Графикийн арга: 5 алхам ба оройн цэгийн онол</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<style>
+/* ==========================================================================
+   ХИЧЭЭЛ 4-ИЙН НЭМЭЛТ ЗАГВАР — график ба интерактив блокууд
+   ========================================================================== */
+.g5{grid-template-columns:repeat(5,1fr)}
+.ilay{display:grid;gap:18px;margin-top:14px;align-items:start}
+.ilay.a{grid-template-columns:344px 1fr}
+.ilay.b{grid-template-columns:1fr 372px}
+.ilay.c{grid-template-columns:1fr 340px}
+.ipan{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:17px 19px}
+.ipan h4{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--green-ink);
+  font-weight:700;margin-bottom:11px}
+.ipan p{font-size:14.5px;line-height:1.6;color:var(--ink-soft)}
+.stepnum{font-family:var(--mono);font-size:11.5px;color:var(--gold-ink);font-weight:700;
+  letter-spacing:.11em;margin-bottom:5px}
+.steph{font-family:var(--display);font-size:20px;font-weight:600;color:var(--ink);
+  margin-bottom:7px;line-height:1.25}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px;align-items:center}
+.bt{background:var(--green);color:var(--on-accent);border:none;border-radius:9px;padding:9px 16px;
+  font-size:13.5px;font-weight:600;font-family:var(--body);cursor:pointer}
+.bt:hover{opacity:.86}
+.bt.ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--line-strong)}
+.bt:disabled{opacity:.32;cursor:default}
+.bt:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.pcount{font-family:var(--mono);font-size:12.5px;color:var(--ink-mute);margin-left:auto}
+.svgbox{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:10px 12px}
+.svgbox .cap{font-size:11.5px;color:var(--ink-mute);text-align:center;margin-top:2px}
+.gsvg{display:block;width:100%;height:372px}
+.gsvg .grid-l{stroke:var(--line);stroke-width:1}
+.gsvg .axis{stroke:var(--line-strong);stroke-width:1.6}
+.gsvg .tick{fill:var(--ink-mute);font-family:'JetBrains Mono',monospace;font-size:10px}
+.gsvg .axlab{fill:var(--ink-soft);font-size:11.5px;font-weight:600}
+.gsvg .hal{paint-order:stroke;stroke:var(--paper);stroke-width:3.5px;stroke-linejoin:round}
+.gsvg .eq{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600}
+.gsvg .vlab{fill:var(--ink);font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700}
+.gsvg .reglab{fill:var(--ink-mute);font-size:13px;font-weight:600}
+.half{cursor:pointer}
+.half:hover{fill-opacity:.26}
+.vgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.vb{background:var(--paper);border:1.5px solid var(--line);border-radius:11px;padding:11px 8px;
+  cursor:pointer;font-family:var(--body);text-align:center;transition:all .25s var(--ease)}
+.vb .vn{font-family:var(--display);font-size:18px;font-weight:600;color:var(--ink);line-height:1.1}
+.vb .vc{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-mute);margin-top:3px}
+.vb:hover{border-color:var(--line-strong);transform:translateY(-2px)}
+.vb.on{border-color:var(--green);background:var(--green-bg)}
+.vb.top{border-color:var(--gold);background:var(--gold-bg)}
+.vb:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.calcs{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+.crow{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;
+  background:var(--muted);border-radius:9px;padding:8px 13px;animation:fadein .3s ease}
+.crow .cid{font-weight:700;color:var(--green);font-family:var(--display);font-size:16px}
+.crow .cex{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink-soft)}
+.crow .cz{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--ink)}
+.crow.top{background:var(--gold-bg);box-shadow:inset 0 0 0 1.5px var(--gold)}
+.crow.top .cz{color:var(--gold-ink)}
+.vbox{margin-top:12px;border-radius:11px;padding:13px 16px;font-size:14px;line-height:1.6;
+  border-left:4px solid var(--line-strong);background:var(--muted);color:var(--ink-soft)}
+.vbox.ok{border-color:var(--green);background:var(--green-bg);color:var(--ink)}
+.vbox.no{border-color:var(--rust);background:var(--rust-bg);color:var(--ink)}
+.vbox b{color:var(--ink)}
+.rd{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;
+  border-bottom:1px dashed var(--line);padding:7px 0}
+.rd .rk{color:var(--ink-mute)}
+.rd .rv{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--ink)}
+.rd .rv.bad{color:var(--rust)}
+.rd .rv.ok{color:var(--green)}
+.zbig{background:linear-gradient(135deg,#1B3B1F,#16321A);border-radius:12px;padding:15px 18px;
+  color:#fff;margin-top:12px}
+.zbig .zl{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:rgba(255,255,255,.72);font-weight:700}
+.zbig .zv{font-family:var(--display);font-size:31px;font-weight:600;margin-top:3px;line-height:1}
+.zbig .zv small{font-family:var(--body);font-size:17px;font-weight:500;opacity:.7;margin-left:6px}
+.zbig .zf{display:inline-block;margin-top:8px;font-size:12px;padding:4px 11px;border-radius:999px;
+  background:rgba(255,255,255,.18)}
+.zbig.bad{background:linear-gradient(135deg,#7A2E1A,#4E1D10)}
+body:not(.paper) .zbig{background:linear-gradient(135deg,#1E4423,#14301A)}
+body:not(.paper) .zbig.bad{background:linear-gradient(135deg,#5E2415,#3A160C)}
+.qcards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.qc{background:var(--paper);border:1.5px solid var(--line);border-radius:13px;padding:17px 19px;
+  cursor:pointer;text-align:left;font-family:inherit;transition:all .3s var(--ease)}
+.qc:hover{border-color:var(--line-strong);transform:translateY(-2px)}
+.qc .qq{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--ink);font-weight:600}
+.qc .qt{font-size:11.5px;color:var(--ink-mute);margin-top:9px;letter-spacing:.06em}
+.qc .qa{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line-strong);
+  font-size:14px;line-height:1.6;color:var(--ink-soft)}
+.qc.open{border-color:var(--green);background:var(--green-bg)}
+.qc.open .qa{display:block;animation:fadein .35s ease}
+.qc.open .qt{display:none}
+.qc:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.mono{font-family:'JetBrains Mono',monospace;font-size:14px;line-height:1.95;color:var(--ink-soft);
+  background:var(--muted);border-radius:11px;padding:15px 18px;margin-top:12px}
+.mono b{color:var(--green);font-weight:700}
+.mono .hr{display:block;border-top:1px solid var(--line-strong);margin:5px 0}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+.figc{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px}
+.figc .ft{font-size:12px;font-weight:600;text-align:center;margin-top:4px;color:var(--ink-soft)}
+.figc.ok .ft{color:var(--green)}
+.figc.bad .ft{color:var(--rust)}
+</style>
+</head>
+<body>
+
+<div id="viewport"><div id="stage">
+
+<!-- ══════════ 1. НҮҮР ══════════ -->
+<section class="slide cover" data-sec="—" data-notes="Тавтай морил. Өнөөдөр бид анх удаа ШП-ийн бодлогыг БОДНО — зурж бодно. Гурван том блок: арга гэж юу вэ, таван алхам, оройн цэгийн онол. Дунд нь таван интерактив байгаа: 14-р слайдад боломжит мужийг алхам алхмаар нүдэн дээр нь байгуулна.">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="brandline">LP Suite · Шугаман программчлал</div>
+  <h1>Графикийн арга: 5 алхам ба <em>оройн цэгийн онол</em></h1>
+  <div class="meta">
+    <span class="pill solid">Хичээл 4</span>
+    <span class="pill">Лекц · 1.5 цаг</span>
+    <span class="pill">Бүлэг 3.1–3.3</span>
+    <span class="pill">5 интерактив дасгал</span>
+  </div>
+</section>
+
+<!-- ══════════ 2. АГУУЛГА ══════════ -->
+<section class="slide" data-sec="—" data-notes="Өнөөдрийн зургаан блок. Интерактив хоёулаа «Модон урлал» ХХК-ийн бодит тоон дээр ажиллана — Хичээл 1, 2-т үзсэн тэр л бодлого. Оройн цэгийн онол бол Бүлэг 5-ын симплексийн суурь.">
+  <div class="s-tag">Өнөөдрийн хичээл</div>
+  <h2 class="title">Юу үзэх <em>вэ?</em></h2>
+  <div class="grid g3">
+    <div class="card accent"><div class="k">3.1</div><h3>Графикийн арга гэж юу вэ?</h3><p>Хэзээ ашиглах, яагаад чухал, давуу ба сул тал нь юу вэ?</p></div>
+    <div class="card accent"><div class="k">3.2</div><h3>Таван алхам</h3><p>Координат → шулуун → боломжит муж → оройн цэг → дүгнэлт.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Боломжит муж алхам алхмаар</h3><p>Таван алхмыг нэг нэгээр нь график дээр байгуулж харна.</p></div>
+    <div class="card green"><div class="k">Интерактив</div><h3>Оройн цэг тооцоолуур</h3><p>Дөрвөн оройг товшиж Z-ийн утгыг харьцуулна.</p></div>
+    <div class="card accent"><div class="k">3.3</div><h3>Оройн цэгийн онол</h3><p>Теорем, гүдгэр муж, практик утга — Бүлэг 5-ын онолын суурь.</p></div>
+    <div class="card"><div class="k">Холбоос</div><h3>Бүлэг 4 ба 5 рүү</h3><p>Гурваас дээш хувьсагчтай бол матриц, симплекс арга.</p></div>
+  </div>
+  <div class="s-foot"><span>Хичээл 4 · Бүлэг 3.1–3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 3. СУРАХ ЗОРИЛТ ══════════ -->
+<section class="slide" data-sec="—" data-notes="Хичээлийн эцэст оюутан эдгээрийг гараар хийж чаддаг байх ёстой. Дадлагад яг эдгээрийг шалгана. 3 ба 5 дугаартайг онцгойлон анхаар — оюутнууд хамгийн их эндүүрдэг хоёр зүйл.">
+  <div class="s-tag">Сурах зорилт</div>
+  <h2 class="title">Хичээлийн эцэст та <em>чадна</em></h2>
+  <ul class="pts">
+    <li><span class="b">1</span><span>Графикийн аргыг <strong>хэзээ хэрэглэхийг</strong> (зөвхөн хоёр хувьсагчтай бодлогод) тайлбарлах</span></li>
+    <li><span class="b">2</span><span>Хязгаарлалтын шулууныг <strong>тэнхлэгтэй огтлолцох хоёр цэгээр</strong> зурах</span></li>
+    <li><span class="b">3</span><span>«≤» ба «≥» тэмдгээр <strong>аль талыг будахыг</strong> зөв тодорхойлж боломжит муж олох</span></li>
+    <li><span class="b">4</span><span>Оройн цэгүүдийг <strong>тэгшитгэлийн системээр</strong> олж, Z-д орлуулан оновчтой шийдийг гаргах</span></li>
+    <li><span class="b">5</span><span><strong>Оройн цэгийн теоремыг</strong> томьёолж, яагаад үргэлж хүчинтэйг тайлбарлах</span></li>
+  </ul>
+  <div class="s-foot"><span>Хичээл 4 · Сурах зорилт</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 4. ЗААГ 3.1 ══════════ -->
+<section class="slide divider dark" data-sec="3.1" data-notes="Эхний блок — аргын танилцуулга. Гол санаа: Бүлэг 2-т бид ЗАГВАР бичиж сурсан, одоо түүнийгээ БОДНО. График бол хамгийн хялбар нь.">
+  <div class="num">3.1</div>
+  <h2>Графикийн арга гэж юу вэ?</h2>
+  <p class="sub">Бүлэг 2-т бид бодлогыг зөвхөн томьёолж сурсан. Одоо тэрхүү загвараа шийдэж, тоон хариу гаргах цаг болов.</p>
+  <div class="s-foot"><span>Бүлэг 3.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 5. 3.1.1 ТАНИЛЦУУЛГА ══════════ -->
+<section class="slide" data-sec="3.1" data-notes="Оюутнаас асуу: «Бүлэг 2-т бид юу хийсэн бэ?» Хариу: томьёолсон, бодоогүй. Бодох хоёр үндсэн арга бий — график ба симплекс. Матрицын арга бол симплексийн шугаман алгебрын хувилбар.">
+  <div class="s-tag">3.1.1 · Танилцуулга</div>
+  <h2 class="title">Томьёололоос <em>бодолт</em> руу</h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Бүлэг 2-т бид асуудлыг уншиж, юу асуугдаж байгааг тодорхойлж, түүнийгээ <strong>x₁, x₂</strong> гэсэн хувьсагч, <strong>Z</strong> гэсэн зорилгын функц, тэнцэтгэл бишийн систем болгон бичихийг сурсан.</p>
+      <div class="def">
+        <div class="lbl">Гэвч</div>
+        <p>Энэ бол бодлогыг зөвхөн <strong>томьёолсон</strong> үе шат. Одоо бид тэрхүү загвараа хэрхэн шийдэж, <strong>тоон хариу</strong> гаргаж авах вэ гэдэг асуудалд оръё.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card green"><div class="k">Арга 1 · Бүлэг 3</div><h3 style="font-size:18px">Графикийн арга</h3><p>Ойлгоход хамгийн хялбар. Бид эндээс эхэлнэ.</p></div>
+      <div class="card accent"><div class="k">Арга 2 · Бүлэг 5</div><h3 style="font-size:18px">Симплекс арга</h3><p>Хувьсагчийн тоонд хязгаар тавьдаггүй алгебрын арга.</p></div>
+      <div class="card"><div class="k">Бүлэг 4</div><h3 style="font-size:18px">Матрицын арга</h3><p>Симплекс аргын шугаман алгебрын хувилбар.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.1.1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 6. 3.1.2 ХЭЗЭЭ АШИГЛАХ ══════════ -->
+<section class="slide" data-sec="3.1" data-notes="Тодорхойлолтыг чангаар уншуул. Гурван түлхүүр үг: шулуун зурах, боломжит муж, оройн цэг — энэ гурав бол өнөөдрийн бүх хичээлийн араг яс.">
+  <div class="s-tag">3.1.2 · Хэзээ ашиглах вэ?</div>
+  <h2 class="title">Зөвхөн <em>хоёр хувьсагчтай</em> бодлогод</h2>
+  <div class="split wide">
+    <div>
+      <p class="lead">Графикийн арга (<em>Graphical Method</em>) нь зөвхөн хоёр хувьсагчтай (x₁, x₂) бодлогод хэрэглэгддэг.</p>
+      <div class="def">
+        <div class="lbl">Аргын мөн чанар — гурван үйлдэл</div>
+        <p>Хязгаарлалтын шулуунуудыг <strong>координатын хавтгайд зурж</strong>, боломжит мужийг (<em>Feasible Region</em>) олоод, түүний <strong>оройн цэгүүдээс</strong> хамгийн ашигтайг нь сонгоно.</p>
+      </div>
+    </div>
+    <div class="grid" style="gap:12px;margin-top:0">
+      <div class="card accent"><div class="k">1</div><h3 style="font-size:18px">Шулуун зурна</h3><p>Хязгаарлалт бүр нэг шулуун болно.</p></div>
+      <div class="card accent"><div class="k">2</div><h3 style="font-size:18px">Боломжит муж олно</h3><p>Бүх хязгаарлалтыг зэрэг хангасан хэсэг.</p></div>
+      <div class="card green"><div class="k">3</div><h3 style="font-size:18px">Оройн цэг шалгана</h3><p>Хамгийн ашигтайг нь сонгоно.</p></div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.1.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 7. ЯАГААД ЗӨВХӨН 2 ХУВЬСАГЧ ══════════ -->
+<section class="slide" data-sec="3.1" data-notes="Асуу: «Яагаад 4 хувьсагчтай бодлогыг зурж болохгүй гэж?» Хариу: нүд, цаас хоёулаа 2 хэмжээст. Энэ нь аргын гол хязгаарлалт — үүнээс л Бүлэг 4, 5 үүсэх шаардлага гарна.">
+  <div class="s-tag">3.1.2 · Хязгаарлалт</div>
+  <h2 class="title">Яагаад зөвхөн <em>2D</em> үед ажилладаг вэ?</h2>
+  <div class="grid g3">
+    <div class="card green"><div class="k">2 хувьсагч</div><h3>x₁, x₂ — зурж болно</h3><p>Хүний нүд, цаас хоёулаа <strong>хоёр хэмжээст</strong> орон зайг л шууд харж, зурж чаддаг.</p></div>
+    <div class="card accent"><div class="k">3 хувьсагч</div><h3>x₁, x₂, x₃ — маш төвөгтэй</h3><p>Гурван хэмжээст (3D) биет зурах шаардлагатай болно — боломжтой ч маш төвөгтэй.</p></div>
+    <div class="card"><div class="k">4, 5, …, n хувьсагч</div><h3>Зурах ч, төсөөлөх ч аргагүй</h3><p>Геометрийн хувьд дүрслэх боломжгүй болно.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Анхаарах зүйл</div>
+    <p>Графикийн арга ердөө <strong>хоёр хувьсагчтай</strong> бодлогод л хэрэглэгдэнэ. Гурваас дээш хувьсагчтай бол <strong>матрицын арга (Бүлэг 4)</strong> эсвэл <strong>симплекс арга (Бүлэг 5)</strong>-ыг хэрэглэнэ — эдгээр нь алгебрын аргаар ажилладаг тул хувьсагчийн тоонд онолын хувьд хязгаар тавьдаггүй.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.1.2 · Анхаарах зүйл</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 8. 3.1.3 ЯАГААД ЧУХАЛ ══════════ -->
+<section class="slide" data-sec="3.1" data-notes="Гол мессеж: практик хэрэглээ нь бага ч ОЙЛГОЛТ өгдөг. Хамгийн чухал нь 4 дэх мөр — Бүлэг 5-ын симплекс бол угтаа оройн цэгүүдээр ухаалгаар шилжих арга. Үүнийг одооноос хэлж эхэл.">
+  <div class="s-tag">3.1.3 · Яагаад чухал вэ?</div>
+  <h2 class="title">Практик хэрэглээ бага ч — <em>суурь нь энэ</em></h2>
+  <div class="checks">
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Нүдээр харуулдаг</b> — тоо томшгүй олон боломжит шийдээс яагаад зөвхөн буланд байгаа цэгүүд л ач холбогдолтой болохыг шууд харуулна</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Ойлголтыг тодруулдаг</b> — «боломжит муж», «оновчтой шийд» гэсэн ойлголтууд яг юу гэсэн үг болохыг тодорхой болгодог</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Оройн цэгийн онол</b> нь Бүлэг 5-ын симплекс алгоритмын <b>шууд суурь</b> болно — симплекс арга гэдэг нь угтаа оройн цэгүүдээр ухаалгаар шилжих арга юм</span></div>
+    <div class="chk yes"><span class="m">✓</span><span class="tx"><b>Бүлэг 4-т үзэх матрицын арга</b> ч мөн адил эдгээр оройн цэгийг олоход зориулагдсан</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.1.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 9. 3.1.4 ДАВУУ / СУЛ ТАЛ ══════════ -->
+<section class="slide" data-sec="3.1" data-notes="Хүснэгтийг мөр мөрөөр нь харьцуул. Сүүлийн мөр хамгийн чухал: график нь компьютерт ажиллахгүй ч, дараагийн бүлгүүдийн онолын суурь болдог.">
+  <div class="s-tag">3.1.4 · Давуу ба сул тал</div>
+  <h2 class="title">Аргын <em>хоёр тал</em></h2>
+  <table class="t">
+    <thead><tr><th style="width:50%">Давуу тал</th><th>Сул тал</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Харагдахуйц, ойлгомжтой — оюутанд бодлогыг нүдээр төсөөлөх боломж өгдөг</td><td>Зөвхөн хоёр хувьсагчтай бодлогод л ажилладаг</td></tr>
+      <tr><td class="k">Тооцоолол энгийн (геометр, шулуунуудын огтлолцол)</td><td>Гараар зурах тохиолдолд нарийвчлал алдагдаж болзошгүй</td></tr>
+      <tr><td class="k">Боломжит мужийг бүхэлд нь нэг дороос харах боломжтой</td><td>Практик бодлогууд ихэвчлэн олон хувьсагчтай тул хэрэглээ хязгаарлагдмал</td></tr>
+      <tr><td class="k">Дараагийн бүлгүүдийн (матриц, симплекс) онолын суурь болдог</td><td>Компьютержсэн тооцоололд шууд ашиглагддаггүй</td></tr>
+    </tbody>
+  </table>
+  <div class="s-foot"><span>Бүлэг 3.1.4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 10. ЗААГ 3.2 ══════════ -->
+<section class="slide divider dark" data-sec="3.2" data-notes="Хичээлийн гол блок эхэллээ. Эдгээр таван алхмыг цээжлүүл — Хэсэг 3.5-т яг эдгээрийг «Модон урлал» дээр бүрэн ажиллуулна. Өнөөдөр бид алхам тус бүрийг интерактиваар нүдээр харна.">
+  <div class="num">3.2</div>
+  <h2>Графикийн аргын таван алхам</h2>
+  <p class="sub">Эдгээр таван алхмыг эзэмшсэн уншигч хоёр хувьсагчтай ямар ч шугаман программчлалын бодлогыг график аргаар бодож чадна.</p>
+  <div class="s-foot"><span>Бүлэг 3.2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 11. ТАВАН АЛХМЫН ТОЙМ ══════════ -->
+<section class="slide" data-sec="3.2" data-notes="Таван алхмыг нэг харцаар. Оюутнаар дараалуулж хэлүүл. Санамж: энэ бол зөвхөн онолын жагсаалт биш — Хэсэг 3.5-т эдгээрийг бүрэн тоон жишээгээр ажиллуулна.">
+  <div class="s-tag">3.2 · Тойм</div>
+  <h2 class="title">Таван алхмын <em>зураглал</em></h2>
+  <div class="grid g5">
+    <div class="card accent"><div class="k">Алхам 1</div><h3 style="font-size:17px">Координатын систем</h3><p style="font-size:13.5px">x₁ хэвтээ, x₂ босоо тэнхлэгт. Зөвхөн эхний мөч.</p></div>
+    <div class="card accent"><div class="k">Алхам 2</div><h3 style="font-size:17px">Шулуун зурах</h3><p style="font-size:13.5px">Тэнцэтгэл биш → тэнцэтгэл. Хоёр огтлолцлын цэг.</p></div>
+    <div class="card accent"><div class="k">Алхам 3</div><h3 style="font-size:17px">Боломжит муж</h3><p style="font-size:13.5px">Тэмдгээр нь тал сонгож будна. Давхцал = муж.</p></div>
+    <div class="card accent"><div class="k">Алхам 4</div><h3 style="font-size:17px">Оройн цэгүүд</h3><p style="font-size:13.5px">Булангийн цэгүүд — тэгшитгэлийн систем.</p></div>
+    <div class="card green"><div class="k">Алхам 5</div><h3 style="font-size:17px">Оновчтой шийд</h3><p style="font-size:13.5px">Орой бүрийг Z-д орлуулж харьцуулна.</p></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Санамж</div>
+    <p>Энэ бол зөвхөн онолын жагсаалт биш: <strong>Хэсэг 3.5-т</strong> бид эдгээр таван алхмыг «Модон урлал» ХХК-ийн бодлого дээр бүрэн, тоон жишээгээр ажиллуулна.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.2 · Таван алхам</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 12. АЛХАМ 1 ══════════ -->
+<section class="slide" data-sec="3.2" data-notes="Алхам 1. Хамгийн энгийн мэт боловч масштабын зөвлөгөөг заавал онцол — оюутнууд тэнхлэгээ богино зурчихаад зураг таслагдах алдааг байнга гаргадаг. Жишээ: 50 хүрдэг бол 55 хүртэл сунга.">
+  <div class="s-tag">Алхам 1</div>
+  <h2 class="title">Алхам 1 — <em>Координатын систем</em> байгуулах</h2>
+  <div class="ilay c">
+    <div>
+      <div class="ipan">
+        <h4>Юу хийх вэ?</h4>
+        <p>Нэг хувьсагчийг (<strong>x₁</strong>) хэвтээ тэнхлэгт, нөгөөг (<strong>x₂</strong>) босоо тэнхлэгт байрлуулна.</p>
+      </div>
+      <div class="def" style="margin-top:12px">
+        <div class="lbl">Эдийн засгийн утга</div>
+        <p style="font-size:16px">Үйлдвэрлэлийн тоо хэмжээ хэзээ ч сөрөг байж болохгүй (<strong>x₁ ≥ 0, x₂ ≥ 0</strong>) тул бид координатын хавтгайн зөвхөн <strong>эхний мөчид</strong> зургаа зурна.</p>
+      </div>
+      <div class="vbox"><b>Практик зөвлөгөө:</b> тэнхлэгийн масштабаа сонгохдоо шулуунуудын тэнхлэгтэй огтлолцох <b>хамгийн том утгыг</b> харгалзана. Нэг шулуун x₂ = 50 цэгт хүрдэг бол босоо тэнхлэгээ доод тал нь 0-ээс <b>55</b> хүртэл сунгах хэрэгтэй — эс тэгвээс зураг багтахгүй таслагдана.</div>
+    </div>
+    <div class="svgbox">
+      <svg class="gsvg" style="height:300px" viewBox="0 0 340 300" role="img" aria-label="Эхний мөч">
+        <rect x="46" y="20" width="272" height="240" fill="var(--green-bg)"/>
+        <line class="grid-l" x1="46" y1="20" x2="46" y2="284"/>
+        <line class="grid-l" x1="12" y1="260" x2="318" y2="260"/>
+        <line class="axis" x1="46" y1="260" x2="318" y2="260"/>
+        <line class="axis" x1="46" y1="260" x2="46" y2="20"/>
+        <text class="vlab" x="150" y="150" text-anchor="middle">эхний мөч</text>
+        <text class="tick" x="150" y="172" text-anchor="middle" style="font-size:11px">x₁ ≥ 0 · x₂ ≥ 0</text>
+        <text class="axlab" x="318" y="280" text-anchor="end">x₁ · ширээ</text>
+        <text class="axlab" x="54" y="32">x₂ · сандал</text>
+        <text class="tick" x="40" y="264" text-anchor="end">0</text>
+      </svg>
+      <div class="cap">Зөвхөн баруун дээд мөчид зурна</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.2 · Алхам 1</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 13. АЛХАМ 2 ══════════ -->
+<section class="slide" data-sec="3.2" data-notes="Алхам 2 — бүх хичээлийн хамгийн техникийн хэсэг. Самбар дээр 4x₁+2x₂=100-ыг гараар бод: x₁=0 бол x₂=50, x₂=0 бол x₁=25. Буруу хийвэл юу болохыг заавал хэл — компанид буруу зөвлөгөө өгнө.">
+  <div class="s-tag">Алхам 2</div>
+  <h2 class="title">Алхам 2 — Хязгаарлалтын <em>шулуун зурах</em></h2>
+  <div class="ilay c">
+    <div>
+      <div class="ipan">
+        <h4>Юу хийх вэ?</h4>
+        <p>Тэнцэтгэл бишүүдийг түр зуур <strong>тэнцэтгэл (=)</strong> болгож, тэнхлэгүүдтэй огтлолцох хоёр цэгийг олоод шулуун татна.</p>
+      </div>
+      <div class="mono">
+        <b>x₁ = 0</b> тавиад x₂-ийг ол → босоо тэнхлэгтэй огтлолцох цэг<span class="hr"></span>
+        <b>x₂ = 0</b> тавиад x₁-ийг ол → хэвтээ тэнхлэгтэй огтлолцох цэг<span class="hr"></span>
+        Олсон хоёр цэгээ <b>шулуун шугамаар</b> холбоно
+      </div>
+      <div class="vbox no"><b>Буруу хийвэл:</b> оюутнууд ихэвчлэн цэгээ буруу тэнхлэг дээр тэмдэглэх, эсвэл шулууныг муруй зурах алдаа гаргадаг. Шулуун буруу зурагдвал огтлолцлын цэг буруу гарч, улмаар <b>компанид буруу зөвлөгөө</b> өгөхөд хүрнэ.</div>
+    </div>
+    <div class="svgbox">
+      <svg class="gsvg" style="height:300px" viewBox="0 0 340 300" role="img" aria-label="Модны хязгаарлалтын шулуун">
+        <line class="grid-l" x1="46" y1="40" x2="318" y2="40"/>
+        <line class="grid-l" x1="46" y1="150" x2="318" y2="150"/>
+        <line class="grid-l" x1="182" y1="40" x2="182" y2="260"/>
+        <line class="axis" x1="46" y1="260" x2="318" y2="260"/>
+        <line class="axis" x1="46" y1="260" x2="46" y2="30"/>
+        <line x1="46" y1="40" x2="182" y2="260" stroke="var(--rust)" stroke-width="2.4"/>
+        <circle cx="46" cy="40" r="5" fill="var(--rust)" stroke="var(--paper)" stroke-width="2"/>
+        <circle cx="182" cy="260" r="5" fill="var(--rust)" stroke="var(--paper)" stroke-width="2"/>
+        <text class="vlab hal" x="56" y="36">(0, 50)</text>
+        <text class="vlab hal" x="188" y="252">(25, 0)</text>
+        <text class="eq hal" x="196" y="150" fill="var(--rust)">4x₁ + 2x₂ = 100</text>
+        <text class="axlab" x="318" y="282" text-anchor="end">x₁</text>
+        <text class="axlab" x="54" y="26">x₂</text>
+      </svg>
+      <div class="cap">Модны хязгаарлалт: хоёр цэг → нэг шулуун</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.2 · Алхам 2</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 14. ИНТЕРАКТИВ 1 — БОЛОМЖИТ МУЖ АЛХАМ АЛХМААР ══════════ -->
+<section class="slide" data-sec="3.2" id="regSlide" data-notes="ЭНЭ БОЛ ХИЧЭЭЛИЙН ЗҮРХ. 8–10 минут. Алхам бүрийн өмнө оюутнаас «одоо юу болох вэ?» гэж асуу, дараа нь товчоо дар. Буцах товчоор дахин давт. Тоо бүр номынхтой ижил: мод 100 м³, цаг 80.">
+  <div class="s-tag">Интерактив 1 · Бүлэг 3.2</div>
+  <h2 class="title">Боломжит мужийг <em>алхам алхмаар</em> байгуулъя</h2>
+  <div class="ilay a">
+    <div class="ipan">
+      <h4>«Модон урлал» ХХК</h4>
+      <div class="stepnum" id="regNum">АЛХАМ 0 / 5</div>
+      <div class="steph" id="regHead">Товчийг дарж эхэлнэ үү</div>
+      <p id="regTxt">Мод: 4x₁ + 2x₂ ≤ 100 м³ · Ажлын цаг: 2x₁ + 4x₂ ≤ 80 цаг · x₁, x₂ ≥ 0. Таван алхмыг нэг нэгээр нь график дээр байгуулна.</p>
+      <div class="btnrow">
+        <button class="bt ghost" id="regPrev">‹ Буцах</button>
+        <button class="bt" id="regNext">Алхам 1 ›</button>
+        <span class="pcount" id="regCnt">0 / 5</span>
+      </div>
+      <div class="vbox" id="regNote">Алхам бүрт график дээр яг нэг зүйл нэмэгдэнэ.</div>
+    </div>
+    <div class="svgbox">
+      <svg class="gsvg" id="regSvg" viewBox="0 0 640 400" role="img" aria-label="Боломжит муж алхам алхмаар"></svg>
+      <div class="cap">4x₁ + 2x₂ ≤ 100 (мод) · 2x₁ + 4x₂ ≤ 80 (цаг)</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Интерактив · Алхам 1 → 5 · Буцах товчтой</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 15. АЛХАМ 3 ══════════ -->
+<section class="slide" data-sec="3.2" data-notes="Алхам 3 — оюутнууд хамгийн их андуурдаг алхам. «≤ бол эх рүү, ≥ бол эхээс хол» гэдгийг цээжлүүл. Дараагийн слайдад үүнийг өөрсдөөр нь сонгуулж шалгана.">
+  <div class="s-tag">Алхам 3</div>
+  <h2 class="title">Алхам 3 — <em>Боломжит мужийг</em> тодорхойлох</h2>
+  <div class="checks">
+    <div class="chk yes"><span class="m">≤</span><span class="tx"><b>«≤» (бага буюу тэнцүү)</b> тэмдэгтэй бол шулуунаас <b>доош</b>, координатын эх (0, 0) рүү чиглэсэн хэсгийг будна</span></div>
+    <div class="chk no"><span class="m">≥</span><span class="tx"><b>«≥» (их буюу тэнцүү)</b> тэмдэгтэй бол шулуунаас <b>дээш</b>, координатын эхээс холдох чиглэлийн хэсгийг будна</span></div>
+    <div class="chk yes"><span class="m">∩</span><span class="tx">Бүх хязгаарлалтын будсан хэсгүүд <b>давхцаж буй хэсэг</b> нь бидний хайж буй <b>боломжит муж</b> (Feasible Region) юм</span></div>
+  </div>
+  <div class="def">
+    <div class="lbl">Эдийн засгийн утга</div>
+    <p>Будсан хэсэг доторх ямар ч цэгийг сонговол компанийн <strong>нөөц хүрэлцэнэ</strong> (мод, цаг, мөнгө гэх мэт). Харин мужаас <strong>гадна</strong> байгаа цэгийг сонговол тухайн хэмжээгээр үйлдвэрлэх нөөц байхгүй гэсэн үг.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.2 · Алхам 3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 16. ИНТЕРАКТИВ 2 — АЛЬ ТАЛ ══════════ -->
+<section class="slide" data-sec="3.2" id="sideSlide" data-notes="4–5 минут. ЭХЛЭЭД гараар санал асуулга ав: «дээд тал гэж бодож байгаа хүн гараа өргө». Дараа нь оюутнаар товшуул. Гол заавар: эргэлзвэл (0,0)-г орлуулж шалга — энэ бол хамгийн найдвартай арга.">
+  <div class="s-tag">Интерактив 2 · Алхам 3</div>
+  <h2 class="title">Аль тал нь <em>боломжит</em> вэ? Товшиж сонгоно уу</h2>
+  <div class="ilay b">
+    <div class="ipan">
+      <h4>Асуулт</h4>
+      <p style="font-size:16px;line-height:1.6">Модны хязгаарлалт: <strong>4x₁ + 2x₂ ≤ 100</strong>.<br>Шулуун зурагдсан. Шулууны аль <strong>талд</strong> байгаа цэгүүд энэ хязгаарлалтыг хангах вэ?</p>
+      <div class="vbox" id="sideMsg">Графикийн дээд эсвэл доод хэсэг дээр товшино уу.</div>
+      <div class="btnrow">
+        <button class="bt ghost" id="sideReset">⟲ Дахин</button>
+        <span class="pcount" id="sideCnt">сонголт хийгээгүй</span>
+      </div>
+    </div>
+    <div class="svgbox">
+      <svg class="gsvg" id="sideSvg" style="height:342px" viewBox="0 0 560 360" role="img" aria-label="Аль тал нь боломжит вэ"></svg>
+      <div class="cap">Хоёр талын аль нэг дээр товшино уу</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Интерактив · (0, 0) цэгээр шалгах дүрэм</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 17. АЛХАМ 4 ══════════ -->
+<section class="slide" data-sec="3.2" data-notes="Алхам 4. Самбар дээр системийг гараар бод — хасах аргаар. Гол мессеж (баруун доод): муж доторх мянга мянган цэгийг шалгах шаардлагагүй, зөвхөн орой. Яагаад гэдгийг 3.3-т батална.">
+  <div class="s-tag">Алхам 4</div>
+  <h2 class="title">Алхам 4 — <em>Оройн цэгүүдийг</em> олох</h2>
+  <div class="ilay c">
+    <div>
+      <div class="ipan">
+        <h4>Юу хийх вэ?</h4>
+        <p>Боломжит мужийн буланд байгаа цэгүүдийг, өөрөөр хэлбэл <strong>хоёр хязгаарлалтын шулуун</strong> (эсвэл шулуун ба тэнхлэг) огтлолцож буй цэгүүдийг олно. Хоёр шулууны огтлолцлыг олохын тулд тэдгээрийн <strong>тэгшитгэлийн системийг</strong> хамтад нь бодно.</p>
+      </div>
+      <div class="vbox ok"><b>Онол ёсоор</b> зорилгын функцийн хамгийн их (эсвэл бага) утга нь үргэлж боломжит мужийн <b>оройн цэг</b> дээр оршдог (Хэсэг 3.3). Тиймээс бид муж доторх мянга мянган цэгийг шалгах шаардлагагүй — <b>зөвхөн оройн цэгүүдийг л</b> шалгахад хангалттай.</div>
+    </div>
+    <div class="mono" style="margin-top:0">
+      4x₁ + 2x₂ = 100 &nbsp;(мод)<span class="hr"></span>
+      2x₁ + 4x₂ = 80 &nbsp;&nbsp;(цаг)<span class="hr"></span>
+      ×2 → 4x₁ + 8x₂ = 160<span class="hr"></span>
+      хас → 6x₂ = 60 &nbsp;⟹&nbsp; <b>x₂ = 10</b><span class="hr"></span>
+      4x₁ = 100 − 20 = 80 &nbsp;⟹&nbsp; <b>x₁ = 20</b><span class="hr"></span>
+      <b>D(20, 10)</b> — хоёр шулууны огтлолцол
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.2 · Алхам 4</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 18. ИНТЕРАКТИВ 3 — ОРОЙН ЦЭГ ТООЦООЛУУР ══════════ -->
+<section class="slide" data-sec="3.2" id="cpSlide" data-notes="6–8 минут. Оройг НЭГ НЭГЭЭР нь товшуул, товших бүрд оюутнаар тооцоог урьдчилан хэлүүл. B-г товшсоны дараа заавал асуу: «Энэ хамгийн их үү?» Ихэнх нь тийм гэнэ — дараа нь D гарч ирэхэд эффект нь илүү хүчтэй.">
+  <div class="s-tag">Интерактив 3 · Алхам 5</div>
+  <h2 class="title">Оройн цэг <em>тооцоолуур</em> — Z = 50,000x₁ + 40,000x₂</h2>
+  <div class="ilay b">
+    <div>
+      <div class="vgrid">
+        <button class="vb" data-v="0"><div class="vn">A</div><div class="vc">(0, 0)</div></button>
+        <button class="vb" data-v="1"><div class="vn">B</div><div class="vc">(25, 0)</div></button>
+        <button class="vb" data-v="2"><div class="vn">C</div><div class="vc">(0, 20)</div></button>
+        <button class="vb" data-v="3"><div class="vn">D</div><div class="vc">(20, 10)</div></button>
+      </div>
+      <div class="calcs" id="cpRows"></div>
+      <div class="vbox" id="cpMsg">Орой бүрийг товшиж Z-ийн утгыг задлан харна уу. Хамгийн их нь <b>алтаар</b> тодорно.</div>
+    </div>
+    <div class="svgbox">
+      <svg class="gsvg" id="cpSvg" style="height:330px" viewBox="0 0 400 330" role="img" aria-label="Оройн цэгүүд"></svg>
+      <div class="cap">Товшсон орой график дээр тодорно</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Интерактив · 4 орой · Z-ийн харьцуулалт</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 19. АЛХАМ 5 ══════════ -->
+<section class="slide" data-sec="3.2" data-notes="Алхам 5 — дүгнэлт. Хүснэгтийг мөр мөрөөр нь харьцуул. D мөр алтаар тодорсон. Практик зөвлөгөөг заавал онцол: хүснэгт хийвэл алдаа гаргах магадлал буурна.">
+  <div class="s-tag">Алхам 5</div>
+  <h2 class="title">Алхам 5 — <em>Оновчтой шийдийг</em> олох</h2>
+  <div class="ipan" style="margin-top:12px">
+    <h4>Юу хийх вэ?</h4>
+    <p style="font-size:15.5px">Олсон бүх оройн цэгээ зорилгын функцэд (<strong>Z</strong>) орлуулж, аль нь хамгийн их (max бодлогод) эсвэл хамгийн бага (min бодлогод) утга өгч байгааг харьцуулна. Хамгийн сайн үзүүлэлт өгсөн цэг бол <strong>оновчтой шийд</strong> (<em>Optimal Solution</em>) юм.</p>
+  </div>
+  <table class="t sm" style="margin:14px 0 0">
+    <thead><tr><th style="width:20%">Оройн цэг</th><th style="width:46%">Z = 50,000x₁ + 40,000x₂</th><th>Утга</th></tr></thead>
+    <tbody>
+      <tr><td class="sym">A (0, 0)</td><td>50,000·0 + 40,000·0</td><td>0 ₮</td></tr>
+      <tr><td class="sym">B (25, 0)</td><td>50,000·25 + 40,000·0</td><td>1,250,000 ₮</td></tr>
+      <tr><td class="sym">C (0, 20)</td><td>50,000·0 + 40,000·20</td><td>800,000 ₮</td></tr>
+      <tr style="background:var(--gold-bg)"><td class="sym" style="font-weight:700;color:var(--gold-ink)">D (20, 10)</td><td>50,000·20 + 40,000·10</td><td style="font-weight:700;color:var(--gold-ink)">1,400,000 ₮ ✓</td></tr>
+    </tbody>
+  </table>
+  <div class="vbox"><b>Практик зөвлөгөө:</b> оройн цэгүүдийн Z утгыг <b>хүснэгтэд эмхэтгэн</b> бичвэл харьцуулахад хялбар бөгөөд алдаа гаргах магадлал буурна. Бид Хэсэг 3.5-ын Алхам 5-д яг ийм хүснэгт ашиглана.</div>
+  <div class="s-foot"><span>Бүлэг 3.2 · Алхам 5</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 20. ИНТЕРАКТИВ 4 — ӨӨРИЙГӨӨ ШАЛГАХ ══════════ -->
+<section class="slide" data-sec="3.2" id="chkSlide" data-notes="3 минут. Оюутнаар ЭХЛЭЭД дэвтэр дээр нь бодуул, дараа нь картыг нээ. Хоёуланг нээхэд график дээр шулуун автоматаар зурагдана. Хэн буруу бодсоныг нь асуухгүй — зүгээр л дахин давт.">
+  <div class="s-tag">Өөрийгөө шалгах · Алхам 2</div>
+  <h2 class="title">Хязгаарлалт: <em>x₁ + 3x₂ ≤ 30</em></h2>
+  <div class="ilay c">
+    <div>
+      <div class="def" style="margin-top:0">
+        <div class="lbl">Асуулт</div>
+        <p>Энэ шулуун <strong>x₁</strong> болон <strong>x₂</strong> тэнхлэгтэй хаана огтлолцох вэ? Эхлээд өөрөө бодоод, дараа нь картыг товшино уу.</p>
+      </div>
+      <div class="qcards">
+        <button class="qc" data-q="0">
+          <div class="qq">x₁ = 0 үед?</div>
+          <div class="qt">▸ товшиж хариуг харах</div>
+          <div class="qa">3x₂ = 30 ⟹ <strong>x₂ = 10</strong><br>өөрөөр хэлбэл <strong>(0, 10)</strong> цэг</div>
+        </button>
+        <button class="qc" data-q="1">
+          <div class="qq">x₂ = 0 үед?</div>
+          <div class="qt">▸ товшиж хариуг харах</div>
+          <div class="qa"><strong>x₁ = 30</strong><br>өөрөөр хэлбэл <strong>(30, 0)</strong> цэг</div>
+        </button>
+      </div>
+      <div class="vbox" id="chkMsg">Эдгээр хоёр цэгийг холбосон шулуун бол тухайн хязгаарлалтын шугам.</div>
+    </div>
+    <div class="svgbox">
+      <svg class="gsvg" id="chkSvg" style="height:300px" viewBox="0 0 340 300" role="img" aria-label="x1 + 3x2 = 30 шулуун"></svg>
+      <div class="cap">Хоёр хариуг нээхэд шулуун зурагдана</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.2 · Өөрийгөө шалгах</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 21. ЗААГ 3.3 ══════════ -->
+<section class="slide divider dark" data-sec="3.3" data-notes="Хичээлийн онолын оргил. Энэ хэсэг маш чухал: Бүлэг 5-ын симплекс алгоритмын онолын суурь яг энд оршдог. Удаан, тодорхой ярь.">
+  <div class="num">3.3</div>
+  <h2>Оройн цэгийн онол</h2>
+  <p class="sub">Corner Point Theorem — Бүлэг 5-ын симплекс алгоритмын онолын суурь яг энд оршдог.</p>
+  <div class="s-foot"><span>Бүлэг 3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 22. 3.3.1 ТЕОРЕМ ══════════ -->
+<section class="slide" data-sec="3.3" data-notes="Теоремыг чангаар уншуул, дараа нь оюутнаар өөрийнх нь үгээр давтуул. Хаалтан доторх нэмэлт (олон шийдтэй тохиолдол) нь Хэсэг 3.6.1-д ирнэ — одоо гүнзгийрүүлэхгүй.">
+  <div class="s-tag">3.3.1 · Оройн цэгийн теорем</div>
+  <h2 class="title">Теорем — <em>оптимум үргэлж буланд</em></h2>
+  <div class="formula">
+    <div class="fl" style="font-size:20px;line-height:1.75">
+      Хэрэв ШП-ийн бодлого <span class="op">оновчтой шийдтэй</span> бол,<br>
+      тэрхүү шийд <span class="c">үргэлж</span> боломжит мужийн<br>
+      <span class="c">оройн цэг (Corner Point)</span> дээр байдаг.
+    </div>
+    <div class="cap">Хэрэв хоёр буюу түүнээс дээш оройн цэг ижил хамгийн сайн утга өгвөл, тэдгээрийг холбосон ирмэг дээрх бүх цэг мөн адил оновчтой байна — Хэсэг 3.6.1</div>
+  </div>
+  <div class="def">
+    <div class="lbl">Энэ теоремын ачаар</div>
+    <p>Оновчтой шийдийг олохын тулд боломжит муж доторх <strong>хязгааргүй олон цэгийг</strong> шалгах шаардлагагүй болно: оройн цэгүүдийг л (ихэвчлэн <strong>3–6 ширхэг</strong> байдаг) шалгахад хангалттай.</p>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.3.1 · Corner Point Theorem</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 23. 3.3.2 ЯАГААД ══════════ -->
+<section class="slide" data-sec="3.3" data-notes="Хоёр шалтгаан. Гүдгэр мужийн тодорхойлолтыг зургаар нь тайлбарла: хоёр цэг холбосон хэрчим мужаас гарахгүй. Баруун талын «С» хэлбэрийг заагаад асуу: «Энд хэрчим мужаас гарч байна уу?»">
+  <div class="s-tag">3.3.2 · Яагаад ингэж болдог вэ?</div>
+  <h2 class="title">Хоёр үндсэн <em>шинжээс</em> урган гардаг</h2>
+  <div class="ilay c">
+    <div>
+      <div class="ipan">
+        <h4>Нэгд · зорилгын функц шугаман</h4>
+        <p>Z = c₁x₁ + c₂x₂. Шугаман функц <strong>муруйдаггүй</strong> тул мужийн дундах ямар нэг цэг дээр гэнэт өсөж, буурах (<em>локал максимум</em> үүсгэх) боломжгүй.</p>
+      </div>
+      <div class="ipan" style="margin-top:12px">
+        <h4>Хоёрт · боломжит муж гүдгэр</h4>
+        <p><strong>Гүдгэр муж</strong> (<em>Convex Region</em>) гэдэг нь мужийн дотор орших дурын хоёр цэгийг холбосон шулуун хэрчим <strong>бүхэлдээ мөн тэрхүү мужийн дотор</strong> багтдаг шинж чанартай мужийг хэлнэ.</p>
+      </div>
+      <div class="vbox ok">Шугаман функцийн хамгийн их утгыг гүдгэр мужийн хүрээнд хайвал, тэр утга үргэлж мужийн ирмэг дагуух <b>хамгийн туйлын цэг</b> дээр — өөрөөр хэлбэл <b>оройн цэг</b> дээр гарна.</div>
+    </div>
+    <div class="duo" style="grid-template-columns:1fr;margin-top:0;gap:12px">
+      <div class="figc ok">
+        <svg class="gsvg" style="height:132px" viewBox="0 0 300 140" role="img" aria-label="Гүдгэр муж">
+          <polygon points="30,120 190,120 160,50 30,20" fill="var(--green-bg)" stroke="var(--green)" stroke-width="2"/>
+          <line x1="55" y1="105" x2="165" y2="60" stroke="var(--green)" stroke-width="2" stroke-dasharray="5 4"/>
+          <circle cx="55" cy="105" r="4.5" fill="var(--green)"/>
+          <circle cx="165" cy="60" r="4.5" fill="var(--green)"/>
+          <text class="tick" x="205" y="80" style="font-size:11px;fill:var(--green)">хэрчим дотор ✓</text>
+        </svg>
+        <div class="ft">Гүдгэр — ШП-ийн боломжит муж үргэлж ийм</div>
+      </div>
+      <div class="figc bad">
+        <svg class="gsvg" style="height:132px" viewBox="0 0 300 140" role="img" aria-label="Гүдгэр биш муж">
+          <polygon points="30,120 190,120 190,90 110,70 190,50 190,20 30,20" fill="var(--rust-bg)" stroke="var(--rust)" stroke-width="2"/>
+          <line x1="170" y1="110" x2="170" y2="32" stroke="var(--rust)" stroke-width="2" stroke-dasharray="5 4"/>
+          <circle cx="170" cy="110" r="4.5" fill="var(--rust)"/>
+          <circle cx="170" cy="32" r="4.5" fill="var(--rust)"/>
+          <text class="tick" x="205" y="80" style="font-size:11px;fill:var(--rust)">хэрчим гадагш ✗</text>
+        </svg>
+        <div class="ft">Гүдгэр биш («С» хэлбэр) — ШП-д ийм муж үүсэхгүй</div>
+      </div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.3.2 · Гүдгэр муж</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 24. ИНТЕРАКТИВ 5 — ЦЭГ ЧИРЭХ ══════════ -->
+<section class="slide" data-sec="3.3" id="dragSlide" data-notes="5 минут. Оюутныг өөрийг нь ирж чирүүл. Даалгавар: «Мужийн ДОТООД цэгээс 1,400,000-аас их Z ол». Олохгүй. Дараа нь ирмэг дагуу чирүүлээд D рүү аваачихад Z дээшилж, оройд дээд цэгтээ хүрэхийг нүдээр харуулна.">
+  <div class="s-tag">Интерактив 4 · Бүлэг 3.3</div>
+  <h2 class="title">Цэгээ <em>чирээд</em> үзнэ үү — оройноос илүү нь олдох уу?</h2>
+  <div class="ilay b">
+    <div class="ipan">
+      <h4>Сонгосон цэг</h4>
+      <div class="rd"><span class="rk">Ширээ x₁</span><span class="rv" id="dgX1">0</span></div>
+      <div class="rd"><span class="rk">Сандал x₂</span><span class="rv" id="dgX2">0</span></div>
+      <div class="rd"><span class="rk">Мод 4x₁ + 2x₂</span><span class="rv" id="dgW">0 / 100</span></div>
+      <div class="rd" style="border-bottom:none"><span class="rk">Цаг 2x₁ + 4x₂</span><span class="rv" id="dgT">0 / 80</span></div>
+      <div class="zbig" id="dgBox">
+        <div class="zl">Z = 50,000x₁ + 40,000x₂</div>
+        <div class="zv"><span id="dgZ">0</span><small>₮</small></div>
+        <div class="zf" id="dgFlag">Боломжит муж дотор ✓</div>
+      </div>
+      <div class="vbox" id="dgMsg" style="margin-top:11px">Ногоон цэгийг хулганаар чирнэ үү.</div>
+    </div>
+    <div class="svgbox">
+      <svg class="gsvg" id="dragSvg" style="height:352px" viewBox="0 0 560 380" role="img" aria-label="Цэг чирэх талбар"></svg>
+      <div class="cap">Цэгийг чирэхэд Z шууд шинэчлэгдэнэ</div>
+    </div>
+  </div>
+  <div class="s-foot"><span>Интерактив · Дурын цэг vs оройн цэг</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 25. 3.3.3 ПРАКТИК УТГА ══════════ -->
+<section class="slide" data-sec="3.3" data-notes="Гурван практик утга. Гурав дахь нь хамгийн чухал — Бүлэг 5-ын симплекс. Хэлж өг: симплекс бол «оройноос орой руу ухаалгаар шилжих» алгоритм, өнөөдөр бид түүний онолын суурийг тавилаа.">
+  <div class="s-tag">3.3.3 · Практик утга</div>
+  <h2 class="title">Теоремын <em>практик ач холбогдол</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt">Бид боломжит муж доторх <b>бүх цэгийг шалгах шаардлагагүй</b> — зөвхөн оройн цэгүүдийг л шалгахад хангалттай.</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt">Хэдэн зуун хувьсагч, хязгаарлалттай <b>том бодлогод ч энэ зарчим хэвээр хүчинтэй</b>. Гагцхүү тэдгээрийг гараар зурах боломжгүй тул оройн цэгүүдийг <b>алгебрын аргаар, симплекс аргаар</b> олно.</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt">Бүлэг 5-т үзэх <b>симплекс алгоритм</b> угтаа энэ теоремыг ашигладаг: боломжит мужийн оройн цэгүүдээр санамсаргүй биш, харин Z-г сайжруулах чиглэлд ухаалгаар — <b>оройноос орой руу</b> — шилжиж, хамгийн цөөн алхмаар оновчтой цэгт хүрдэг.</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.3.3</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 26. ГОЛ САНАА ══════════ -->
+<section class="slide" data-sec="—" data-notes="Таван гол санаа. Оюутнаар нэг бүрчлэн давтуулж хэлүүл. Ялангуяа 3 ба 5 — дадлагын даалгавар яг эдгээр дээр тулгуурлана.">
+  <div class="s-tag">Бүлгийн хураангуй</div>
+  <h2 class="title">Таван гол <em>санаа</em></h2>
+  <div class="keys">
+    <div class="key"><span class="kn">1</span><span class="kt">Графикийн арга <b>зөвхөн хоёр хувьсагчтай</b> бодлогод ажиллана — нүд, цаас хоёулаа 2 хэмжээст учраас.</span></div>
+    <div class="key"><span class="kn">2</span><span class="kt">Шулууныг <b>тэнхлэгтэй огтлолцох хоёр цэгээр</b> зурна: x₁ = 0 тавиад x₂-ийг ол, x₂ = 0 тавиад x₁-ийг ол.</span></div>
+    <div class="key"><span class="kn">3</span><span class="kt"><b>«≤» бол эх (0,0) рүү</b>, <b>«≥» бол эхээс хол</b> тал руу будна. Бүх будалтын давхцал = боломжит муж.</span></div>
+    <div class="key"><span class="kn">4</span><span class="kt"><b>Оройн цэгийн теорем:</b> оновчтой шийд үргэлж боломжит мужийн оройн цэг дээр байдаг — учир нь Z шугаман, муж гүдгэр.</span></div>
+    <div class="key"><span class="kn">5</span><span class="kt">«Модон урлал»: оройнууд A(0,0), B(25,0), C(0,20), D(20,10) — оптимум <b>D(20, 10), Z = 1,400,000 ₮</b>.</span></div>
+  </div>
+  <div class="s-foot"><span>Бүлэг 3.1–3.3 · Хураангуй</span><span class="pg"></span></div>
+</section>
+
+<!-- ══════════ 27. ТӨГСГӨЛ ══════════ -->
+<section class="slide closing dark" data-sec="—" data-notes="Дараагийн 1.5 цаг — дадлага: оюутан бүр цаасан дээр гараар зурна. Дараагийн хичээлээр Хэсэг 3.4–3.5: ижил ашгийн шугам ба «Модон урлал»-ын бүрэн бодолт.">
+  <h2>Оптимум <em>үргэлж буланд</em>.<br>Одоо түүнийг өөрсдөө <em>зурцгаая</em>.</h2>
+  <p class="sub" style="color:rgba(255,255,255,.84);margin-top:18px;font-size:19px">
+    Хэсэг 3.4-т ижил ашгийн шугамаар яагаад оройд гардгийг илүү тодорхой харуулна. Хэсэг 3.5-т таван алхмыг «Модон урлал» ХХК дээр бүрэн ажиллуулна. Бүлэг 5-д яг эдгээр оройг симплексээр олно.
+  </p>
+  <div class="nx">
+    <span>▶ Дараах: Дадлага 1.5 цаг</span>
+    <span>📘 Уншиж бэлдэх: Бүлэг 3.4–3.5</span>
+    <span>🔗 LP Suite → Хэрэгсэл → Графикийн арга</span>
+  </div>
+</section>
+
+</div></div>
+
+<canvas id="wmS" class="wm"></canvas>
+<canvas id="wmT1" class="wm"></canvas>
+<canvas id="wmT2" class="wm"></canvas>
+<div id="bar"><i></i></div>
+<div id="hud">
+  <button id="bPrev" title="Өмнөх (←)">‹</button>
+  <span id="count">1 / 27</span>
+  <button id="bNext" title="Дараах (→)">›</button>
+  <button id="bOv" title="Тойм (O)">▦</button>
+  <button id="bNotes" title="Багшийн тэмдэглэл (S)">✎</button>
+  <button id="bFull" title="Бүтэн дэлгэц (F)">⛶</button>
+  <button id="bWm" title="Камерын ус тэмдэг (W)">◍</button>
+  <button id="bTheme" title="Цаас / Шөнө загвар (T)">◐</button>
+  <button id="bHelp" title="Товчлуурын заавар (H)">?</button>
+</div>
+<div id="help"><kbd>←</kbd> <kbd>→</kbd> шилжих · <kbd>O</kbd> тойм · <kbd>S</kbd> тэмдэглэл · <kbd>F</kbd> бүтэн дэлгэц · <kbd>T</kbd> загвар · <kbd>W</kbd> ус тэмдэг · <kbd>H</kbd> тусламж</div>
+
+<div id="notes">
+  <button id="notesClose" title="Хаах (S эсвэл Esc)">✕ Хаах</button>
+  <b>Багшийн тэмдэглэл — зөвхөн танд харагдана</b><span id="notesTxt"></span>
+</div>
+
+<div id="keys">
+  <div class="box">
+    <h3>Товчлуурын заавар</h3>
+    <div class="kr"><span class="kk"><span>←</span><span>→</span><span>Space</span></span><span>Өмнөх / дараагийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>Home</span><span>End</span></span><span>Эхний / сүүлийн слайд</span></div>
+    <div class="kr"><span class="kk"><span>O</span></span><span>Бүх слайдын тойм — товшиж үсэрнэ</span></div>
+    <div class="kr"><span class="kk"><span>S</span></span><span>Багшийн тэмдэглэл нээх / <strong>хаах</strong></span></div>
+    <div class="kr"><span class="kk"><span>F</span></span><span>Бүтэн дэлгэц (дахин дарвал гарна)</span></div>
+    <div class="kr"><span class="kk"><span>Esc</span></span><span>Нээлттэй цонхыг хаах</span></div>
+    <div class="kr"><span class="kk"><span>T</span></span><span>Цаас ⇄ Шөнө загвар солих</span></div>
+    <div class="kr"><span class="kk"><span>W</span></span><span>Камерын ус тэмдэг асаах / унтраах</span></div>
+    <div class="kr"><span class="kk"><span>H</span><span>?</span></span><span>Энэ заавар</span></div>
+    <div class="kr"><span class="kk"><span>Ctrl</span><span>P</span></span><span>PDF болгож хэвлэх</span></div>
+    <button class="close">Ойлголоо</button>
+  </div>
+</div>
+
+<div id="overview">
+  <h4>Слайдын тойм — товшиж очно уу</h4>
+  <div class="ovgrid" id="ovgrid"></div>
+</div>
+
+<script>
+window.DECK = {
+  lesson: 'Хичээл 4',
+  course: 'Бүлэг 3 — Графикийн арга',
+  parts: [
+    {k:'intro', label:'Эхлэл'},
+    {k:'3.1',   label:'Арга гэж юу вэ?'},
+    {k:'3.2',   label:'Таван алхам'},
+    {k:'3.3',   label:'Оройн цэгийн онол'},
+    {k:'end',   label:'Дүгнэлт'},
+  ],
+  map: [
+    {p:'intro', s:''},
+    {p:'intro', s:'Хичээлийн агуулга'},
+    {p:'intro', s:'Сурах зорилт'},
+    {p:'3.1',   s:'Графикийн арга гэж юу вэ?'},
+    {p:'3.1',   s:'3.1.1 · Танилцуулга'},
+    {p:'3.1',   s:'3.1.2 · Хэзээ ашиглах вэ?'},
+    {p:'3.1',   s:'3.1.2 · Яагаад зөвхөн 2D?'},
+    {p:'3.1',   s:'3.1.3 · Яагаад чухал вэ?'},
+    {p:'3.1',   s:'3.1.4 · Давуу ба сул тал'},
+    {p:'3.2',   s:'Графикийн аргын таван алхам'},
+    {p:'3.2',   s:'3.2 · Таван алхмын тойм'},
+    {p:'3.2',   s:'Алхам 1 · Координатын систем'},
+    {p:'3.2',   s:'Алхам 2 · Шулуун зурах'},
+    {p:'3.2',   s:'Интерактив · Боломжит муж'},
+    {p:'3.2',   s:'Алхам 3 · Боломжит муж'},
+    {p:'3.2',   s:'Интерактив · Аль тал нь?'},
+    {p:'3.2',   s:'Алхам 4 · Оройн цэгүүд'},
+    {p:'3.2',   s:'Интерактив · Оройн тооцоолуур'},
+    {p:'3.2',   s:'Алхам 5 · Оновчтой шийд'},
+    {p:'3.2',   s:'Өөрийгөө шалгах'},
+    {p:'3.3',   s:'Оройн цэгийн онол'},
+    {p:'3.3',   s:'3.3.1 · Теорем'},
+    {p:'3.3',   s:'3.3.2 · Яагаад ингэж болдог вэ?'},
+    {p:'3.3',   s:'Интерактив · Цэг чирэх'},
+    {p:'3.3',   s:'3.3.3 · Практик утга'},
+    {p:'end',   s:'Таван гол санаа'},
+    {p:'end',   s:''},
+  ]
+};
+</script>
+
+<script>
+/* ==========================================================================
+   ХИЧЭЭЛ 4 — ИНТЕРАКТИВ КОД (гадаад сангүй, цэвэр JS + SVG)
+   ========================================================================== */
+window.LP4 = (function(){
+  const NS = 'http://www.w3.org/2000/svg';
+  function mk(t,a,txt){
+    const e = document.createElementNS(NS,t);
+    if(a) for(const k in a) e.setAttribute(k, a[k]);
+    if(txt != null) e.textContent = txt;
+    return e;
+  }
+  function nf(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  /* Тэнхлэг + тор байгуулагч. Буцаана: {X, Y, g} */
+  function axes(svg, C){
+    const X = v => C.ML + v / C.x1max * (C.W - C.ML - C.MR);
+    const Y = v => C.H - C.MB - v / C.x2max * (C.H - C.MT - C.MB);
+    const g = mk('g');
+    for(let v = C.xs; v <= C.x1max; v += C.xs)
+      g.appendChild(mk('line',{class:'grid-l', x1:X(v), y1:Y(0), x2:X(v), y2:Y(C.x2max)}));
+    for(let v = C.ys; v <= C.x2max; v += C.ys)
+      g.appendChild(mk('line',{class:'grid-l', x1:X(0), y1:Y(v), x2:X(C.x1max), y2:Y(v)}));
+    g.appendChild(mk('line',{class:'axis', x1:X(0), y1:Y(0), x2:X(C.x1max), y2:Y(0)}));
+    g.appendChild(mk('line',{class:'axis', x1:X(0), y1:Y(0), x2:X(0), y2:Y(C.x2max)}));
+    for(let v = C.xs; v <= C.x1max; v += C.xs)
+      g.appendChild(mk('text',{class:'tick', x:X(v), y:Y(0)+15, 'text-anchor':'middle'}, v));
+    for(let v = C.ys; v <= C.x2max; v += C.ys)
+      g.appendChild(mk('text',{class:'tick', x:X(0)-7, y:Y(v)+4, 'text-anchor':'end'}, v));
+    g.appendChild(mk('text',{class:'tick', x:X(0)-7, y:Y(0)+4, 'text-anchor':'end'}, '0'));
+    if(C.xlab) g.appendChild(mk('text',{class:'axlab', x:C.W-C.MR, y:Y(0)+31, 'text-anchor':'end'}, C.xlab));
+    if(C.ylab) g.appendChild(mk('text',{class:'axlab', x:X(0)+9, y:C.MT+4}, C.ylab));
+    svg.appendChild(g);
+    return {X:X, Y:Y, g:g};
+  }
+  return {mk:mk, nf:nf, axes:axes};
+})();
+
+/* ==========================================================================
+   ИНТЕРАКТИВ 1 — Боломжит муж алхам алхмаар (Алхам 1 → 5)
+   ========================================================================== */
+(function(){
+  const svg = document.getElementById('regSvg');
+  if(!svg) return;
+  const mk = window.LP4.mk, axes = window.LP4.axes;
+  const C = {W:640, H:400, ML:52, MR:22, MT:20, MB:38, x1max:45, x2max:55,
+             xs:5, ys:10, xlab:'x₁ · ширээ', ylab:'x₂ · сандал'};
+  const A = axes(svg, C), X = A.X, Y = A.Y;
+
+  /* g1 — тэнхлэг ба тор */
+  const g1 = A.g;
+
+  /* g4 — боломжит муж (шулуунуудын доор байрлана) */
+  const g4 = mk('g');
+  g4.appendChild(mk('polygon',{
+    points:[[0,0],[25,0],[20,10],[0,20]].map(p => X(p[0])+','+Y(p[1])).join(' '),
+    fill:'#6DA94F','fill-opacity':.22, stroke:'#6DA94F','stroke-width':2}));
+  g4.appendChild(mk('text',{class:'reglab', x:X(6), y:Y(4)}, 'боломжит муж'));
+  svg.appendChild(g4);
+
+  /* g2 — модны шулуун 4x₁ + 2x₂ = 100 → (25,0) ба (0,50) */
+  const g2 = mk('g');
+  g2.appendChild(mk('line',{x1:X(25), y1:Y(0), x2:X(0), y2:Y(50),
+    stroke:'#B5482A','stroke-width':2.4}));
+  g2.appendChild(mk('circle',{cx:X(25), cy:Y(0), r:4.5, fill:'#B5482A'}));
+  g2.appendChild(mk('circle',{cx:X(0), cy:Y(50), r:4.5, fill:'#B5482A'}));
+  g2.appendChild(mk('text',{class:'eq hal', x:X(5)+10, y:Y(40), fill:'#B5482A'}, '4x₁ + 2x₂ = 100  (мод)'));
+  svg.appendChild(g2);
+
+  /* g3 — цагийн шулуун 2x₁ + 4x₂ = 80 → (40,0) ба (0,20) */
+  const g3 = mk('g');
+  g3.appendChild(mk('line',{x1:X(40), y1:Y(0), x2:X(0), y2:Y(20),
+    stroke:'#3B4A7A','stroke-width':2.4}));
+  g3.appendChild(mk('circle',{cx:X(40), cy:Y(0), r:4.5, fill:'#3B4A7A'}));
+  g3.appendChild(mk('circle',{cx:X(0), cy:Y(20), r:4.5, fill:'#3B4A7A'}));
+  g3.appendChild(mk('text',{class:'eq hal', x:X(32)+8, y:Y(4)-8, fill:'#3B4A7A'}, '2x₁ + 4x₂ = 80  (цаг)'));
+  svg.appendChild(g3);
+
+  /* g5 — оройн цэгүүд */
+  const g5 = mk('g');
+  const VS = [['A',0,0,10,-10],['B',25,0,-6,-14],['D',20,10,10,-9],['C',0,20,10,-9]];
+  VS.forEach(function(v){
+    g5.appendChild(mk('circle',{cx:X(v[1]), cy:Y(v[2]), r:6.5, fill:'#C8A951',
+      stroke:'var(--paper)','stroke-width':2}));
+    g5.appendChild(mk('text',{class:'vlab hal', x:X(v[1])+v[3], y:Y(v[2])+v[4]},
+      v[0]+'('+v[1]+', '+v[2]+')'));
+  });
+  svg.appendChild(g5);
+
+  const G = [g1, g2, g3, g4, g5];
+  const STEPS = [
+    {n:'АЛХАМ 0 / 5', h:'Товчийг дарж эхэлнэ үү',
+     t:'Мод: 4x₁ + 2x₂ ≤ 100 м³ · Ажлын цаг: 2x₁ + 4x₂ ≤ 80 цаг · x₁, x₂ ≥ 0. Таван алхмыг нэг нэгээр нь график дээр байгуулна.',
+     v:'Алхам бүрт график дээр яг нэг зүйл нэмэгдэнэ.', c:''},
+    {n:'АЛХАМ 1 / 5', h:'Координатын систем',
+     t:'x₁ (ширээ) — хэвтээ тэнхлэгт, x₂ (сандал) — босоо тэнхлэгт. x₁ ≥ 0, x₂ ≥ 0 тул зөвхөн эхний мөчид зурна.',
+     v:'Масштаб: модны шулуун x₂ = 50-д хүрдэг тул босоо тэнхлэгийг 55 хүртэл сунгав.', c:''},
+    {n:'АЛХАМ 2а / 5', h:'Модны хязгаарлалт',
+     t:'4x₁ + 2x₂ = 100. x₁ = 0 ⟹ x₂ = 50 → (0, 50). x₂ = 0 ⟹ x₁ = 25 → (25, 0). Хоёр цэгийг шулуунаар холбов.',
+     v:'Улаан шулуун: агуулах дахь 100 м³ мод бүрэн зарцуулагдах хил.', c:'no'},
+    {n:'АЛХАМ 2б / 5', h:'Цагийн хязгаарлалт',
+     t:'2x₁ + 4x₂ = 80. x₁ = 0 ⟹ x₂ = 20 → (0, 20). x₂ = 0 ⟹ x₁ = 40 → (40, 0).',
+     v:'Хөх шулуун: мужаануудын 80 цаг бүрэн зарцуулагдах хил.', c:''},
+    {n:'АЛХАМ 3 / 5', h:'Боломжит муж',
+     t:'Хоёулаа «≤» тэмдэгтэй тул шулуун бүрээс эх (0, 0) рүү чиглэсэн талыг будна. Хоёр будалтын давхцал нь боломжит муж.',
+     v:'Будсан муж доторх ямар ч цэгт мод, цаг хоёулаа хүрэлцэнэ.', c:'ok'},
+    {n:'АЛХАМ 4 / 5', h:'Оройн цэгүүд',
+     t:'Мужийн булангууд: A(0, 0), B(25, 0), D(20, 10), C(0, 20). D нь хоёр шулууны огтлолцол — системийг бодож олно.',
+     v:'Оновчтой шийд эдгээр дөрвөн цэгийн аль нэг дээр байна — Алхам 5-д Z-г харьцуулна.', c:'ok'}
+  ];
+  const SHOW = [[], [0], [0,1], [0,1,2], [0,1,2,3], [0,1,2,3,4]];
+
+  let st = 0;
+  const num = document.getElementById('regNum'), head = document.getElementById('regHead');
+  const txt = document.getElementById('regTxt'), note = document.getElementById('regNote');
+  const cnt = document.getElementById('regCnt');
+  const bp = document.getElementById('regPrev'), bn = document.getElementById('regNext');
+
+  function draw(){
+    const on = SHOW[st];
+    G.forEach(function(g,i){ g.style.display = on.indexOf(i) >= 0 ? '' : 'none'; });
+    const s = STEPS[st];
+    num.textContent = s.n; head.textContent = s.h; txt.textContent = s.t;
+    note.textContent = s.v;
+    note.className = 'vbox' + (s.c ? ' ' + s.c : '');
+    cnt.textContent = st + ' / 5';
+    bp.disabled = (st === 0);
+    bn.disabled = (st === 5);
+    bn.textContent = st === 5 ? 'Дууслаа ✓' : 'Алхам ' + (st + 1) + ' ›';
+  }
+  [bp, bn].forEach(function(b){ b.addEventListener('mousedown', function(e){ e.preventDefault(); }); });
+  bp.addEventListener('click', function(){ if(st > 0){ st--; draw(); } });
+  bn.addEventListener('click', function(){ if(st < 5){ st++; draw(); } });
+  draw();
+})();
+
+/* ==========================================================================
+   ИНТЕРАКТИВ 2 — Аль тал нь боломжит вэ?
+   ========================================================================== */
+(function(){
+  const svg = document.getElementById('sideSvg');
+  if(!svg) return;
+  const mk = window.LP4.mk, axes = window.LP4.axes;
+  const C = {W:560, H:360, ML:48, MR:20, MT:20, MB:36, x1max:45, x2max:55,
+             xs:5, ys:10, xlab:'x₁', ylab:'x₂'};
+  const A = axes(svg, C), X = A.X, Y = A.Y;
+  const P = function(a){ return a.map(function(p){ return X(p[0])+','+Y(p[1]); }).join(' '); };
+
+  /* Доод тал — эх цэгийг агуулна (зөв хариу) */
+  const low = mk('polygon',{class:'half', points:P([[0,0],[25,0],[0,50]]),
+    fill:'var(--line-strong)','fill-opacity':.14, tabindex:0});
+  /* Дээд тал — эхээс хол (буруу хариу) */
+  const up = mk('polygon',{class:'half', points:P([[25,0],[45,0],[45,55],[0,55],[0,50]]),
+    fill:'var(--line-strong)','fill-opacity':.14, tabindex:0});
+  svg.appendChild(up); svg.appendChild(low);
+
+  svg.appendChild(mk('line',{x1:X(25), y1:Y(0), x2:X(0), y2:Y(50),
+    stroke:'#B5482A','stroke-width':2.6}));
+  svg.appendChild(mk('text',{class:'eq hal', x:X(26), y:Y(46), fill:'#B5482A'}, '4x₁ + 2x₂ = 100'));
+  const lowLab = mk('text',{class:'reglab', x:X(4), y:Y(9)}, 'доод тал');
+  const upLab  = mk('text',{class:'reglab', x:X(24), y:Y(38)}, 'дээд тал');
+  lowLab.setAttribute('pointer-events','none'); upLab.setAttribute('pointer-events','none');
+  svg.appendChild(lowLab); svg.appendChild(upLab);
+
+  /* Шалгах цэгүүд — хариу гарсны дараа харагдана */
+  const probe = mk('g',{opacity:0});
+  probe.setAttribute('pointer-events','none');
+  probe.appendChild(mk('circle',{cx:X(0), cy:Y(0), r:6, fill:'#2C5F2D', stroke:'var(--paper)','stroke-width':2}));
+  probe.appendChild(mk('text',{class:'vlab hal', x:X(0)+10, y:Y(0)-9, fill:'#2C5F2D'}, '(0, 0) ✓ 0 ≤ 100'));
+  probe.appendChild(mk('circle',{cx:X(30), cy:Y(20), r:6, fill:'#B5482A', stroke:'var(--paper)','stroke-width':2}));
+  probe.appendChild(mk('text',{class:'vlab hal', x:X(30)+10, y:Y(20)-9, fill:'#B5482A'}, '(30, 20) ✗ 160 > 100'));
+  svg.appendChild(probe);
+
+  const msg = document.getElementById('sideMsg'), cnt = document.getElementById('sideCnt');
+  let done = false;
+
+  function pick(isLow){
+    if(done) return;
+    done = true;
+    probe.setAttribute('opacity', 1);
+    low.setAttribute('fill', isLow ? '#6DA94F' : 'var(--line-strong)');
+    low.setAttribute('fill-opacity', isLow ? .3 : .1);
+    up.setAttribute('fill', isLow ? 'var(--line-strong)' : '#B5482A');
+    up.setAttribute('fill-opacity', isLow ? .1 : .3);
+    low.style.cursor = 'default'; up.style.cursor = 'default';
+    if(isLow){
+      msg.className = 'vbox ok';
+      msg.innerHTML = '<b>Зөв!</b> Шалгах цэг (0, 0): 4·0 + 2·0 = <b>0 ≤ 100</b> ✓ — тэнцэтгэл биш хангагдлаа. Тиймээс <b>эх цэгийг агуулсан доод тал</b> боломжит. Дүрэм: «≤» бол эх рүү чиглэсэн талыг будна.';
+      cnt.textContent = 'зөв хариулт ✓';
+    } else {
+      msg.className = 'vbox no';
+      msg.innerHTML = '<b>Буруу.</b> Дээд талын жишээ цэг (30, 20): 4·30 + 2·20 = <b>160 > 100</b> ✗ — мод хүрэлцэхгүй. Харин (0, 0): 0 ≤ 100 ✓. Зөв хариу нь <b>доод тал</b>.';
+      cnt.textContent = 'буруу — дахин үзнэ үү';
+    }
+  }
+  low.addEventListener('click', function(){ pick(true); });
+  up.addEventListener('click', function(){ pick(false); });
+  [low, up].forEach(function(el){
+    el.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    el.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pick(el === low); }
+    });
+  });
+  document.getElementById('sideReset').addEventListener('mousedown', function(e){ e.preventDefault(); });
+  document.getElementById('sideReset').addEventListener('click', function(){
+    done = false;
+    probe.setAttribute('opacity', 0);
+    [low, up].forEach(function(el){
+      el.setAttribute('fill','var(--line-strong)');
+      el.setAttribute('fill-opacity', .14);
+      el.style.cursor = 'pointer';
+    });
+    msg.className = 'vbox';
+    msg.textContent = 'Графикийн дээд эсвэл доод хэсэг дээр товшино уу.';
+    cnt.textContent = 'сонголт хийгээгүй';
+  });
+})();
+
+/* ==========================================================================
+   ИНТЕРАКТИВ 3 — Оройн цэг тооцоолуур
+   ========================================================================== */
+(function(){
+  const svg = document.getElementById('cpSvg');
+  if(!svg) return;
+  const mk = window.LP4.mk, nf = window.LP4.nf, axes = window.LP4.axes;
+  const C = {W:400, H:330, ML:44, MR:18, MT:18, MB:34, x1max:30, x2max:30,
+             xs:5, ys:5, xlab:'x₁', ylab:'x₂'};
+  const A = axes(svg, C), X = A.X, Y = A.Y;
+
+  const V = [
+    {id:'A', x1:0,  x2:0 },
+    {id:'B', x1:25, x2:0 },
+    {id:'C', x1:0,  x2:20},
+    {id:'D', x1:20, x2:10}
+  ];
+  V.forEach(function(v){ v.z = 50000 * v.x1 + 40000 * v.x2; });
+
+  svg.appendChild(mk('polygon',{
+    points:[[0,0],[25,0],[20,10],[0,20]].map(function(p){ return X(p[0])+','+Y(p[1]); }).join(' '),
+    fill:'#6DA94F','fill-opacity':.2, stroke:'#6DA94F','stroke-width':1.8}));
+  /* Хязгаарлалтын шулуунууд — талбайн хүрээгээр тайрсан */
+  svg.appendChild(mk('line',{x1:X(25), y1:Y(0), x2:X(10), y2:Y(30),
+    stroke:'#B5482A','stroke-width':1.6,'stroke-dasharray':'5 4', opacity:.75}));
+  svg.appendChild(mk('line',{x1:X(30), y1:Y(5), x2:X(0), y2:Y(20),
+    stroke:'#3B4A7A','stroke-width':1.6,'stroke-dasharray':'5 4', opacity:.75}));
+
+  const OFF = {A:[11,-9], B:[-8,-13], C:[11,-9], D:[11,-9]};
+  V.forEach(function(v){
+    v.dot = mk('circle',{cx:X(v.x1), cy:Y(v.x2), r:6, fill:'var(--paper)',
+      stroke:'var(--line-strong)','stroke-width':2.2});
+    v.lab = mk('text',{class:'vlab hal', x:X(v.x1)+OFF[v.id][0], y:Y(v.x2)+OFF[v.id][1], opacity:.35},
+      v.id);
+    svg.appendChild(v.dot); svg.appendChild(v.lab);
+  });
+
+  const rows = document.getElementById('cpRows');
+  const msg  = document.getElementById('cpMsg');
+  const btns = Array.prototype.slice.call(document.querySelectorAll('#cpSlide .vb'));
+  const open = [];
+
+  function repaint(){
+    let best = -1;
+    open.forEach(function(i){ if(best < 0 || V[i].z > V[best].z) best = i; });
+    V.forEach(function(v,i){
+      const shown = open.indexOf(i) >= 0;
+      const isTop = shown && i === best;
+      v.dot.setAttribute('fill', shown ? (isTop ? '#C8A951' : '#2C5F2D') : 'var(--paper)');
+      v.dot.setAttribute('stroke', shown ? 'var(--paper)' : 'var(--line-strong)');
+      v.dot.setAttribute('r', isTop ? 8 : 6);
+      v.lab.setAttribute('opacity', shown ? 1 : .35);
+      btns[i].classList.toggle('on', shown && !isTop);
+      btns[i].classList.toggle('top', isTop);
+      if(v.row) v.row.classList.toggle('top', isTop);
+    });
+    if(open.length === 4){
+      msg.className = 'vbox ok';
+      msg.innerHTML = '<b>Дүгнэлт: D(20, 10) — оновчтой шийд.</b> Z(max) = <b>1,400,000 ₮</b>, өөрөөр хэлбэл 20 ширээ, 10 сандал. Оптимум мужийн дунд биш, <b>оройн цэг</b> дээр гарлаа — Хэсэг 3.3-ын теорем.';
+    } else {
+      msg.className = 'vbox';
+      msg.innerHTML = 'Товшсон орой: <b>' + open.length + ' / 4</b>. Үлдсэн оройг товшиж Z-г харьцуулаарай.';
+    }
+  }
+
+  btns.forEach(function(b, i){
+    b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    b.addEventListener('click', function(){
+      if(open.indexOf(i) >= 0) return;
+      open.push(i);
+      const v = V[i];
+      const r = document.createElement('div');
+      r.className = 'crow';
+      r.innerHTML = '<span class="cid">' + v.id + '</span>' +
+        '<span class="cex">50,000·' + v.x1 + ' + 40,000·' + v.x2 + '</span>' +
+        '<span class="cz">' + nf(v.z) + ' ₮</span>';
+      rows.appendChild(r);
+      v.row = r;
+      repaint();
+    });
+  });
+  repaint();
+})();
+
+/* ==========================================================================
+   ИНТЕРАКТИВ 4 — Өөрийгөө шалгах: x₁ + 3x₂ ≤ 30
+   ========================================================================== */
+(function(){
+  const svg = document.getElementById('chkSvg');
+  if(!svg) return;
+  const mk = window.LP4.mk, axes = window.LP4.axes;
+  const C = {W:340, H:300, ML:42, MR:18, MT:18, MB:34, x1max:35, x2max:14,
+             xs:5, ys:2, xlab:'x₁', ylab:'x₂'};
+  const A = axes(svg, C), X = A.X, Y = A.Y;
+
+  const line = mk('g',{opacity:0});
+  line.appendChild(mk('line',{x1:X(0), y1:Y(10), x2:X(30), y2:Y(0),
+    stroke:'#2C5F2D','stroke-width':2.6}));
+  line.appendChild(mk('text',{class:'eq hal', x:X(9), y:Y(9), fill:'#2C5F2D'}, 'x₁ + 3x₂ = 30'));
+  svg.appendChild(line);
+
+  const pts = [
+    {x1:0,  x2:10, lab:'(0, 10)', dx:10,  dy:-10},
+    {x1:30, x2:0,  lab:'(30, 0)', dx:-14, dy:-13}
+  ];
+  pts.forEach(function(p){
+    p.g = mk('g',{opacity:0});
+    p.g.appendChild(mk('circle',{cx:X(p.x1), cy:Y(p.x2), r:6, fill:'#C8A951',
+      stroke:'var(--paper)','stroke-width':2}));
+    p.g.appendChild(mk('text',{class:'vlab hal', x:X(p.x1)+p.dx, y:Y(p.x2)+p.dy}, p.lab));
+    svg.appendChild(p.g);
+  });
+
+  const cards = Array.prototype.slice.call(document.querySelectorAll('#chkSlide .qc'));
+  const msg = document.getElementById('chkMsg');
+  let n = 0;
+  cards.forEach(function(c, i){
+    c.addEventListener('mousedown', function(e){ e.preventDefault(); });
+    c.addEventListener('click', function(){
+      if(c.classList.contains('open')) return;
+      c.classList.add('open');
+      pts[i].g.setAttribute('opacity', 1);
+      n++;
+      if(n === 2){
+        line.setAttribute('opacity', 1);
+        msg.className = 'vbox ok';
+        msg.innerHTML = '<b>Хариу:</b> (0, 10) ба (30, 0). Эдгээр хоёр цэгийг холбосон шулуун бол тухайн хязгаарлалтын шугам. «≤» тул будах хэсэг нь <b>эх цэгийн тал</b>.';
+      }
+    });
+  });
+})();
+
+/* ==========================================================================
+   ИНТЕРАКТИВ 5 — Цэг чирэх: муж дотор уу, гадна уу?
+   ========================================================================== */
+(function(){
+  const svg = document.getElementById('dragSvg');
+  if(!svg) return;
+  const mk = window.LP4.mk, nf = window.LP4.nf, axes = window.LP4.axes;
+  const C = {W:560, H:380, ML:48, MR:20, MT:20, MB:36, x1max:30, x2max:30,
+             xs:5, ys:5, xlab:'x₁ · ширээ', ylab:'x₂ · сандал'};
+  const A = axes(svg, C), X = A.X, Y = A.Y;
+
+  svg.appendChild(mk('polygon',{
+    points:[[0,0],[25,0],[20,10],[0,20]].map(function(p){ return X(p[0])+','+Y(p[1]); }).join(' '),
+    fill:'#6DA94F','fill-opacity':.2, stroke:'#6DA94F','stroke-width':2}));
+  svg.appendChild(mk('line',{x1:X(25), y1:Y(0), x2:X(10), y2:Y(30),
+    stroke:'#B5482A','stroke-width':1.7,'stroke-dasharray':'5 4', opacity:.75}));
+  svg.appendChild(mk('line',{x1:X(30), y1:Y(5), x2:X(0), y2:Y(20),
+    stroke:'#3B4A7A','stroke-width':1.7,'stroke-dasharray':'5 4', opacity:.75}));
+  [['A',0,0,11,-10],['B',25,0,-8,-13],['D',20,10,11,-9],['C',0,20,11,-9]].forEach(function(v){
+    svg.appendChild(mk('circle',{cx:X(v[1]), cy:Y(v[2]), r:5, fill:'#C8A951'}));
+    svg.appendChild(mk('text',{class:'vlab hal', x:X(v[1])+v[3], y:Y(v[2])+v[4], opacity:.8}, v[0]));
+  });
+
+  const guide = mk('g',{opacity:.9});
+  const hLine = mk('line',{x1:X(0), y1:Y(0), x2:X(0), y2:Y(0),
+    stroke:'var(--line-strong)','stroke-width':1,'stroke-dasharray':'3 3'});
+  const vLine = mk('line',{x1:X(0), y1:Y(0), x2:X(0), y2:Y(0),
+    stroke:'var(--line-strong)','stroke-width':1,'stroke-dasharray':'3 3'});
+  guide.appendChild(hLine); guide.appendChild(vLine);
+  guide.setAttribute('pointer-events','none');
+  svg.appendChild(guide);
+
+  const dot = mk('circle',{cx:X(10), cy:Y(5), r:9, fill:'#2C5F2D',
+    stroke:'var(--paper)','stroke-width':3, cursor:'grab'});
+  svg.appendChild(dot);
+
+  const eX1 = document.getElementById('dgX1'), eX2 = document.getElementById('dgX2');
+  const eW = document.getElementById('dgW'), eT = document.getElementById('dgT');
+  const eZ = document.getElementById('dgZ'), eBox = document.getElementById('dgBox');
+  const eFlag = document.getElementById('dgFlag'), eMsg = document.getElementById('dgMsg');
+
+  let x1 = 10, x2 = 5, dragging = false, bestIn = 0;
+
+  function upd(){
+    const wood = 4 * x1 + 2 * x2, time = 2 * x1 + 4 * x2, z = 50000 * x1 + 40000 * x2;
+    const okW = wood <= 100, okT = time <= 80, ok = okW && okT;
+    dot.setAttribute('cx', X(x1)); dot.setAttribute('cy', Y(x2));
+    dot.setAttribute('fill', ok ? '#2C5F2D' : '#B5482A');
+    hLine.setAttribute('x1', X(0)); hLine.setAttribute('y1', Y(x2));
+    hLine.setAttribute('x2', X(x1)); hLine.setAttribute('y2', Y(x2));
+    vLine.setAttribute('x1', X(x1)); vLine.setAttribute('y1', Y(0));
+    vLine.setAttribute('x2', X(x1)); vLine.setAttribute('y2', Y(x2));
+    eX1.textContent = x1; eX2.textContent = x2;
+    eW.textContent = wood + ' / 100'; eT.textContent = time + ' / 80';
+    eW.className = 'rv ' + (okW ? 'ok' : 'bad');
+    eT.className = 'rv ' + (okT ? 'ok' : 'bad');
+    eZ.textContent = nf(z);
+    eBox.className = 'zbig' + (ok ? '' : ' bad');
+    eFlag.textContent = ok ? 'Боломжит муж дотор ✓' : 'Мужаас гадна — нөөц хүрэхгүй ✗';
+    if(ok && z > bestIn) bestIn = z;
+    if(!ok){
+      eMsg.className = 'vbox no';
+      eMsg.innerHTML = (!okW ? 'Мод хүрэлцэхгүй: <b>' + wood + ' > 100</b>. ' : '') +
+                       (!okT ? 'Цаг хүрэлцэхгүй: <b>' + time + ' > 80</b>. ' : '') +
+                       'Ийм хэмжээгээр үйлдвэрлэх нөөц байхгүй.';
+    } else if(x1 === 20 && x2 === 10){
+      eMsg.className = 'vbox ok';
+      eMsg.innerHTML = '<b>D(20, 10) — оройн цэг.</b> Z = 1,400,000 ₮. Энэ бол боломжит муж дахь <b>хамгийн их</b> утга.';
+    } else {
+      eMsg.className = 'vbox';
+      eMsg.innerHTML = 'Таны дээд амжилт: <b>' + nf(bestIn) + ' ₮</b>. D(20, 10) оройноос илүү утга олдох уу?';
+    }
+  }
+
+  function toUser(evt){
+    const pt = svg.createSVGPoint();
+    pt.x = evt.clientX; pt.y = evt.clientY;
+    const m = svg.getScreenCTM();
+    if(!m) return null;
+    return pt.matrixTransform(m.inverse());
+  }
+  function place(evt){
+    const u = toUser(evt);
+    if(!u) return;
+    const px = (u.x - C.ML) / (C.W - C.ML - C.MR) * C.x1max;
+    const py = (C.H - C.MB - u.y) / (C.H - C.MT - C.MB) * C.x2max;
+    x1 = Math.max(0, Math.min(C.x1max, Math.round(px)));
+    x2 = Math.max(0, Math.min(C.x2max, Math.round(py)));
+    upd();
+  }
+  svg.style.touchAction = 'none';
+  svg.addEventListener('pointerdown', function(e){
+    dragging = true;
+    dot.setAttribute('cursor','grabbing');
+    if(svg.setPointerCapture) { try { svg.setPointerCapture(e.pointerId); } catch(err){} }
+    place(e);
+    e.preventDefault();
+  });
+  svg.addEventListener('pointermove', function(e){ if(dragging) place(e); });
+  ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
+    svg.addEventListener(ev, function(){ dragging = false; dot.setAttribute('cursor','grab'); });
+  });
+  upd();
+})();
+</script>
+<script src="deck.js"></script>
+</body>
+</html>
