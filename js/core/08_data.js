@@ -502,20 +502,67 @@
   //   { action: 'users.list', token: '...', payload: {...} }
   // Content-Type: text/plain — CORS preflight-аас зайлсхийх стандарт арга.
   // ===========================================================================
+  // Хугацааны хязгаар — хариу ирэхгүй бол мөнхөд хүлээхгүй, тодорхой алдаа өгнө.
+  // Хүнд үйлдлүүд илүү удаан бодогддог тул тусад нь урт хугацаа өгнө.
+  const SLOW = { 'stats.overview': 90000, 'users.bulkCreate': 90000, 'progress.all': 60000 };
+  const TIMEOUT = 30000;
+
   function apiCall(action, payload) {
     const url = Cfg.API_URL;
     if (!url) return Promise.reject(new Error('API_URL тохируулаагүй байна (js/config.js).'));
     const token = (window.LP.Auth && window.LP.Auth.token()) || '';
-    return fetch(url, {
+    const ms = SLOW[action] || TIMEOUT;
+
+    // AbortController байхгүй хуучин браузерт ч ажиллана
+    let ctl = null, timer = null;
+    try { ctl = new AbortController(); } catch (e) { ctl = null; }
+
+    const opts = {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: action, token: token, payload: payload || {} }),
-    })
-      .then(r => r.json())
+    };
+    if (ctl) opts.signal = ctl.signal;
+
+    const net = fetch(url, opts)
+      .then(r => {
+        if (!r.ok) throw new Error('Сервер хариу өгсөнгүй (HTTP ' + r.status + ').');
+        return r.text();
+      })
+      .then(t => {
+        try { return JSON.parse(t); }
+        catch (e) {
+          // Ихэвчлэн Google-ийн нэвтрэх хуудас буцаж ирсэн байдаг
+          throw new Error('Серверээс буруу хариу ирлээ. Apps Script-ийн deploy тохиргоог ' +
+                          '(«Who has access: Anyone») шалгана уу.');
+        }
+      })
       .then(res => {
         if (!res || res.ok !== true) throw new Error((res && res.error) || 'Серверийн алдаа.');
         return res.data;
       });
+
+    const guard = new Promise((_, rej) => {
+      timer = setTimeout(() => {
+        if (ctl) { try { ctl.abort(); } catch (e) {} }
+        rej(new Error('Сервер ' + Math.round(ms / 1000) + ' секундэд хариу өгсөнгүй. ' +
+                      'Интернэт холболтоо, эсвэл Apps Script-ийн deploy-г шалгана уу.'));
+      }, ms);
+    });
+
+    return Promise.race([net, guard]).then(
+      v => { clearTimeout(timer); return v; },
+      e => {
+        clearTimeout(timer);
+        if (e && e.name === 'AbortError') {
+          throw new Error('Хүсэлт хугацаа хэтэрсэн тул тасаллаа.');
+        }
+        if (e instanceof TypeError) {
+          throw new Error('Сервер лүү холбогдож чадсангүй. Интернэт холболтоо шалгана уу.');
+        }
+        throw e;
+      }
+    );
   }
 
   function sheetsGroup(prefix, methods) {
