@@ -45,6 +45,7 @@
     glossary: 'lp.glossary',
     problems: 'lp.savedProblems',
     progress: 'lp.progress',
+    visits:   'lp.visits',
   };
 
   // ---------------------------------------------------------------------------
@@ -319,6 +320,179 @@
         }));
       },
     },
+
+    visits: {
+      log: function (list) {
+        const arr = read(KEYS.visits, []);
+        const now = Date.now();
+        // Нэвтэрсэн эсэхийг локал сешнээс тодорхойлно (серверийнхтэй ижил утга)
+        const s = read(KEYS.session, null);
+        const who = (s && s.user_id && (!s.expires_at || s.expires_at > now)) ? s.user_id : '';
+        (list || []).forEach(v => {
+          if (!v || !v.route) return;
+          const d = new Date();
+          arr.push({ ts: now,
+            date: d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+                  ('0' + d.getDate()).slice(-2),
+            route: String(v.route).slice(0, 24),
+            country: String(v.country || '—').slice(0, 40),
+            lang: String(v.lang || '—').slice(0, 12),
+            device: String(v.device || '—').slice(0, 10),
+            sid: String(v.sid || '').slice(0, 24),
+            user_id: who });
+        });
+        // Локал горимд хэт томроохгүй
+        write(KEYS.visits, arr.slice(-5000));
+        return Promise.resolve({ saved: (list || []).length });
+      },
+    },
+
+    stats: {
+      overview: function () {
+        const now = Date.now(), DAY = 86400000;
+        const users = read(KEYS.users, []);
+        const prog  = read(KEYS.progress, {});
+        const probs = read(KEYS.problems, []);
+        const gloss = read(KEYS.glossary, []);
+        const vis   = read(KEYS.visits, []);
+
+        const byRole = { admin: 0, teacher: 0, student: 0 };
+        let active = 0, never = 0, mustPw = 0, act7 = 0, act30 = 0;
+        const byMonth = {}, nameOf = {};
+        users.forEach(u => {
+          const r = normRole(u.role);
+          byRole[r] = (byRole[r] || 0) + 1;
+          if (u.active !== false) active++;
+          if (u.must_change_pw) mustPw++;
+          const ll = Number(u.last_login) || 0;
+          if (!ll) never++;
+          else { if (now - ll <= 7 * DAY) act7++; if (now - ll <= 30 * DAY) act30++; }
+          const ca = Number(u.created_at) || 0;
+          if (ca) {
+            const d = new Date(ca);
+            const k = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
+            byMonth[k] = (byMonth[k] || 0) + 1;
+          }
+          nameOf[u.id] = u.name || u.username;
+        });
+
+        const lessons = {}, perUser = {};
+        let drillDone = 0, drillTotal = 0;
+        Object.keys(prog).forEach(uid => {
+          Object.keys(prog[uid] || {}).forEach(key => {
+            const m = /^l(\d+)\.(lecture|practice|drill)$/.exec(key);
+            if (!m || !prog[uid][key]) return;
+            const n = Number(m[1]), kind = m[2];
+            lessons[n] = lessons[n] || { n: n, lecture: 0, practice: 0, drill: 0 };
+            if (kind === 'drill') {
+              lessons[n].drill++;
+              const dm = /^(\d+)\s*\/\s*(\d+)$/.exec(String(prog[uid][key]));
+              if (dm) { drillDone += +dm[1]; drillTotal += +dm[2]; }
+            } else {
+              lessons[n][kind]++;
+              perUser[uid] = perUser[uid] || { lecture: 0, practice: 0 };
+              perUser[uid][kind]++;
+            }
+          });
+        });
+        const lessonList = Object.keys(lessons).map(k => lessons[k]).sort((a, b) => a.n - b.n);
+        const NL = lessonList.length || 16;
+
+        const buckets = [0, 0, 0, 0, 0, 0];
+        let sumPct = 0, studentCount = 0;
+        users.forEach(u => {
+          if (normRole(u.role) !== 'student') return;
+          studentCount++;
+          const p = perUser[u.id] || { lecture: 0, practice: 0 };
+          const pct = (p.lecture + p.practice) / (NL * 2) * 100;
+          sumPct += pct;
+          if (pct <= 0) buckets[0]++;
+          else if (pct < 26) buckets[1]++;
+          else if (pct < 51) buckets[2]++;
+          else if (pct < 76) buckets[3]++;
+          else if (pct < 100) buckets[4]++;
+          else buckets[5]++;
+        });
+
+        const kinds = {}, probByUser = {}, probMonth = {};
+        probs.forEach(p => {
+          const kk = String(p.kind || '—');
+          kinds[kk] = (kinds[kk] || 0) + 1;
+          const un = nameOf[p.user_id] || '—';
+          probByUser[un] = (probByUser[un] || 0) + 1;
+          const c = Number(p.created) || 0;
+          if (c) {
+            const d = new Date(c);
+            const mk = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
+            probMonth[mk] = (probMonth[mk] || 0) + 1;
+          }
+        });
+
+        const glossByUser = {};
+        gloss.forEach(g => {
+          const un = nameOf[g.created_by] || '—';
+          glossByUser[un] = (glossByUser[un] || 0) + 1;
+        });
+
+        const days = {};
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date(now - i * DAY);
+          days[d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+              ('0' + d.getDate()).slice(-2)] = 0;
+        }
+
+        const pairs = (o, desc) => {
+          const a = Object.keys(o).map(k => ({ k: k, v: o[k] }));
+          a.sort(desc ? (x, y) => y.v - x.v : (x, y) => (x.k < y.k ? -1 : 1));
+          return a;
+        };
+
+        const vC = {}, vR = {}, vD = {}, vL = {}, vDay = {}, sids = {};
+        let vGuest = 0, vUser = 0;
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date(now - i * DAY);
+          vDay[d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+               ('0' + d.getDate()).slice(-2)] = 0;
+        }
+        vis.forEach(v => {
+          vC[v.country || '—'] = (vC[v.country || '—'] || 0) + 1;
+          vR[v.route || '—']   = (vR[v.route || '—'] || 0) + 1;
+          vD[v.device || '—']  = (vD[v.device || '—'] || 0) + 1;
+          vL[v.lang || '—']    = (vL[v.lang || '—'] || 0) + 1;
+          if (v.sid) sids[v.sid] = 1;
+          if (v.user_id) vUser++; else vGuest++;
+          if (v.date in vDay) vDay[v.date]++;
+        });
+
+        return Promise.resolve({
+          generated_at: now,
+          local: true,
+          visits: {
+            total: vis.length, sessions: Object.keys(sids).length,
+            guest: vGuest, member: vUser,
+            byCountry: pairs(vC, true).slice(0, 12),
+            byRoute: pairs(vR, true).slice(0, 14),
+            byDevice: pairs(vD, true),
+            byLang: pairs(vL, true).slice(0, 8),
+            byDay: pairs(vDay, false),
+          },
+          users: { total: users.length, byRole: byRole, active: active,
+                   inactive: users.length - active, never: never, mustChangePw: mustPw,
+                   act7: act7, act30: act30, byMonth: pairs(byMonth, false) },
+          lessons: lessonList,
+          progress: { students: studentCount,
+                      avgPct: studentCount ? Math.round(sumPct / studentCount) : 0,
+                      buckets: buckets, drillDone: drillDone, drillTotal: drillTotal },
+          problems: { total: probs.length, byKind: pairs(kinds, true),
+                      topUsers: pairs(probByUser, true).slice(0, 10),
+                      byMonth: pairs(probMonth, false) },
+          glossary: { total: gloss.length, byUser: pairs(glossByUser, true).slice(0, 10) },
+          logins: pairs(days, false),
+          actions: [],
+          logSize: 0,
+        });
+      },
+    },
   };
 
   // ===========================================================================
@@ -368,6 +542,8 @@
     glossary: sheetsGroup('glossary', ['list', 'add', 'update', 'remove']),
     problems: sheetsGroup('problems', ['list', 'save', 'remove']),
     progress: sheetsGroup('progress', ['get', 'set', 'all']),
+    stats:    sheetsGroup('stats',    ['overview']),
+    visits:   sheetsGroup('visits',   ['log']),
   };
 
   // ===========================================================================
@@ -382,6 +558,8 @@
     glossary: backend.glossary,
     problems: backend.problems,
     progress: backend.progress,
+    stats:    backend.stats,
+    visits:   backend.visits,
     call:     backend.call || null,
     uid:      uid,
     pub:      pub,
