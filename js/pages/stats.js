@@ -133,14 +133,38 @@
 
     const wrap = el('div', { class: 'viz-wrap' });
     main.appendChild(wrap);
-    wrap.appendChild(el('div', { class: 'loading' }, 'Тооцоолж байна…'));
+
+    // Хүлээх заалт — секунд тоолно. Google Sheets-ээс уншихад 5–20 секунд
+    // болох нь хэвийн тул хуудас царцсан мэт харагдахаас сэргийлнэ.
+    const note = el('div', { class: 'loading' }, 'Тооцоолж байна…');
+    wrap.appendChild(note);
+    const t0 = Date.now();
+    const tick = setInterval(() => {
+      const s = Math.round((Date.now() - t0) / 1000);
+      note.textContent = 'Тооцоолж байна… ' + s + ' сек' +
+        (s > 15 ? ' · Google Sheets-ээс уншиж байна, түр хүлээнэ үү.' : '');
+    }, 1000);
 
     Auth.stats()
-      .then(d => { wrap.innerHTML = ''; render(wrap, d); })
+      .then(d => { clearInterval(tick); wrap.innerHTML = ''; render(wrap, d); })
       .catch(e => {
+        clearInterval(tick);
         wrap.innerHTML = '';
-        wrap.appendChild(el('div', { class: 'card' },
-          el('p', { class: 'auth-error' }, e.message)));
+        const c = el('div', { class: 'card' });
+        c.appendChild(el('p', { class: 'auth-error' }, e.message));
+        // Хамгийн түгээмэл шалтгаанууд — хэрэглэгч өөрөө шалгаж болно
+        if (/Танигдахгүй үйлдэл|хариу өгсөнгүй|холбогдож чадсангүй/.test(e.message)) {
+          c.appendChild(el('p', { class: 'form-hint' }, 'Шалгах зүйлс:'));
+          const ul = el('ul', { class: 'form-hint' });
+          ['Apps Script дээрх Code.gs шинэчлэгдсэн эсэх',
+           'Deploy → Manage deployments → Version: New version хийсэн эсэх',
+           'Интернэт холболт'].forEach(x => ul.appendChild(el('li', {}, x)));
+          c.appendChild(ul);
+        }
+        const again = el('button', { class: 'btn btn-primary', type: 'button' }, 'Дахин оролдох');
+        again.addEventListener('click', () => App.go('stats'));
+        c.appendChild(again);
+        wrap.appendChild(c);
       });
   });
 
