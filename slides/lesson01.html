@@ -8,6 +8,26 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="deck.css">
+<style>
+/* ── Сонголттой карт: буруу хариултын тайлбар ─────────────────────── */
+.gc{cursor:default}
+.gpick{display:flex;gap:6px;margin-top:9px}
+.gpick button{flex:1;background:var(--muted);border:1.5px solid var(--line-strong);
+  border-radius:8px;padding:6px 0;font-family:var(--body);font-size:12.5px;font-weight:600;
+  color:var(--ink-soft);cursor:pointer;transition:all .18s var(--ease)}
+.gpick button:hover{border-color:var(--green);color:var(--green)}
+.gpick button.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.gpick button.no{background:var(--rust-bg);border-color:var(--rust);color:var(--rust)}
+.gpick button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.gc.done .gpick{display:none}
+.gbad{display:none;font-size:11.9px;line-height:1.4;color:var(--ink-soft);
+  margin-top:7px;padding-top:7px;border-top:1px dashed var(--rust)}
+.gc.miss .gbad{display:block;animation:fadein .35s ease}
+.gc.miss{border-color:var(--rust)}
+.gc.done .gbad{display:none}
+.gbad .bad{color:var(--rust);font-weight:700}
+.gbad .hint{display:block;margin-top:4px;color:var(--ink-mute);font-style:italic}
+</style>
 </head>
 <body>
 
@@ -385,42 +405,54 @@
   <div class="s-tag">Интерактив · Дөрвөн шинжийн шалгуур</div>
   <h2 class="title">ШП мөн үү? <em>Товшиж шалгана уу</em></h2>
   <div class="game" id="gameGrid">
-    <button class="gc yes" data-why="Зорилго ✓ · Нөөц ✓ · Сонголт ✓ · Шугаман ✓ — дөрвөн шинж бүрэн.">
+    <div class="gc yes" data-why="Зорилго ✓ · Нөөц ✓ · Сонголт ✓ · Шугаман ✓ — дөрвөн шинж бүрэн."
+      data-bad="<b class='bad'>Энд дөрвөн шинж бүрэн байна.</b> Ашгийг хамгийн их болгох зорилго, гурван хязгаарлагдмал нөөц, хоёр бүтээгдэхүүний хооронд сонгох боломж, бүх харилцаа шугаман. <span class='hint'>Дөрвөн шинжийг нэг нэгээр нь шалгаад дахин сонгоно уу.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Компани 2 бүтээгдэхүүнээ хязгаарлагдмал 3 нөөцөөр үйлдвэрлэж ашгаа хамгийн их болгох</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">ШП мөн</button><button type="button" data-p="no">ШП биш</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
-    <button class="gc no" data-why="4-р шинж дутуу: талбай = урт × өргөн — хувьсагч хувьсагчаараа үржиж байна. Шугаман бус программчлал.">
+    </div>
+    <div class="gc no" data-why="4-р шинж дутуу: талбай = урт × өргөн — хувьсагч хувьсагчаараа үржиж байна. Шугаман бус программчлал."
+      data-bad="<b class='bad'>Талбай = урт × өргөн — хувьсагч хувьсагчаараа үржиж байна.</b> Зорилго, хязгаар, сонголт байгаа ч 4-р шинж болох шугаман харилцаа зөрчигдөж байгаа тул энэ нь шугаман бус программчлалын бодлого. <span class='hint'>«Хувьсагч хувьсагчаараа үржвэл шугаман биш» гэдэг дүрмийг сана.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Периметр нь тогтмол тэгш өнцөгтийн талбайг хамгийн их болгох</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">ШП мөн</button><button type="button" data-p="no">ШП биш</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
-    <button class="gc yes" data-why="Зорилго (зардал min) ✓ · Нөөц (нийлүүлэлт, эрэлт) ✓ · Сонголт ✓ · Шугаман ✓ — Тээврийн бодлого, Бүлэг 8.">
+    </div>
+    <div class="gc yes" data-why="Зорилго (зардал min) ✓ · Нөөц (нийлүүлэлт, эрэлт) ✓ · Сонголт ✓ · Шугаман ✓ — Тээврийн бодлого, Бүлэг 8."
+      data-bad="<b class='bad'>min зорилготой байх нь ШП-ийн шинжийг зөрчихгүй</b> — 1-р шинж max, min хоёрын аль алиныг зөвшөөрнө. Нийт зардал нь маршрут бүрийн нэгж зардлыг тээвэрлэсэн хэмжээгээр үржүүлж нэмсэн шугаман нийлбэр. <span class='hint'>Энэ бол Бүлэг 8-ын тээврийн бодлого — дахин сонгоно уу.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">3 агуулахаас 4 дэлгүүрт бараа хүргэх нийт зардлыг хамгийн бага болгох</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">ШП мөн</button><button type="button" data-p="no">ШП биш</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
-    <button class="gc no" data-why="Оновчлох зорилго ч, хувилбар сонголт ч алга. Зүгээр нэг тооцоолол — түүнээс гадна нийлмэл хүү экспоненциал (шугаман бус).">
+    </div>
+    <div class="gc no" data-why="Оновчлох зорилго ч, хувилбар сонголт ч алга. Зүгээр нэг тооцоолол — түүнээс гадна нийлмэл хүү экспоненциал (шугаман бус)."
+      data-bad="<b class='bad'>Энд оновчлох зорилго ч, сонгох хувилбар ч алга</b> — томьёогоор ганц тоо гаргаж байгаа зүгээр нэг тооцоолол. Нэмээд нийлмэл хүү нь хугацааны экспоненциал функц тул 4-р шинж ч зөрчигдөнө. <span class='hint'>«Би энд юуг нь сонгож байна вэ?» гэж өөрөөсөө асуу.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Банкны хадгаламжийн 5 жилийн нийлмэл хүүг тооцох</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">ШП мөн</button><button type="button" data-p="no">ШП биш</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
-    <button class="gc yes" data-why="Зорилго (зардал min) ✓ · Нөөц (төсөв, шимт бодисын доод хэмжээ) ✓ · Сонголт ✓ · Шугаман ✓ — Диетийн бодлого, Бүлэг 6.">
+    </div>
+    <div class="gc yes" data-why="Зорилго (зардал min) ✓ · Нөөц (төсөв, шимт бодисын доод хэмжээ) ✓ · Сонголт ✓ · Шугаман ✓ — Диетийн бодлого, Бүлэг 6."
+      data-bad="<b class='bad'>Шимт бодисын доод стандарт нь хязгаарлалт, зардал нь min зорилго болно.</b> Орц бүрийн хэмжээ бол шийдвэрийн хувьсагч, шимт бодисын агуулга нь хэмжээтэйгээ тогтмол коэффициентээр үржих тул харилцаа шугаман. <span class='hint'>Энэ бол Бүлэг 6-ын диетийн бодлого — дахин сонгоно уу.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Шимт бодисын стандартыг хангасан хамгийн хямд тэжээлийн найрлага сонгох</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">ШП мөн</button><button type="button" data-p="no">ШП биш</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
-    <button class="gc no" data-why="4-р шинж дутуу: үйлдвэрлэл өсөх тусам нэгжийн зардал буурдаг — коэффициент тогтмол биш. Шугаман бус.">
+    </div>
+    <div class="gc no" data-why="4-р шинж дутуу: үйлдвэрлэл өсөх тусам нэгжийн зардал буурдаг — коэффициент тогтмол биш. Шугаман бус."
+      data-bad="<b class='bad'>Нэгжийн зардал нь үйлдвэрлэлийн хэмжээнээс хамаарч өөрчлөгдөж байна</b> — өөрөөр хэлбэл коэффициент тогтмол биш. Шугаман байхын гол нөхцөл бол хувьсагчийн өмнөх коэффициент тогтмол байх явдал. <span class='hint'>Коэффициент тогтмол хэвээр байна уу гэдгийг эхлээд шалга.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Масштабын ашиг: үйлдвэрлэл ихсэх тусам нэгжийн зардал буурна</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">ШП мөн</button><button type="button" data-p="no">ШП биш</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
+    </div>
   </div>
   <div class="gamebar">
     <span id="gameScore">0 / 6 нээгдсэн</span>
@@ -737,25 +769,45 @@ window.DECK = {
     const n=cards.filter(c=>c.classList.contains('done')).length;
     document.getElementById('gameScore').textContent=n+' / '+cards.length+' нээгдсэн';
   }
+  const CH={yes:'«ШП мөн»', no:'«ШП биш»'};
+  function reveal(c){
+    c.classList.remove('miss');
+    c.classList.add('done');
+    const yes=c.classList.contains('yes');
+    c.querySelector('.ic').textContent = yes?'✓':'✗';
+    c.querySelector('.lbl').textContent = yes?'ШП мөн':'ШП биш';
+    c.querySelector('.ans').textContent = c.dataset.why;
+    refresh();
+  }
   cards.forEach(c=>{
-    c.addEventListener('mousedown', e=>e.preventDefault());   // фокусын гулсалт болиулах
-    c.addEventListener('click',()=>{
-      if(c.classList.contains('done')) return;
-      c.classList.add('done');
-      const yes=c.classList.contains('yes');
-      c.querySelector('.ic').textContent = yes?'✓':'✗';
-      c.querySelector('.lbl').textContent = yes?'ШП мөн':'ШП биш';
-      c.querySelector('.ans').textContent = c.dataset.why;
-      refresh();
+    const want = c.classList.contains('yes') ? 'yes' : 'no';
+    c.querySelectorAll('.gpick button').forEach(b=>{
+      b.addEventListener('mousedown', e=>e.preventDefault());  // фокусын гулсалт болиулах
+      b.addEventListener('click',()=>{
+        if(c.classList.contains('done')) return;
+        if(b.dataset.p===want){
+          b.classList.remove('no'); b.classList.add('ok');
+          reveal(c);
+        } else {
+          // Буруу сонголт — яагаад буруу болохыг тайлбарлана.
+          // Слайд 720px-д багтахын тулд нэг дор ЗӨВХӨН нэг тайлбар харагдана.
+          cards.forEach(o=>{ if(o!==c){ o.classList.remove('miss'); o.querySelector('.gbad').innerHTML=''; } });
+          b.classList.add('no');
+          c.classList.add('miss');
+          c.querySelector('.gbad').innerHTML = '✗ ' + CH[b.dataset.p] + ' тохирохгүй. ' + c.dataset.bad;
+        }
+      });
     });
   });
   document.getElementById('gameReset').addEventListener('mousedown', e=>e.preventDefault());
   document.getElementById('gameReset').addEventListener('click',()=>{
     cards.forEach(c=>{
-      c.classList.remove('done');
+      c.classList.remove('done','miss');
       c.querySelector('.ic').textContent='';
       c.querySelector('.lbl').textContent='';
       c.querySelector('.ans').textContent='';
+      c.querySelector('.gbad').innerHTML='';
+      c.querySelectorAll('.gpick button').forEach(b=>b.classList.remove('ok','no'));
     });
     refresh();
   });

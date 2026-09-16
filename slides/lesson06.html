@@ -98,6 +98,21 @@
 .stpprog{font-family:var(--mono);font-size:12px;color:var(--ink-mute);letter-spacing:.1em}
 .hit{background:var(--gold-bg);border-radius:6px;padding:1px 5px}
 
+/* Интерактив 4 — үнэн/худал сонголт ба буруу хариултын тайлбар */
+#tfGrid .gc{padding:15px 16px}
+.tfp{display:inline-block;font-family:var(--body);font-size:11.5px;font-weight:700;letter-spacing:.06em;
+  padding:3px 10px;margin-left:5px;border-radius:999px;border:1.2px solid var(--line-strong);
+  background:var(--muted);color:var(--ink-soft);cursor:pointer;transition:all .18s ease}
+.tfp:hover{border-color:var(--green);color:var(--green)}
+.tfp.bad{background:var(--rust-bg);border-color:var(--rust);color:var(--rust)}
+.gc.miss{border-color:var(--rust)}
+.tfw{display:none;font-size:12.5px;line-height:1.5;color:var(--ink-soft);margin-top:9px;
+  padding-top:8px;border-top:1px dashed var(--rust)}
+.gc.miss .tfw{display:block;animation:fadein .3s ease}
+.gc.done .tfw{display:none}
+.tfw .bad{color:var(--rust);font-weight:700}
+.tfw .hint{display:block;margin-top:4px;color:var(--ink-mute);font-style:italic}
+
 /* нийтлэг жижиг блок */
 .mnote{background:var(--muted);border-radius:11px;padding:13px 17px;font-size:14px;
   line-height:1.6;color:var(--ink-soft)}
@@ -326,38 +341,44 @@
     <button class="gc no" data-why="Ерөнхий тохиолдолд A·B ≠ B·A. Жишээ 4.4-т нэг тохиолдолд (1,1) элемент 4, нөгөөд 2 гарсан. Байр солих чанар матрицад ажиллахгүй.">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">A · B = B · A — матрицын үржвэрт байр солих чанар үргэлж хүчинтэй</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="tap">Таамаглаа сонгоно уу:<span class="tfp" data-v="y">ҮНЭН</span><span class="tfp" data-v="n">ХУДАЛ</span></div>
       <div class="ans"></div>
+      <div class="tfw" data-bad="✗ «ҮНЭН» тохирохгүй. <b class=&quot;bad&quot;>Матрицын үржвэрт байр солих чанар байдаггүй.</b> Мөр × багана гэсэн дүрэм өөрөө дараалалаас хамаардаг: Жишээ 4.4-т A·B ба B·A-ийн (1,1) элемент 4 ба 2 гэж ӨӨР гарсан. <span class=&quot;hint&quot;>Тусгай тохиолдолд (A·I эсвэл A⁻¹·A) тэнцэж болох ч «үргэлж» гэж ерөнхийлж болохгүй.</span>"></div>
     </button>
     <button class="gc yes" data-why="Бүлэглэх чанар (Associative). Жишээ 4.5-д (A·B)·C ба A·(B·C) хоёулаа [[2,3],[1,3]] гарсан. Дараалал хэвээр, зөвхөн бүлэглэлт өөр.">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">(A · B) · C = A · (B · C) — аль хосыг эхэлж үржүүлэх нь үр дүнд нөлөөлөхгүй</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="tap">Таамаглаа сонгоно уу:<span class="tfp" data-v="y">ҮНЭН</span><span class="tfp" data-v="n">ХУДАЛ</span></div>
       <div class="ans"></div>
+      <div class="tfw" data-bad="✗ «ХУДАЛ» тохирохгүй. <b class=&quot;bad&quot;>Бүлэглэх чанар матрицад бүрэн хүчинтэй.</b> Энд үржүүлэгчдийн ДАРААЛАЛ хэвээр үлдэж, зөвхөн аль хосыг эхэлж бодох нь өөр байна — энэ нь үр дүнг өөрчлөхгүй (Жишээ 4.5-д хоёулаа [[2,3],[1,3]]). <span class=&quot;hint&quot;>Байр солих чанаргүй (AB ≠ BA) гэдэгтэй андуурсан байх.</span>"></div>
     </button>
     <button class="gc yes" data-why="Задлах чанар (Distributive). Жишээ 4.6: A·(B+C) = [[4,2],[2,4]] ба A·B + A·C = [[2,2],[2,2]] + [[2,0],[0,2]] = [[4,2],[2,4]].">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">A · (B + C) = A·B + A·C — зардлыг тусад нь бодоод нэмж болно</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="tap">Таамаглаа сонгоно уу:<span class="tfp" data-v="y">ҮНЭН</span><span class="tfp" data-v="n">ХУДАЛ</span></div>
       <div class="ans"></div>
+      <div class="tfw" data-bad="✗ «ХУДАЛ» тохирохгүй. <b class=&quot;bad&quot;>Задлах чанар матрицад хүчинтэй.</b> Жишээ 4.6: A·(B+C) = [[4,2],[2,4]], харин A·B + A·C = [[2,2],[2,2]] + [[2,0],[0,2]] = [[4,2],[2,4]] — яг тэнцүү. <span class=&quot;hint&quot;>Энд A бүх гишүүнийг ижил талаас нь үржүүлж байгаа тул дараалал огт зөрчигдөхгүй.</span>"></div>
     </button>
     <button class="gc no" data-why="Тодорхойлогч ЗӨВХӨН квадрат матрицад тодорхойлогдоно (4.3.1). Тиймээс матрицын аргад хязгаарлалтын тоо, хувьсагчийн тоо тэнцүү байх ёстой.">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Дурын хэмжээтэй матрицад тодорхойлогч бодогдоно</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="tap">Таамаглаа сонгоно уу:<span class="tfp" data-v="y">ҮНЭН</span><span class="tfp" data-v="n">ХУДАЛ</span></div>
       <div class="ans"></div>
+      <div class="tfw" data-bad="✗ «ҮНЭН» тохирохгүй. <b class=&quot;bad&quot;>Тодорхойлогч ЗӨВХӨН квадрат матрицад тодорхойлогдоно</b> (4.3.1). Жишээ нь 2×3 матрицад гол ба туслах диагональ бүрэн үүсэхгүй тул ad − bc гэсэн бодолт хийх боломжгүй. <span class=&quot;hint&quot;>Иймд матрицын аргад хязгаарлалтын тоо хувьсагчийн тоотой тэнцүү байх ёстой.</span>"></div>
     </button>
     <div class="gc yes" data-why="A⁻¹ оршин байхын ЦОРЫН ГАНЦ нөхцөл бол det(A) ≠ 0. Δ = 0 бол мөрүүд шугаман хамааралтай — систем ганц шийдгүй." role="button" tabindex="0">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">det(A) = 0 бол A матрицын урвуу матриц огт олдохгүй</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="tap">Таамаглаа сонгоно уу:<span class="tfp" data-v="y">ҮНЭН</span><span class="tfp" data-v="n">ХУДАЛ</span></div>
       <div class="ans"></div>
+      <div class="tfw" data-bad="✗ «ХУДАЛ» тохирохгүй. <b class=&quot;bad&quot;>A⁻¹ = adj(A) / det(A) тул det(A) = 0 үед тэгд хуваах болно</b> — энэ нь боломжгүй. Δ = 0 гэдэг нь мөрүүд шугаман хамааралтай, систем ганц шийдгүй гэсэн үг. <span class=&quot;hint&quot;>det(A) ≠ 0 бол A⁻¹ оршин байхын цорын ганц нөхцөл.</span>"></div>
     </div>
     <div class="gc no" data-why="Зөв хэлбэр нь (A·B)ᵀ = Bᵀ · Aᵀ — үржвэрийн хөрвүүлэг нь ЭСРЭГ дараалалтай хөрвүүлгүүдийн үржвэртэй тэнцүү (4.1.6)." role="button" tabindex="0">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">(A · B)ᵀ = Aᵀ · Bᵀ</div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="tap">Таамаглаа сонгоно уу:<span class="tfp" data-v="y">ҮНЭН</span><span class="tfp" data-v="n">ХУДАЛ</span></div>
       <div class="ans"></div>
+      <div class="tfw" data-bad="✗ «ҮНЭН» тохирохгүй. <b class=&quot;bad&quot;>Зөв хэлбэр нь (A·B)ᵀ = Bᵀ · Aᵀ — дараалал ЭСРЭГ болно</b> (4.1.6). A(m×p) · B(p×n) бол Aᵀ нь p×m, Bᵀ нь n×p — Aᵀ·Bᵀ гэвэл хэмжээ нь ихэвчлэн таарахгүй. <span class=&quot;hint&quot;>Хосмог бодлогын Aᵀ-д (Бүлэг 7.2) энэ дараалал шийдвэрлэх ач холбогдолтой.</span>"></div>
     </div>
   </div>
   <div class="gamebar">
@@ -1167,6 +1188,7 @@ window.DECK = {
   function open(c){
     if(c.classList.contains('done')) return;
     c.classList.add('done');
+    c.classList.remove('miss');
     var yes = c.classList.contains('yes');
     c.querySelector('.ic').textContent = yes ? '✓' : '✗';
     c.querySelector('.lbl').textContent = yes ? 'ҮНЭН' : 'ХУДАЛ';
@@ -1174,12 +1196,31 @@ window.DECK = {
     refresh();
   }
 
+  /* Буруу таамаг сонгосон үед ЯАГААД буруу болохыг тайлбарлана */
+  function missPick(c, chip){
+    c.classList.add('miss');
+    chip.classList.add('bad');
+    var w = c.querySelector('.tfw');
+    w.innerHTML = w.dataset.bad;
+  }
+
+  function hit(c, target){
+    if(c.classList.contains('done')) return;
+    var chip = (target && target.closest) ? target.closest('.tfp') : null;
+    if(chip){
+      var correct = c.classList.contains('yes') ? 'y' : 'n';
+      if(chip.dataset.v === correct) open(c); else missPick(c, chip);
+    } else {
+      open(c);
+    }
+  }
+
   for(var i=0;i<cards.length;i++){
     (function(c){
       c.addEventListener('mousedown', function(e){ e.preventDefault(); });
-      c.addEventListener('click', function(){ open(c); });
+      c.addEventListener('click', function(e){ hit(c, e.target); });
       c.addEventListener('keydown', function(e){
-        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(c); }
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); hit(c, e.target); }
       });
     })(cards[i]);
   }
@@ -1188,9 +1229,13 @@ window.DECK = {
   reset.addEventListener('click', function(){
     for(var i=0;i<cards.length;i++){
       cards[i].classList.remove('done');
+      cards[i].classList.remove('miss');
       cards[i].querySelector('.ic').textContent = '';
       cards[i].querySelector('.lbl').textContent = '';
       cards[i].querySelector('.ans').textContent = '';
+      cards[i].querySelector('.tfw').innerHTML = '';
+      var ch = cards[i].querySelectorAll('.tfp');
+      for(var j=0;j<ch.length;j++) ch[j].classList.remove('bad');
     }
     refresh();
   });

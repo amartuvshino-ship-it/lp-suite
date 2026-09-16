@@ -54,6 +54,12 @@
 .d7-a.sh{opacity:1}
 .d7-a b{color:var(--green)}
 .d7-a i{color:var(--rust);font-style:normal}
+.d7-a .bad{color:var(--rust);font-weight:700}
+.d7-a .hint{display:block;margin-top:3px;color:var(--ink-mute);font-style:italic;font-size:11.6px}
+.d7-w{font-family:var(--body);font-size:12.2px;line-height:1.45;color:var(--ink-soft);margin-bottom:5px}
+.d7-w b{color:var(--ink)}
+.d7-w .bad{color:var(--rust);font-weight:700}
+.d7-w .hint{display:block;margin-top:3px;color:var(--ink-mute);font-style:italic;font-size:11.6px}
 .d7-opt{display:block;width:100%;text-align:left;margin-top:5px}
 </style>
 </head>
@@ -970,12 +976,26 @@ window.DECK = {
   if(!document.getElementById('csSlide')) return;
   var done = 0;
   var cards = document.querySelectorAll('#csGrid .d7-card');
+  /* Карт бүрийн БУРУУ хариултыг яагаад буруу болохыг тайлбарлана. */
+  var WHY_BAD = {
+    '1':'✗ <b>«Тийм — нөөц үлдсэн»</b> тохирохгүй. <b class="bad">Оновчтой цэгт 4(20) + 2(10) = 100 нь бэлэн байгаа 100 м³-тэй ЯГ тэнцэж байна</b> — тиймээс s₁ = 100 − 100 = 0, үлдэгдэл огт байхгүй.' +
+        '<span class="hint">s₁ &gt; 0 гэж үзвэл Дүрэм 1-ээр y₁ = 0 гэсэн буруу дүгнэлт гарна.</span>',
+    '2':'✗ <b>«Тийм — нөөц үлдсэн»</b> тохирохгүй. <b class="bad">Оновчтой цэгт 2(20) + 4(10) = 80 нь бэлэн байгаа 80 цагтай ЯГ тэнцэнэ</b> — иймд s₂ = 0, ашиглагдаагүй цаг үлдээгүй.' +
+        '<span class="hint">Мужаанууд бүтэн 80 цагаа ажиллаж дууссан тул цаг үнэ цэнтэй: y₂ = 5,000₮.</span>',
+    '3':'✗ <b>«Үгүй — x₁ = 0»</b> тохирохгүй. <b class="bad">Оновчтой шийд (20, 10) тул x₁ = 20 &gt; 0 — ширээ бодитоор үйлдвэрлэгдэж байна.</b>' +
+        '<span class="hint">x₁ = 0 байсан бол Дүрэм 2 үйлчлэхгүй, Хосмогийн 1-р хязгаарлалт хатуу биш байж болох байлаа.</span>',
+    '4':'✗ <b>«Үгүй — x₂ = 0»</b> тохирохгүй. <b class="bad">Оновчтой шийд (20, 10) тул x₂ = 10 &gt; 0 — сандал ч мөн үйлдвэрлэгдэж байна.</b>' +
+        '<span class="hint">Хоёр бүтээгдэхүүн ч эерэг тул Хосмогийн хоёр хязгаарлалт ч яг тэнцүү болно.</span>'
+  };
   function score(){
     document.getElementById('csScore').textContent = done + ' / 4 шалгагдсан';
   }
   cards.forEach(function(card){
     var ok = card.dataset.ok;
     var ans = card.querySelector('.d7-a');
+    var wrap = document.createElement('div');
+    wrap.className = 'd7-w';
+    card.insertBefore(wrap, ans);
     var btns = card.querySelectorAll('.d7-opt');
     btns.forEach(function(b){
       b.addEventListener('mousedown', function(e){ e.preventDefault(); });
@@ -985,6 +1005,7 @@ window.DECK = {
         btns.forEach(function(o){
           o.className = 'd7-btn d7-opt ' + (o.dataset.v === ok ? 'ok' : (o === b ? 'bad' : ''));
         });
+        wrap.innerHTML = (b.dataset.v === ok) ? '' : (WHY_BAD[card.dataset.cs] || '');
         ans.classList.add('sh');
         done++; score();
       });
@@ -996,6 +1017,7 @@ window.DECK = {
     cards.forEach(function(card){
       card.classList.remove('done');
       card.querySelector('.d7-a').classList.remove('sh');
+      var w = card.querySelector('.d7-w'); if(w) w.innerHTML = '';
       card.querySelectorAll('.d7-opt').forEach(function(o){ o.className = 'd7-btn d7-opt'; });
     });
   });
@@ -1007,20 +1029,41 @@ window.DECK = {
   if(!document.getElementById('quizSlide')) return;
   var right = 0;
   var cards = document.querySelectorAll('#quizGrid .d7-card');
+  /* Буруу хувилбар бүрд өөрийн гэсэн тайлбар. Түлхүүр: асуултын дугаар _ хувилбарын индекс */
+  var WHY_BAD = {
+    '1_0':'✗ <b>«А» тохирохгүй.</b> <b class="bad">Энэ бол Анхдагчийн хэмжээ өөрөө.</b> Aᵀ-д мөр ба багана байраа солино: 3 хязгаарлалт → 3 хувьсагч, 2 хувьсагч → 2 хязгаарлалт.' +
+          '<span class="hint">Хэмжээ хэвээр үлдэх цорын ганц тохиолдол бол m = n үед.</span>',
+    '1_2':'✗ <b>«В» тохирохгүй.</b> <b class="bad">Хувьсагчийн тоог зөв оллоо, хязгаарлалтын тоог андуурчээ.</b> Хосмогийн хязгаарлалт нь Анхдагчийн ХУВЬСАГЧААС үүснэ — хувьсагч 2 л байсан тул хязгаарлалт ч 2.' +
+          '<span class="hint">Дүрэм: хязгаарлалт → хувьсагч, хувьсагч → хязгаарлалт.</span>',
+    '2_1':'✗ <b>«Б» тохирохгүй.</b> <b class="bad">y ≤ 0 бол max бодлогын ≥ хязгаарлалтад харгалздаг</b> (Хүснэгт 7.3.3, 2-р мөр). ≤ бол нэг талын хязгаар тул сүүдрийн үнэ нь сөрөг биш: y ≥ 0.' +
+          '<span class="hint">Нэмэлт мод авахад дээд ашиг буурч чадахгүй.</span>',
+    '2_2':'✗ <b>«В» тохирохгүй.</b> <b class="bad">Тэмдгийн хувьд чөлөөт хувьсагч зөвхөн = хязгаарлалтаас үүснэ</b> (3-р мөр). Тэгшитгэл хоёр талаасаа хатуу тул үнэлгээ нь эерэг ч, сөрөг ч байж болно.' +
+          '<span class="hint">≤ нь нэг талдаа л хаалттай учир y-д сөрөг биш байх нөхцөл тавигдана.</span>',
+    '3_0':'✗ <b>«А» тохирохгүй.</b> <b class="bad">Энэ бол яг эсрэг дүгнэлт.</b> Хамгийн өндөр үнэ нь <b>бүрэн ашиглагдсан (slack = 0)</b> нөөцөд ногддог. Илүүдэлтэй нөөцөөс нэг нэгж нэмэхэд Z огт өсөхгүй.' +
+          '<span class="hint">Асуу: «Нөөц үлдэж байхад дахиад нэгийг авах уу?»</span>',
+    '3_1':'✗ <b>«Б» тохирохгүй.</b> <b class="bad">max бодлогын ≤ хязгаарлалтын Хосмог хувьсагчид сөрөг биш байх нөхцөл тавигддаг (y ≥ 0).</b> Иймд сөрөг утга боломжгүй; сул төлөв нь түүнийг яг 0 болгоно.' +
+          '<span class="hint">Нөөц нэмэгдэхэд дээд ашиг буурдаггүй.</span>'
+  };
   function score(){
     document.getElementById('quizScore').textContent = right + ' / 3 зөв';
   }
   cards.forEach(function(card){
     var ans = card.querySelector('.d7-a');
+    var wrap = document.createElement('div');
+    wrap.className = 'd7-w';
+    card.insertBefore(wrap, ans);
     var btns = card.querySelectorAll('.d7-opt');
     btns.forEach(function(b){
       b.addEventListener('mousedown', function(e){ e.preventDefault(); });
       b.addEventListener('click', function(){
         if(card.classList.contains('done')) return;
         card.classList.add('done');
+        var pick = Array.prototype.indexOf.call(btns, b);
         btns.forEach(function(o){
           o.className = 'd7-btn d7-opt ' + (o.dataset.ok === '1' ? 'ok' : (o === b ? 'bad' : ''));
         });
+        wrap.innerHTML = (b.dataset.ok === '1') ? '' :
+          (WHY_BAD[card.dataset.qz + '_' + pick] || '');
         ans.classList.add('sh');
         if(b.dataset.ok === '1') right++;
         score();
@@ -1033,6 +1076,7 @@ window.DECK = {
     cards.forEach(function(card){
       card.classList.remove('done');
       card.querySelector('.d7-a').classList.remove('sh');
+      var w = card.querySelector('.d7-w'); if(w) w.innerHTML = '';
       card.querySelectorAll('.d7-opt').forEach(function(o){ o.className = 'd7-btn d7-opt'; });
     });
   });

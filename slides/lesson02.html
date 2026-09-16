@@ -49,6 +49,24 @@
 #huntList .chk{padding:12px 16px}
 #huntList .chk .tx{font-size:15.5px}
 #huntList .chk.hunt .fix{font-size:13.2px;line-height:1.5;margin-top:7px;padding-top:7px}
+/* ── Сонголттой карт («max уу, min үү?»): буруу хариултын тайлбар ──── */
+#mmGrid .gc{cursor:default}
+.gpick{display:flex;gap:6px;margin-top:9px}
+.gpick button{flex:1;background:var(--muted);border:1.5px solid var(--line-strong);
+  border-radius:8px;padding:6px 0;font-family:var(--mono);font-size:13px;font-weight:600;
+  color:var(--ink-soft);cursor:pointer;transition:all .18s var(--ease)}
+.gpick button:hover{border-color:var(--green);color:var(--green)}
+.gpick button.ok{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.gpick button.no{background:var(--rust-bg);border-color:var(--rust);color:var(--rust)}
+.gpick button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.gc.done .gpick{display:none}
+.gbad{display:none;font-size:11.9px;line-height:1.4;color:var(--ink-soft);
+  margin-top:7px;padding-top:7px;border-top:1px dashed var(--rust)}
+.gc.miss .gbad{display:block;animation:fadein .35s ease}
+#mmGrid .gc.miss{border-color:var(--rust)}
+.gc.done .gbad{display:none}
+.gbad .bad{color:var(--rust);font-weight:700}
+.gbad .hint{display:block;margin-top:4px;color:var(--ink-mute);font-style:italic}
 </style>
 </head>
 <body>
@@ -441,42 +459,54 @@
   <div class="s-tag">Интерактив · 2.3.2 ба 2.3.4</div>
   <h2 class="title">max уу, <em>min үү?</em></h2>
   <div class="game" id="mmGrid">
-    <button class="gc yes" data-why="Ашиг бол компанийн хүсдэг үр дүн — 2.3.2-ын дагуу max. Жишээ 1: Z = 25000x₁ + 20000x₂ → max.">
+    <div class="gc yes" data-why="Ашиг бол компанийн хүсдэг үр дүн — 2.3.2-ын дагуу max. Жишээ 1: Z = 25000x₁ + 20000x₂ → max."
+      data-bad="<b class='bad'>Ашгаа хамгийн бага байлгая гэсэн компани байхгүй.</b> min гэвэл оновчтой шийд нь юу ч үйлдвэрлэхгүй байх (x₁ = x₂ = 0, Z = 0) болж, бодлого утгагүй болно. <span class='hint'>«Энэ хэмжигдэхүүнийг хүсэж байна уу, зайлсхийж байна уу?» гэж асуу.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Гутлын үйлдвэрийн нийт <b>ашиг</b></div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">max</button><button type="button" data-p="no">min</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
-    <button class="gc no" data-why="Зардал бол зайлсхийх ёстой хэмжигдэхүүн — 2.3.2-ын дагуу min. Жишээ 2: Z = 150000x₁ + 300000x₂ → min.">
+    </div>
+    <div class="gc no" data-why="Зардал бол зайлсхийх ёстой хэмжигдэхүүн — 2.3.2-ын дагуу min. Жишээ 2: Z = 150000x₁ + 300000x₂ → min."
+      data-bad="<b class='bad'>Зардал бол зайлсхийх ёстой хэмжигдэхүүн.</b> max гэвэл загвар хамгийн үнэтэй маршрутыг «хамгийн сайн» гэж заах болно. 2.3.2-ын дагуу зардал, алдагдал үргэлж min. <span class='hint'>Хүснэгтийн min-ийн мөрийг дахин хар.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Тээврийн компанийн нийт <b>зардал</b></div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">max</button><button type="button" data-p="no">min</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
-    <button class="gc yes" data-why="Өгөөж бол хүсдэг үр дүн — max. Жишээ 3: А бондын өгөөж 8%, Б хувьцааны өгөөж 12% бол Z = 0.08x₁ + 0.12x₂ → max.">
+    </div>
+    <div class="gc yes" data-why="Өгөөж бол хүсдэг үр дүн — max. Жишээ 3: А бондын өгөөж 8%, Б хувьцааны өгөөж 12% бол Z = 0.08x₁ + 0.12x₂ → max."
+      data-bad="<b class='bad'>Өгөөж бол хөрөнгө оруулагчийн хүсдэг үр дүн.</b> min гэвэл хамгийн бага өгөөжтэй байршуулалт «оновчтой» болж таарна. min байлгадаг нь эрсдэл, зардал — өгөөж биш. <span class='hint'>Өгөөж ба эрсдэлийг хооронд нь бүү андуур.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Хөрөнгө оруулалтын хүлээгдэж буй <b>өгөөж</b></div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">max</button><button type="button" data-p="no">min</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
-    <button class="gc no" data-why="Алдагдал бол зайлсхийх ёстой хэмжигдэхүүн — 2.3.2-ын хүснэгтэд шууд min гэж заасан.">
+    </div>
+    <div class="gc no" data-why="Алдагдал бол зайлсхийх ёстой хэмжигдэхүүн — 2.3.2-ын хүснэгтэд шууд min гэж заасан."
+      data-bad="<b class='bad'>Алдагдал их байх нь сайн үр дүн биш.</b> max гэвэл загвар хамгийн их гарзтай шийдийг санал болгоно. 2.3.2-ын хүснэгтэд алдагдлыг шууд min гэж заасан. <span class='hint'>Хэмжигдэхүүн өсөхөд компанид ашигтай юу гэж бод.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Үйлдвэрлэлийн <b>алдагдал</b></div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">max</button><button type="button" data-p="no">min</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
-    <button class="gc yes" data-why="Хэрэглэгчийн ханамж нь 2.3.2-ын хүснэгтэд max-ын жагсаалтад ашиг, орлого, үр дүнтэй хамт орсон.">
+    </div>
+    <div class="gc yes" data-why="Хэрэглэгчийн ханамж нь 2.3.2-ын хүснэгтэд max-ын жагсаалтад ашиг, орлого, үр дүнтэй хамт орсон."
+      data-bad="<b class='bad'>Ханамж бол ашиг, орлоготой нэг эгнээний хүсдэг үр дүн.</b> min гэвэл хамгийн муу үйлчилгээг «оновчтой» гэж гаргах болно. <span class='hint'>2.3.2-ын max-ын жагсаалтыг дахин хар.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Үйлчилгээний <b>хэрэглэгчийн ханамж</b></div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">max</button><button type="button" data-p="no">min</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
-    <button class="gc no" data-why="Нийт орлого бол max байтал энд яригдаж буй нь ЗАРДАЛ — нэгжийн хувьсах өртөг. Зайлсхийх ёстой тул min.">
+    </div>
+    <div class="gc no" data-why="Нийт орлого бол max байтал энд яригдаж буй нь ЗАРДАЛ — нэгжийн хувьсах өртөг. Зайлсхийх ёстой тул min."
+      data-bad="<b class='bad'>«Өртөг» гэдэг үг орлого биш, зардлыг заана.</b> Хувьсах өртөг өсөх тусам нэгжийн ашиг буурна, тиймээс түүнийг хамгийн бага байлгана. «Нийт» гэсэн үгэнд хууртаж орлоготой андуурах нь түгээмэл алдаа. <span class='hint'>Мөнгө орж байна уу, гарч байна уу гэж асуу.</span>">
       <div class="verdict"><span class="ic"></span><span class="lbl"></span></div>
       <div class="q">Нэг нэгж бүтээгдэхүүнд ноогдох нийт <b>хувьсах өртөг</b></div>
-      <div class="tap">▸ товшиж хариуг харах</div>
+      <div class="gpick"><button type="button" data-p="yes">max</button><button type="button" data-p="no">min</button></div>
+      <div class="gbad"></div>
       <div class="ans"></div>
-    </button>
+    </div>
   </div>
   <div class="gamebar">
     <span id="mmScore">0 / 6 нээгдсэн</span>
@@ -810,8 +840,58 @@ function lp2Flip(gridId, scoreId, resetId, yesLbl, noLbl){
    4. ИНТЕРАКТИВ — «max уу, min үү?» (2.3.2)
    ========================================================================== */
 (function(){
-  if(!document.getElementById('mmGrid')) return;
-  lp2Flip('mmGrid', 'mmScore', 'mmReset', 'max — их байлгах', 'min — бага байлгах');
+  const grid = document.getElementById('mmGrid');
+  if(!grid) return;
+  const cards = Array.from(grid.querySelectorAll('.gc'));
+  const score = document.getElementById('mmScore');
+  const reset = document.getElementById('mmReset');
+  const CH = {yes:'«max»', no:'«min»'};
+  function refresh(){
+    const n = cards.filter(c=>c.classList.contains('done')).length;
+    score.textContent = n + ' / ' + cards.length + ' нээгдсэн';
+  }
+  function reveal(c){
+    c.classList.remove('miss');
+    c.classList.add('done');
+    const yes = c.classList.contains('yes');
+    c.querySelector('.ic').textContent  = yes ? '✓' : '✗';
+    c.querySelector('.lbl').textContent = yes ? 'max — их байлгах' : 'min — бага байлгах';
+    c.querySelector('.ans').textContent = c.dataset.why;
+    refresh();
+  }
+  cards.forEach(c=>{
+    const want = c.classList.contains('yes') ? 'yes' : 'no';
+    c.querySelectorAll('.gpick button').forEach(b=>{
+      b.addEventListener('mousedown', e=>e.preventDefault());
+      b.addEventListener('click', ()=>{
+        if(c.classList.contains('done')) return;
+        if(b.dataset.p === want){
+          b.classList.remove('no'); b.classList.add('ok');
+          reveal(c);
+        } else {
+          // Буруу сонголт — яагаад буруу болохыг тайлбарлана.
+          // Слайд 720px-д багтахын тулд нэг дор ЗӨВХӨН нэг тайлбар харагдана.
+          cards.forEach(o=>{ if(o!==c){ o.classList.remove('miss'); o.querySelector('.gbad').innerHTML=''; } });
+          b.classList.add('no');
+          c.classList.add('miss');
+          c.querySelector('.gbad').innerHTML = '✗ ' + CH[b.dataset.p] + ' тохирохгүй. ' + c.dataset.bad;
+        }
+      });
+    });
+  });
+  reset.addEventListener('mousedown', e=>e.preventDefault());
+  reset.addEventListener('click', ()=>{
+    cards.forEach(c=>{
+      c.classList.remove('done','miss');
+      c.querySelector('.ic').textContent='';
+      c.querySelector('.lbl').textContent='';
+      c.querySelector('.ans').textContent='';
+      c.querySelector('.gbad').innerHTML='';
+      c.querySelectorAll('.gpick button').forEach(b=>b.classList.remove('ok','no'));
+    });
+    refresh();
+  });
+  refresh();
 })();
 </script>
 <script src="deck.js"></script>

@@ -68,6 +68,8 @@
 .vbox.ok{border-color:var(--green);background:var(--green-bg);color:var(--ink)}
 .vbox.no{border-color:var(--rust);background:var(--rust-bg);color:var(--ink)}
 .vbox b{color:var(--ink)}
+.vbox .bad{color:var(--rust);font-weight:700}
+.vbox .hint{display:block;margin-top:4px;color:var(--ink-mute);font-style:italic;font-size:13px}
 .rd{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;
   border-bottom:1px dashed var(--line);padding:7px 0}
 .rd .rk{color:var(--ink-mute)}
@@ -925,7 +927,10 @@ window.LP4 = (function(){
       cnt.textContent = 'зөв хариулт ✓';
     } else {
       msg.className = 'vbox no';
-      msg.innerHTML = '<b>Буруу.</b> Дээд талын жишээ цэг (30, 20): 4·30 + 2·20 = <b>160 > 100</b> ✗ — мод хүрэлцэхгүй. Харин (0, 0): 0 ≤ 100 ✓. Зөв хариу нь <b>доод тал</b>.';
+      msg.innerHTML = '✗ <b>«Дээд тал» тохирохгүй.</b> ' +
+        '<b class="bad">Дээд тал бол 4x₁ + 2x₂ ≥ 100 буюу ЭСРЭГ тэнцэтгэл бишийн муж.</b> ' +
+        'Тэндхийн жишээ цэг (30, 20): 4·30 + 2·20 = <b>160 > 100</b> — 100 м³ мод хүрэлцэхгүй, өөрөөр хэлбэл боломжгүй. ' +
+        '<span class="hint">Эргэлзвэл (0, 0)-г орлуулж шалга: 0 ≤ 100 ✓ тул эх цэгийг агуулсан доод тал зөв.</span>';
       cnt.textContent = 'буруу — дахин үзнэ үү';
     }
   }

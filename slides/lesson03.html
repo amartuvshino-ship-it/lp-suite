@@ -29,10 +29,12 @@
 .sgn-b button.no{background:var(--rust-bg);border-color:var(--rust);color:var(--rust)}
 .sgn-f{display:none;font-size:12px;line-height:1.45;color:var(--ink-soft);margin-top:7px;
   padding-top:7px;border-top:1px solid var(--line)}
-.sgn-row.done .sgn-f{display:block}
+.sgn-row.done .sgn-f,.sgn-row.miss .sgn-f{display:block}
 .sgn-row.done{border-left-color:var(--green);background:var(--green-bg)}
-.sgn-row.miss{border-left-color:var(--rust)}
+.sgn-row.miss{border-left-color:var(--rust);background:var(--rust-bg)}
 .sgn-f b{color:var(--ink)}
+.sgn-f .bad{color:var(--rust);font-weight:700}
+.sgn-f .hint{display:block;margin-top:4px;color:var(--ink-mute);font-style:italic}
 
 /* --- 2. БОДЛОГО УГСРАГЧ --- */
 .bld{display:grid;grid-template-columns:352px 1fr;gap:18px;margin-top:14px;align-items:stretch}
@@ -889,17 +891,41 @@ document.addEventListener('keydown', function(e){
     });
   });
 
+  // Буруу сонголт бүрд ЯАГААД буруу болохыг тайлбарлана.
+  // Түлхүүр: сонгосон тэмдэг → зөв тэмдэг
+  const CH = { le:'≤', ge:'≥', eq:'=' };
+  const WHY_BAD = {
+    'le_ge': '<b class="bad">≤ нь «хамгийн ихдээ» гэсэн утгатай</b> — дээрээс нь хязгаарлана. ' +
+             'Энд харин «багагүй / хамгийн багадаа» гэж ДООД шаардлага тавьж байна. ' +
+             '≤ гэвэл шаардлагыг огт биелүүлэхгүй тэг ч хүлээн зөвшөөрөгдөх болно.',
+    'le_eq': '<b class="bad">≤ нь «үүнээс бага ч байж болно» гэж зөвшөөрнө.</b> ' +
+             'Энд яг тодорхой утга шаардаж байгаа тул дутуу байхыг зөвшөөрч болохгүй.',
+    'ge_le': '<b class="bad">≥ нь «хамгийн багадаа» гэсэн утгатай</b> — доороос нь хязгаарлана. ' +
+             'Энд байгаа нөөцөөс ХЭТРЭХГҮЙ байх ёстой. ' +
+             '≥ гэвэл хязгааргүй их зарцуулж болох болж, бодлого утгагүй болно.',
+    'ge_eq': '<b class="bad">≥ нь «үүнээс их ч байж болно» гэж зөвшөөрнө.</b> ' +
+             'Энд яг тэнцүү байхыг шаардаж байгаа тул илүү гарахыг ч хориглоно.',
+    'eq_le': '<b class="bad">= гэвэл нөөцийг БҮГДИЙГ нь заавал зарцуулна гэсэн үг.</b> ' +
+             'Гэтэл нөөц сул үлдэж болно — дутуу зарцуулах нь зөрчил биш. Тиймээс ≤.',
+    'eq_ge': '<b class="bad">= гэвэл яг тэр хэмжээ гэсэн үг</b> — шаардлагаас илүү гарахыг хориглоно. ' +
+             'Гэтэл шаардлагыг давж биелүүлэх нь зөрчил биш. Тиймээс ≥.',
+  };
+
   function pick(row, btn){
     if(row.classList.contains('done')) return;
     tries++;
     const ok = btn.dataset.k === row.dataset.a;
     btn.classList.add(ok ? 'ok' : 'no');
+    const f = row.querySelector('.sgn-f');
     if(ok){
       row.classList.add('done');
       row.classList.remove('miss');
-      row.querySelector('.sgn-f').innerHTML = '✓ Зөв. ' + row.dataset.why;
+      f.innerHTML = '✓ Зөв. ' + row.dataset.why;
     } else {
       row.classList.add('miss');
+      const key = btn.dataset.k + '_' + row.dataset.a;
+      f.innerHTML = '✗ ' + CH[btn.dataset.k] + ' тохирохгүй. ' + (WHY_BAD[key] || '') +
+                    '<span class="hint">Дахин бодоод өөр тэмдэг сонгоно уу.</span>';
     }
     refresh();
   }

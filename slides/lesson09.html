@@ -47,6 +47,10 @@
 .l9fb{min-height:20px;margin-top:8px;font-size:13.5px;line-height:1.45;color:var(--ink-soft)}
 .l9fb b{color:var(--green)}
 .l9fb i{color:var(--rust);font-style:normal;font-weight:600}
+/* Буруу хариултын тайлбар (лавлах: lesson03 · .sgn-f) */
+.l9fb .bad{color:var(--rust);font-weight:700}
+.l9fb .hint{display:block;margin-top:4px;color:var(--ink-mute);font-style:italic}
+.l9fb .cell{font-family:'JetBrains Mono',monospace;color:var(--ink);font-weight:600}
 /* Solver тааруулах */
 .l9match{display:grid;grid-template-columns:1fr 1fr;gap:9px 26px;margin-top:6px}
 .l9m{display:block;width:100%;text-align:left;padding:8px 12px;border:1px solid var(--line);
@@ -928,18 +932,44 @@ function l9thou(n){
   if (!tab) return;
   var Q = [
     { c:'3-3', q:'Модны нөөцийн (s₁) сүүдрийн үнэ хаана байна вэ?',
-      ok:'Зөв — Z мөрийн s₁ багана = 1. Мод 1 нэгжээр нэмэгдвэл ашиг 1 нэгжээр өснө.' },
+      ok:'Зөв — Z мөрийн s₁ багана = 1. Мод 1 нэгжээр нэмэгдвэл ашиг 1 нэгжээр өснө.',
+      ask:'Асуултад хэрэгтэй нь модны сүүдрийн үнэ — Z мөр ба s₁ баганын огтлолцол.',
+      hint:'Сүүдрийн үнэ ҮРГЭЛЖ Z мөрөнд, тухайн нөөцийн нэмэлт хувьсагчийн баганад байдаг.' },
     { c:'3-5', q:'Төмрийн нөөцийн (s₃) сүүдрийн үнийг хаанаас уншина вэ?',
-      ok:'Зөв — Z мөрийн s₃ багана = 1. Төмөр бас бүрэн ашиглагдсан (binding) нөөц.' },
+      ok:'Зөв — Z мөрийн s₃ багана = 1. Төмөр бас бүрэн ашиглагдсан (binding) нөөц.',
+      ask:'Асуултад хэрэгтэй нь төмрийн сүүдрийн үнэ — Z мөр ба s₃ баганын огтлолцол.',
+      hint:'Мод → s₁, цаг → s₂, төмөр → s₃. Баганаа эхлээд зөв тааруулна уу.' },
     { c:'3-4', q:'Цагийн нөөцийн (s₂) сүүдрийн үнэ хаана байна, яагаад 0 вэ?',
-      ok:'Зөв — Z мөрийн s₂ багана = 0. s₂ өөрөө суурь хувьсагч тул нэмэлт цаг ашигт нэмэр өгөхгүй (гүйцээх сул шинж).' },
+      ok:'Зөв — Z мөрийн s₂ багана = 0. s₂ өөрөө суурь хувьсагч тул нэмэлт цаг ашигт нэмэр өгөхгүй (гүйцээх сул шинж).',
+      ask:'Асуултад хэрэгтэй нь цагийн сүүдрийн үнэ — Z мөр ба s₂ баганын огтлолцол.',
+      hint:'s₂ = 1 > 0 буюу цаг илүүдэлтэй тул сүүдрийн үнэ нь 0 байх ёстой.' },
     { c:'3-1', q:'Сандлын (x₂) буурсан зардлыг хаанаас уншина вэ?',
-      ok:'Зөв — Z мөрийн x₂ багана = 3. x₂ суурьт байхгүй тул энэ нь түүний буурсан зардал.' },
+      ok:'Зөв — Z мөрийн x₂ багана = 3. x₂ суурьт байхгүй тул энэ нь түүний буурсан зардал.',
+      ask:'Асуултад хэрэгтэй нь сандлын буурсан зардал — Z мөр ба x₂ баганын огтлолцол.',
+      hint:'Буурсан зардал бол Z мөрийн ҮНДСЭН хувьсагчийн багана, нэмэлт хувьсагчийнх биш.' },
     { c:'1-6', q:'Ашиглагдалгүй үлдсэн цагийн хэмжээг хаанаас уншина вэ?',
-      ok:'Зөв — s₂ мөрийн RHS = 1. Цагийн нөөцөөс 1 нэгж ашиглагдалгүй үлдэнэ.' },
+      ok:'Зөв — s₂ мөрийн RHS = 1. Цагийн нөөцөөс 1 нэгж ашиглагдалгүй үлдэнэ.',
+      ask:'Асуултад хэрэгтэй нь ашиглагдаагүй цаг — s₂ мөрийн RHS.',
+      hint:'Ашиглагдаагүй нөөц бол суурь болсон sᵢ хувьсагчийн УТГА: RHS баганад байна.' },
     { c:'3-6', q:'Оновчтой нийт ашиг Z хаана байна вэ?',
-      ok:'Зөв — Z мөрийн RHS = 13 нэгж ашиг.' }
+      ok:'Зөв — Z мөрийн RHS = 13 нэгж ашиг.',
+      ask:'Асуултад хэрэгтэй нь оновчтой нийт ашиг — Z мөр ба RHS баганын огтлолцол.',
+      hint:'Хүснэгтийн баруун доод булан дахь тоог хар.' }
   ];
+  /* Товшсон нүд ЯГ ЮУ болохыг нэрлэж, яагаад хариулт биш болохыг тайлбарлана */
+  var RL = ['x₁','s₂','x₃','Z'];
+  var CL = ['x₁','x₂','x₃','s₁','s₂','s₃','RHS'];
+  function whatCell(r, c){
+    if (r === 3){
+      if (c === 6) return 'оновчтой нийт ашиг Z';
+      if (c <= 2) return CL[c] + ' хувьсагчийн буурсан зардал' +
+        (c === 1 ? '' : ' (x₁, x₃ суурьт байгаа тул энэ нь 0)');
+      return CL[c] + ' нөөцийн сүүдрийн үнэ';
+    }
+    if (c === 6) return 'суурь хувьсагч ' + RL[r] + '-ийн оновчтой утга';
+    return 'орлуулах коэффициент — ' + CL[c] + ' 1 нэгжээр нэмэгдэхэд суурь хувьсагч ' +
+           RL[r] + ' хэдээр өөрчлөгдөхийг заана';
+  }
   var i = 0, score = 0, lock = false;
   var qEl = document.getElementById('rdQ'), nEl = document.getElementById('rdN');
   var fEl = document.getElementById('rdFb'), sEl = document.getElementById('rdScore');
@@ -976,7 +1006,13 @@ function l9thou(n){
           setTimeout(function(){ lock = false; show(); }, 900);
         } else {
           td.className = 'hit bad';
-          fEl.innerHTML = '<i>Дахин үзээрэй.</i> Сүүдрийн үнэ бол <b>Z мөрийн</b> нэмэлт хувьсагчийн багана; буурсан зардал бол <b>Z мөрийн</b> үндсэн хувьсагчийн багана.';
+          var ij = td.getAttribute('data-i').split('-');
+          var rr = +ij[0], cc = +ij[1];
+          fEl.innerHTML =
+            '✗ Та <span class="cell">' + RL[rr] + ' мөрийн ' + CL[cc] + ' багана</span> (' +
+            td.textContent + ') дээр товшлоо. ' +
+            '<b class="bad">Энэ нүд бол ' + whatCell(rr, cc) + '.</b> ' + Q[i].ask +
+            '<span class="hint">' + Q[i].hint + '</span>';
           setTimeout(function(){ if (td.className === 'hit bad') td.className = 'hit'; }, 700);
         }
       });
@@ -1000,6 +1036,29 @@ function l9thou(n){
     { id:'sp', en:'Shadow Price',           sec:'Constraints',    mn:'Сүүдрийн үнэ',          hint:'мод 10,000₮ · цаг 5,000₮' },
     { id:'af', en:'Allowable Increase / Decrease', sec:'Constraints', mn:'Боломжит муж',      hint:'мод [40 – 160] · цаг [50 – 200]' }
   ];
+  /* Сонгосон ойлголт ҮНЭНДЭЭ юу болох (баруун тал) ба Excel-ийн багана юуг заадаг (зүүн тал) */
+  var WHAT = {
+    fv:'оновчтой шийд дэх хувьсагчийн эцсийн утга (x₁ = 20, x₂ = 10)',
+    rc:'суурьт ОРООГҮЙ хувьсагчийг 1 нэгж албадан оруулбал Z хэдээр мууддагийг заасан тоо',
+    oc:'зорилгын функцэд анхнаас нь өгөгдсөн нэгж ашиг — тооцоолол биш, орц өгөгдөл',
+    ao:'cⱼ ямар мужид өөрчлөгдөхөд (20, 10) гэсэн ШИЙД хэвээр үлдэхийг заасан муж',
+    sp:'нөөц 1 нэгжээр нэмэгдэхэд Z хэдээр өсөхийг заасан тоо (мод 10, цаг 5)',
+    af:'bᵢ ямар мужид өөрчлөгдөхөд СҮҮДРИЙН ҮНЭ тогтвортой байхыг заасан муж'
+  };
+  var ASKS = {
+    fv:'«Final Value» бол хувьсагч бүрийн эцсийн утгыг харуулдаг багана',
+    rc:'«Reduced Cost» бол суурьт ороогүй хувьсагчийн буурсан зардлыг харуулдаг багана',
+    oc:'«Objective Coefficient» бол cⱼ-ийн анхны утгыг давтан харуулдаг багана',
+    ao:'Variable Cells хэсгийн «Allowable Increase / Decrease» бол cⱼ-ийн зөвшөөрөгдөх өөрчлөлт',
+    sp:'«Shadow Price» бол хязгаарлалт бүрийн сүүдрийн үнийг харуулдаг багана',
+    af:'Constraints хэсгийн «Allowable Increase / Decrease» бол bᵢ-ийн зөвшөөрөгдөх өөрчлөлт'
+  };
+  var SEC = {}, MN = {}, EN = {};
+  for (var pi = 0; pi < PAIRS.length; pi++){
+    SEC[PAIRS[pi].id] = PAIRS[pi].sec;
+    MN[PAIRS[pi].id]  = PAIRS[pi].mn;
+    EN[PAIRS[pi].id]  = PAIRS[pi].en;
+  }
   var fb = document.getElementById('mtFb'), sc = document.getElementById('mtScore');
   var sel = null, done = 0;
 
@@ -1049,7 +1108,15 @@ function l9thou(n){
       sel = null;
     } else {
       b.classList.add('bad');
-      fb.innerHTML = '<i>Тохирохгүй байна.</i> Variable Cells хэсэг нь хувьсагчийн тухай, Constraints хэсэг нь нөөцийн тухай гэдгийг санаарай.';
+      var li = sel.getAttribute('data-id'), ri = b.getAttribute('data-id');
+      fb.innerHTML =
+        '✗ «' + EN[li] + '» ↔ «' + MN[ri] + '» тохирохгүй. ' +
+        '<b class="bad">«' + MN[ri] + '» гэдэг бол ' + WHAT[ri] + '.</b> ' +
+        'Харин ' + ASKS[li] + '.' +
+        '<span class="hint">' + (SEC[li] === SEC[ri]
+          ? 'Хоёулаа ' + SEC[li] + ' хэсэгт байгаа тул утгын ялгааг нь нягтална уу.'
+          : 'Variable Cells хэсэг хувьсагчийн тухай, Constraints хэсэг нөөцийн тухай — эхлээд хэсгийг нь тааруул.') +
+        '</span>';
       (function(x){ setTimeout(function(){ x.classList.remove('bad'); }, 600); })(b);
     }
   }

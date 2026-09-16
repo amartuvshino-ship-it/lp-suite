@@ -8,6 +8,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="deck.css">
+<style>
+/* Буруу сонголтын тайлбар — Интерактив 1 ба 4 */
+#nqRes .bad,#mcWhy .bad{color:var(--rust);font-weight:700}
+#nqRes .hint,#mcWhy .hint{display:block;margin-top:5px;color:var(--ink-mute);font-style:italic}
+</style>
 </head>
 <body>
 <div id="viewport"><div id="stage">
@@ -186,7 +191,7 @@
           <div><span style="display:inline-block;width:14px;height:14px;background:var(--indigo-bg);border:2px solid var(--indigo);vertical-align:-2px"></span> <b style="color:var(--indigo)">Хүрэх цэг</b> — зөвхөн орох сум</div>
         </div>
       </div>
-      <div id="nqRes" style="border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:12px;min-height:74px;font-size:14.5px;line-height:1.5;color:var(--ink-soft)">Долоон зангилаа бүрийг ангилаад «Шалгах» дарна уу.</div>
+      <div id="nqRes" style="border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:12px;min-height:74px;font-size:13px;line-height:1.45;color:var(--ink-soft)">Долоон зангилаа бүрийг ангилаад «Шалгах» дарна уу.</div>
       <div style="display:flex;gap:8px;margin-top:12px">
         <button id="nqChk" style="flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font:600 14px Geist;cursor:pointer">Шалгах</button>
         <button id="nqRst" style="flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);font:600 14px Geist;cursor:pointer">Дахин</button>
@@ -706,7 +711,7 @@
     </div>
     <div id="mcQ" style="border:1px solid var(--line);border-radius:14px;padding:14px 18px;font-size:18px;line-height:1.5;color:var(--ink);min-height:62px"></div>
     <div id="mcOpts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px"></div>
-    <div id="mcWhy" style="border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-top:12px;font-size:15px;line-height:1.55;color:var(--ink-soft);min-height:64px"></div>
+    <div id="mcWhy" style="border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-top:12px;font-size:14px;line-height:1.5;color:var(--ink-soft);min-height:64px"></div>
     <div style="display:flex;gap:9px;margin-top:11px">
       <button id="mcNext" style="flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--green);background:var(--green-bg);color:var(--green);font:600 14px Geist;cursor:pointer">Дараагийн асуулт →</button>
       <button id="mcRst" style="width:150px;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink-soft);font:600 14px Geist;cursor:pointer">Эхнээс</button>
@@ -879,6 +884,41 @@ window.DECK = {
     return {c:c,t:t,lb:lb,ring:ring};
   });
 
+  /* Буруу ангилсан зангилаа бүрд ЯАГААД буруу болохыг тайлбарлана.
+     Тайлбар нь тухайн зангилааны бодит орох/гарах сумнаас гарна. */
+  var TNAME = ['—','«Эх цэг»','«Дамжин өнгөрөх»','«Хүрэх цэг»'];
+  function nb(k, into){
+    var o=[];
+    ARCS.forEach(function(a){
+      if(into){ if(a[1]===k) o.push(NODES[a[0]].id); }
+      else    { if(a[0]===k) o.push(NODES[a[1]].id); }
+    });
+    return o.join(', ');
+  }
+  function whyBad(i){
+    var g=st[i], a=NODES[i].ans, id=NODES[i].id, ins=nb(i,1), outs=nb(i,0);
+    if(g===0)
+      return '<b class="bad">'+id+' зангилааг ангилаагүй байна.</b> Дугуй дээр товшиж төрлийг нь сонгоно уу.';
+    var s='✗ <b>'+id+'</b> — '+TNAME[g]+' биш. ';
+    if(g===1 && a===2)
+      return s+'<b class="bad">'+id+' рүү '+ins+'-ээс сум орж байна</b> — эх цэгт орох сум байдаггүй. '+
+               'Аваад '+outs+' рүү дамжуулж байгаа тул дамжин өнгөрөх зангилаа.';
+    if(g===1 && a===3)
+      return s+'<b class="bad">'+id+'-ээс гарах сум огт байхгүй</b> — эх цэг зөвхөн илгээдэг. '+
+               ins+'-ээс ачаа хүлээн авч байгаа тул хүрэх цэг.';
+    if(g===2 && a===1)
+      return s+'<b class="bad">'+id+' рүү орох сум огт байхгүй</b> — дамжлагад орох, гарах хоёулаа хэрэгтэй. '+
+               'Зөвхөн '+outs+' рүү илгээж байгаа тул эх цэг.';
+    if(g===2 && a===3)
+      return s+'<b class="bad">'+id+'-ээс цааш гарах сум байхгүй</b> — дамжлага авснаа заавал цааш дамжуулна. '+
+               'Ачаа энд зогсож байгаа тул хүрэх цэг.';
+    if(g===3 && a===1)
+      return s+'<b class="bad">'+id+'-ээс '+outs+' рүү сум гарч байна</b> — хүрэх цэгээс ачаа цааш явдаггүй. '+
+               'Орох сум огт байхгүй тул эх цэг.';
+    return s+'<b class="bad">'+id+'-ээс '+outs+' рүү сум гарч байна</b> — хүрэх цэгт ачаа зогсох ёстой. '+
+             ins+'-ээс аваад цааш дамжуулж байгаа тул дамжин өнгөрөх зангилаа.';
+  }
+
   function paint(){
     var ok=0;
     NODES.forEach(function(nd,i){
@@ -893,7 +933,13 @@ window.DECK = {
       var r=document.getElementById('nqRes');
       r.innerHTML = ok===7
         ? '<b style="color:var(--green)">7 / 7 зөв ✓</b><br>Эх цэг A, B · Дамжин өнгөрөх C, D · Хүрэх цэг E, F, G. Сумны чиглэл л бүх зүйлийг хэлж байна.'
-        : '<b style="color:var(--rust)">'+ok+' / 7 зөв</b><br>Улаан цагиргийг дахин шалга: зөвхөн <b>гарах</b> сумтай = эх цэг · <b>орох ба гарах</b> = дамжин өнгөрөх · зөвхөн <b>орох</b> = хүрэх цэг.';
+        : (function(){
+            var wrong=[], k;
+            for(k=0;k<NODES.length;k++) if(st[k]!==NODES[k].ans) wrong.push(k);
+            var ids=wrong.map(function(x){ return NODES[x].id; }).join(', ');
+            return '<b style="color:var(--rust)">'+ok+' / 7 зөв</b><br>'+whyBad(wrong[0])+
+                   '<span class="hint">Улаан цагиргууд: '+ids+'.</span>';
+          })();
     }
   }
   var b1=document.getElementById('nqChk'), b2=document.getElementById('nqRst');
@@ -1157,7 +1203,32 @@ window.DECK = {
     {q:'Amazon: <b>Fulfillment Center → Sortation Center → Delivery Station → хэрэглэгч.</b> 4 түвшинт, хоёр давхар завсрын зангилаатай сүлжээ.',
      a:5, w:'<b>Дамжин өнгөрөх тээвэр (Бүлэг 10.9.2).</b> Олон түвшинт сүлжээнд загварчлалын логик өөрчлөгдөхгүй — дамжин өнгөрөх зангилаа бүр хүснэгтэд нэг нэмэлт мөр, нэг нэмэлт багана авчирна.'}
   ];
-  var i=0, answered=false, score=0, done=0;
+  /* Буруу сонгосон арга бүрд ЯАГААД тохирохгүйг тайлбарлана.
+     WM = тухайн аргын ерөнхий хэрэглээний хүрээ,
+     WQ['асуулт_арга'] = тухайн асуултад тохирсон тусгай тайлбар. */
+  var WM=[
+    '<b class="bad">Графикийн арга зөвхөн 2 хувьсагчтай бодлогод ажиллана</b> — боломжит мужийг координатын хавтгайд зурах боломжгүй болмогц энэ арга хүчингүй болно.',
+    '<b class="bad">Энгийн симплекс нь бүх хязгаарлалт ≤ хэлбэртэй, гарааны суурь шийд бэлэн үед л шууд ажиллана.</b> Энэ бодлогын бүтэц тийм биш байна.',
+    '<b class="bad">Big-M бол зохиомол хувьсагчийг M торгуулиар суурь шийдээс шахаж гаргах арга.</b> Зохиомол хувьсагч шаардлагагүй бодлогод энэ нь илүүц ажил.',
+    '<b class="bad">MODI бол БЭЛЭН тээврийн хүснэгтийн гарааны шийдийг оновчлох алхам.</b> Тээврийн хүснэгт байхгүй бол хэрэглэх зүйлгүй.',
+    '<b class="bad">Салбарлан зааглах арга нь шийд заавал бүхэл тоо байх ёстой үед л хэрэгтэй.</b> Хувьсагч бутархай утга авч болох бодлогод илүүц.',
+    '<b class="bad">Дамжин өнгөрөх загвар нь завсрын (дамжлагын) зангилаатай сүлжээнд зориулагдсан.</b> Ийм зангилаа байхгүй бол хэрэглэхгүй.'
+  ];
+  var WQ={
+    '0_1':'Симплекс энэ бодлогыг ч бодно. Гэхдээ асуулт <b class="bad">оновчтой цэгийг ХАРУУЛАХ хамгийн ойлгомжтой аргыг</b> хайж байна — 2 хувьсагчтай үед мужийг зурж оройг харах нь илүү тод.',
+    '1_2':'<b class="bad">Бүх хязгаарлалт ≤ тул нэмэлт хувьсагчид өөрсдөө нэгж суурь үүсгэнэ.</b> Зохиомол хувьсагч ч, M торгууль ч огт шаардлагагүй.',
+    '2_1':'<b class="bad">≥ ба = хязгаарлалтад бэлэн нэгж суурь үүсэхгүй.</b> Илүүдэл хувьсагчийн коэффициент −1 тул суурь болж чадахгүй — зохиомол хувьсагч заавал нэмнэ.',
+    '3_1':'Симплексээр бодож болох ч 3×4 хүснэгт 12 хувьсагч, 7 хязгаарлалт өгнө. <b class="bad">Асуулт бодохыг биш, БЭЛЭН шийд оновчтой эсэхийг батлахыг хүсэж байна.</b>',
+    '3_5':'<b class="bad">Энд завсрын зангилаа огт байхгүй</b> — агуулахаас дэлгүүр рүү шууд тээвэрлэж буй сонгодог тээврийн бодлого.',
+    '4_1':'<b class="bad">Симплекс бутархай шийд өгч болно</b> — «2.7 машин» гарвал дугуйлах нь боломжит мужаас гаргах эсвэл оновчгүй шийд өгөх эрсдэлтэй.',
+    '5_3':'<b class="bad">MODI бол оновчлолын алхам, загварчлалын арга биш.</b> Эхлээд агуулахыг дамжлага болгож, буфертэй хүснэгт байгуулах ёстой — MODI түүний ДАРАА орж ирнэ.',
+    '6_1':'<b class="bad">Симплекс хувьсагчийг 0 эсвэл 1 байхыг шаардаж чаддаггүй</b> — тэр зөвхөн тасралтгүй муж дээр ажиллана. Хоёртын нөхцөлийг салаалж баталгаажуулна.',
+    '6_3':'<b class="bad">5 ажилтныг 5 ажилд оноовол хуваарилалт ердөө 5 болж хүснэгт хүчтэй гажуудалтай болно</b> (суурь нүд m + n − 1 = 9 байх ёстой). MODI ийм хүснэгт дээр шууд ажиллахгүй.',
+    '7_3':'<b class="bad">Эхлээд 4 түвшинт сүлжээг тээврийн хүснэгт болгон хөрвүүлэх ёстой.</b> MODI бол зөвхөн бэлэн хүснэгт дээр ажилладаг оновчлолын алхам.'
+  };
+  function whyBad(qi, k){ return WQ[qi + '_' + k] || WM[k]; }
+
+  var i=0, answered=false, score=0, done=0, lastPick=-1;
   var qEl=document.getElementById('mcQ'), oEl=document.getElementById('mcOpts'), wEl=document.getElementById('mcWhy');
   var bts=M.map(function(name,k){
     var b=document.createElement('button');
@@ -1173,7 +1244,11 @@ window.DECK = {
     document.getElementById('mcNum').textContent='АСУУЛТ '+(i+1)+' / '+Q.length;
     document.getElementById('mcBar').style.width=((i+1)/Q.length*100)+'%';
     document.getElementById('mcScore').textContent='Оноо: '+score+' / '+done;
-    wEl.innerHTML = answered ? Q[i].w : 'Зургаан аргын аль нь тохирохыг сонгоно уу.';
+    wEl.innerHTML = !answered ? 'Зургаан аргын аль нь тохирохыг сонгоно уу.'
+      : (lastPick >= 0 && lastPick !== Q[i].a
+          ? '✗ «' + M[lastPick] + '» тохирохгүй. ' + whyBad(i, lastPick) +
+            '<span class="hint">Зөв хариу (ногоон товч):</span>' + Q[i].w
+          : Q[i].w);
     bts.forEach(function(b,k){
       b.style.borderColor='var(--line)'; b.style.background='transparent'; b.style.color='var(--ink)';
       if(answered){
@@ -1184,7 +1259,7 @@ window.DECK = {
   }
   function pick(k){
     if(answered) return;
-    answered=true; done++;
+    answered=true; done++; lastPick=k;
     if(k===Q[i].a) score++;
     else { bts[k].style.borderColor='var(--rust)'; bts[k].style.background='var(--rust-bg)'; bts[k].style.color='var(--rust)'; }
     render();
@@ -1194,7 +1269,7 @@ window.DECK = {
   bn.addEventListener('mousedown',function(e){e.preventDefault();});
   brs.addEventListener('mousedown',function(e){e.preventDefault();});
   bn.addEventListener('click',function(){
-    if(i<Q.length-1){ i++; answered=false; render(); }
+    if(i<Q.length-1){ i++; answered=false; lastPick=-1; render(); }
     else {
       qEl.innerHTML='<b style="color:var(--green)">Дууслаа — '+score+' / '+Q.length+' зөв.</b> Та шугаман программчлалын зургаан үндсэн аргыг ялган таних чадвартай боллоо. Энэ бол 16 долоо хоногийн үр дүн.';
       wEl.innerHTML='«Эхнээс» дарж дахин туршиж болно.';
@@ -1202,7 +1277,7 @@ window.DECK = {
       answered=true;
     }
   });
-  brs.addEventListener('click',function(){ i=0; score=0; done=0; answered=false; render(); });
+  brs.addEventListener('click',function(){ i=0; score=0; done=0; answered=false; lastPick=-1; render(); });
   render();
 })();
 </script>

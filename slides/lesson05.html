@@ -78,6 +78,17 @@
 .l5-dxa{display:none;font-size:11.5px;line-height:1.5;color:var(--ink-soft);margin-top:8px;
   padding-top:7px;border-top:1px dashed var(--line-strong)}
 .l5-dxc.done .l5-dxa{display:block;animation:fadein .3s ease}
+/* буруу сонголтын тайлбар */
+.l5-dxc.miss{border-color:var(--rust)}
+.l5-dxw{display:none;font-size:11px;line-height:1.45;color:var(--ink-soft);margin-top:7px;
+  padding-top:6px;border-top:1px dashed var(--rust)}
+#dxGrid .l5-dxc{padding:11px 12px}
+.l5-dxc.miss .l5-dxw{display:block;animation:fadein .3s ease}
+.l5-dxc.done .l5-dxw{display:none}
+.l5-dxw .bad{color:var(--rust);font-weight:700}
+.l5-dxw .hint{display:block;margin-top:4px;color:var(--ink-mute);font-style:italic}
+/* тохиолдлын самбарын тэмдэглэлүүдийг нягтруулав (720px-д багтаах) */
+#caseSlide .l5-note{padding:10px 14px;margin-bottom:7px}
 
 .l5-vtx{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:13px}
 .l5-vb{background:var(--muted);border:1.5px solid var(--line);border-radius:9px;padding:8px 3px;
@@ -540,31 +551,37 @@
     <div class="l5-dxc" data-a="norm">
       <div class="l5-dxq">«Модон урлал» ХХК<i>Z = 50000x₁ + 40000x₂ → max<br>4x₁+2x₂ ≤ 100 · 2x₁+4x₂ ≤ 80</i></div>
       <div class="l5-opts"></div>
+      <div class="l5-dxw"></div>
       <div class="l5-dxa">Хаалттай дөрвөн өнцөгт муж, ганц оновчтой орой <b>D (20, 10)</b>, Z = 1,400,000₮.</div>
     </div>
     <div class="l5-dxc" data-a="multi">
       <div class="l5-dxq">Хоёр цэг ижил Z<i>Z = 4x₁ + 2x₂ → max<br>2x₁+x₂ ≤ 10 · x₁ ≤ 4</i></div>
       <div class="l5-opts"></div>
+      <div class="l5-dxw"></div>
       <div class="l5-dxa">Зорилгын налуу (−2) нь 2x₁+x₂ = 10 шулууны налуутай тэнцүү → <b>(4, 2)</b> ба <b>(0, 10)</b> хоёуланд Z = 20.</div>
     </div>
     <div class="l5-dxc" data-a="inf">
       <div class="l5-dxq">Зөрчилдсөн хос нөхцөл<i>x₁ + x₂ ≤ 2<br>x₁ + x₂ ≥ 6</i></div>
       <div class="l5-opts"></div>
+      <div class="l5-dxw"></div>
       <div class="l5-dxa">Нэг тоо зэрэг ≤ 2 бас ≥ 6 байх боломжгүй → огтлолцол үүсэхгүй, <b>боломжит муж хоосон</b>.</div>
     </div>
     <div class="l5-dxc" data-a="unb">
       <div class="l5-dxq">Ганц хязгаарлалт<i>Z = x₁ + x₂ → max<br>x₁ − x₂ ≤ 1</i></div>
       <div class="l5-opts"></div>
+      <div class="l5-dxw"></div>
       <div class="l5-dxa">Энэ ганц хязгаарлалт x₁, x₂-ийг дээрээс нь хааж чадахгүй → муж сунаж, <b>Z хязгааргүй ихэснэ</b>.</div>
     </div>
     <div class="l5-dxc" data-a="norm">
       <div class="l5-dxq">Тариаланчийн кейс<i>Z = 300000x₁ + 500000x₂ → max<br>x₁+x₂ ≤ 60 · 2x₁+4x₂ ≤ 180</i></div>
       <div class="l5-opts"></div>
+      <div class="l5-dxw"></div>
       <div class="l5-dxa">Хаалттай муж, ганц оновчтой орой <b>D (30, 30)</b>, Z = 24,000,000₮.</div>
     </div>
     <div class="l5-dxc" data-a="norm">
       <div class="l5-dxq">Хоёр параллель хязгаар<i>x₁ + x₂ ≤ 10<br>x₁ + x₂ ≤ 20</i></div>
       <div class="l5-opts"></div>
+      <div class="l5-dxw"></div>
       <div class="l5-dxa">Муж хаалттай, шийд ганц. ≤ 20 нь <b>илүүдэл хязгаарлалт</b> — устгасан ч муж өөрчлөгдөхгүй.</div>
     </div>
   </div>
@@ -1136,6 +1153,72 @@ function nfmt(n){ return n.toLocaleString('en-US'); }
     {k:'inf',   t:'шийдгүй'}
   ];
   var cards = [].slice.call(grid.querySelectorAll('.l5-dxc'));
+  var OPTNAME = {norm:'«энгийн»', multi:'«олон шийд»', unb:'«хязгааргүй»', inf:'«шийдгүй»'};
+
+  /* Буруу сонголт бүрд ЯАГААД буруу болохыг тайлбарлана.
+     Түлхүүр: картын дугаар _ сонгосон ангилал                     */
+  var WHY_BAD = {
+    /* 1 · «Модон урлал» — энгийн (ганц оновчтой орой D (20, 10)) */
+    '0_multi':'<b class="bad">Зорилгын налуу −50000/40000 = −1.25</b>, харин шулуунуудынх −2 ба −0.5. ' +
+              'Аль нь ч түүнтэй тэнцэхгүй тул оновчтой шийд ганц орой D (20, 10) дээр л байна.' +
+              '<span class="hint">Олон шийд гарахын тулд налуу ЯГ тэнцүү байх ёстой.</span>',
+    '0_unb'  :'<b class="bad">Хоёр ≤ хязгаарлалт x₁, x₂-ийг хоёуланг нь дээрээс хааж байна</b> (мод 100, цаг 80). ' +
+              'Сөрөг биш байх нөхцөлтэй хамт муж хаалттай тул Z дээд талдаа 1,400,000₮.' +
+              '<span class="hint">Хязгааргүй болохын тулд муж аль нэг зүгт хаагдаагүй байх ёстой.</span>',
+    '0_inf'  :'<b class="bad">(0, 0) цэг хоёр хязгаарлалтыг хоёуланг нь хангана</b> (0 ≤ 100, 0 ≤ 80) — ' +
+              'иймд боломжит муж хоосон биш. Зөрчилдсөн ≤ / ≥ хос энд алга.' +
+              '<span class="hint">Шийдгүй эсэхийг шалгахдаа эхлээд (0, 0)-ыг тавьж үз.</span>',
+    /* 2 · Z = 4x₁ + 2x₂ — олон оновчтой шийд */
+    '1_norm' :'<b class="bad">Зорилгын налуу (−4/2 = −2) нь 2x₁ + x₂ = 10 шулууны налуутай яг тэнцүү.</b> ' +
+              'Тиймээс (4, 2), (0, 10) хоёуланд Z = 20 — оновчтой шийд ганц орой биш, бүхэл хэрчим болно.' +
+              '<span class="hint">Налуугаа харьцуулж үзээрэй.</span>',
+    '1_unb'  :'<b class="bad">2x₁ + x₂ ≤ 10 нь хоёр хувьсагчийг хоёуланг нь дээрээс хаана</b> — x₁ ≤ 5, x₂ ≤ 10. ' +
+              'Муж хаалттай тул Z хязгааргүй өсөх боломжгүй, дээд утга нь 20.' +
+              '<span class="hint">Асуудал нь Z-ийн хэмжээнд биш, оновчтой цэгийн ТООНД байна.</span>',
+    '1_inf'  :'<b class="bad">(0, 0) хоёр хязгаарлалтыг хангах тул боломжит муж хоосон биш</b> — харин ч дөрвөн оройтой. ' +
+              'Асуудал нь шийд байхгүйд биш, оновчтой шийд олон байгаад оршино.' +
+              '<span class="hint">Хүснэгтийн хоёр цэгийн Z утгыг дахин хар.</span>',
+    /* 3 · x₁ + x₂ ≤ 2 ба ≥ 6 — шийдгүй */
+    '2_norm' :'<b class="bad">Нэг тоо зэрэг ≤ 2 бас ≥ 6 байх боломжгүй.</b> Хоёр нөхцөлийг нэгэн зэрэг хангах ' +
+              'цэг огт байхгүй тул боломжит муж хоосон — «энгийн» гэж нэрлэх ганц оновчтой орой ч алга.' +
+              '<span class="hint">Хоёр тэмдгийг зэрэгцүүлж уншаарай: ≤ 2 ба ≥ 6.</span>',
+    '2_multi':'<b class="bad">Олон шийд гэдэг нь оновчтой ЦЭГ олон гэсэн үг</b> — гэтэл энд боломжит цэг ганц ч алга. ' +
+              'Оновчтой шийд олон биш, харин огт байхгүй.' +
+              '<span class="hint">Эхлээд «боломжит цэг бий юу?» гэдгийг шалга.</span>',
+    '2_unb'  :'<b class="bad">Хязгааргүй гэдэг нь муж хаагдалгүй сунаж, боломжит цэг хязгааргүй олон байхыг хэлнэ.</b> ' +
+              'Энд яг эсрэгээрээ — боломжит муж хоосон олонлог болж байна.' +
+              '<span class="hint">Хязгааргүй ба шийдгүй бол эсрэг тэсрэг хоёр тохиолдол.</span>',
+    /* 4 · Z = x₁ + x₂, x₁ − x₂ ≤ 1 — хязгааргүй */
+    '3_norm' :'<b class="bad">Ганц x₁ − x₂ ≤ 1 хязгаарлалт x₁, x₂-ийг дээрээс нь хаахгүй.</b> ' +
+              '(t, t) хэлбэрийн цэг бүр боломжит бөгөөд Z = 2t хязгааргүй өснө — ганц оновчтой орой үүсэхгүй.' +
+              '<span class="hint">x₁ = x₂ = 1000 гэж тавиад шалгаж үзээрэй.</span>',
+    '3_multi':'<b class="bad">Олон шийдтэй бодлогод ч хамгийн их Z нь ТӨГСГӨЛӨГ тоо байдаг</b> — ' +
+              'зөвхөн тэр утгыг өгөх цэг олон болдог. Энд Z-д дээд хязгаар огт алга.' +
+              '<span class="hint">Z-д дээд хязгаар бий юу гэдгийг эхлээд шийд.</span>',
+    '3_inf'  :'<b class="bad">(0, 0) цэг 0 − 0 = 0 ≤ 1-ийг хангана</b> — боломжит муж хоосон биш, харин ч хязгааргүй том. ' +
+              'Асуудал нь цэг дутсанд биш, хэт олон байгаад оршино.' +
+              '<span class="hint">Шийдгүй = хоосон муж, хязгааргүй = хаагдаагүй муж.</span>',
+    /* 5 · Тариаланчийн кейс — энгийн (D (30, 30)) */
+    '4_multi':'<b class="bad">Зорилгын налуу −300000/500000 = −0.6</b>, харин шулуунуудынх −1 ба −0.5. ' +
+              'Аль нь ч −0.6-тай тэнцэхгүй тул оновчтой шийд ганц орой D (30, 30) дээр байна.' +
+              '<span class="hint">Налууг c₁/c₂ харьцаагаар бод.</span>',
+    '4_unb'  :'<b class="bad">x₁ + x₂ ≤ 60 нь хоёр хувьсагчийг хоёуланг нь дээрээс хаана.</b> ' +
+              'Нийт талбай 60 га-аас хэтрэхгүй тул муж хаалттай, Z дээд талдаа 24,000,000₮.' +
+              '<span class="hint">Талбайн хязгаар өөрөө мужийг хааж байгааг анзаараарай.</span>',
+    '4_inf'  :'<b class="bad">(0, 0) хоёр хязгаарлалтыг хангана</b> (0 ≤ 60, 0 ≤ 180) — боломжит муж хоосон биш. ' +
+              'Хоёулаа ≤ тэмдэгтэй тул хоорондоо зөрчилдөх ч боломжгүй.' +
+              '<span class="hint">Зөрчил гарахын тулд нэг нь ≥ байх ёстой.</span>',
+    /* 6 · x₁ + x₂ ≤ 10 ба ≤ 20 — энгийн, ≤ 20 нь илүүдэл */
+    '5_multi':'<b class="bad">Энд зорилгын функц огт өгөгдөөгүй</b> — олон шийд эсэхийг зөвхөн зорилгын налууг ' +
+              'ирмэгийнхтэй харьцуулж шийддэг. ≤ 20 бол ≤ 10-ыг давхардуулсан илүүдэл хязгаарлалт.' +
+              '<span class="hint">Олон шийдийн шалгуур бол налуугийн тэнцэл.</span>',
+    '5_unb'  :'<b class="bad">x₁ + x₂ ≤ 10 нь хоёр хувьсагчийг хоёуланг нь дээрээс хаана</b> — сөрөг биш байх ' +
+              'нөхцөлтэй хамт (0, 0), (10, 0), (0, 10) оройтой хаалттай гурвалжин үүснэ.' +
+              '<span class="hint">Илүү сул нөхцөл (≤ 20) мужийг өргөтгөхгүй.</span>',
+    '5_inf'  :'<b class="bad">Хоёулаа ≤ тэмдэгтэй тул хоорондоо зөрчилдөхгүй</b> — ≤ 10-ыг хангасан цэг ≤ 20-ыг ' +
+              'автоматаар хангана. Огтлолцол хоосон биш, зүгээр л хатуу нөхцөл нь давамгайлж байна.' +
+              '<span class="hint">Зөрчил үүсэхийн тулд нэг нь ≥ байх шаардлагатай.</span>'
+  };
 
   cards.forEach(function(card){
     var box = card.querySelector('.l5-opts');
@@ -1165,10 +1248,15 @@ function nfmt(n){ return n.toLocaleString('en-US'); }
     if (b.dataset.k === card.dataset.a){
       b.classList.add('ok');
       card.classList.add('done');
+      card.classList.remove('miss');
       tally();
     } else {
       b.classList.add('bad');
       b.disabled = true;
+      card.classList.add('miss');
+      var ci = cards.indexOf(card);
+      card.querySelector('.l5-dxw').innerHTML =
+        '✗ ' + OPTNAME[b.dataset.k] + ' тохирохгүй. ' + (WHY_BAD[ci + '_' + b.dataset.k] || '');
     }
   });
 
@@ -1176,6 +1264,8 @@ function nfmt(n){ return n.toLocaleString('en-US'); }
   reset.addEventListener('click', function(){
     cards.forEach(function(c){
       c.classList.remove('done');
+      c.classList.remove('miss');
+      c.querySelector('.l5-dxw').innerHTML = '';
       c.querySelectorAll('.l5-opt').forEach(function(b){
         b.classList.remove('ok', 'bad');
         b.disabled = false;

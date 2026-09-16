@@ -8,6 +8,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="deck.css">
+<style>
+/* ——— Буруу хариултын тайлбар (лавлах: lesson03 · .sgn-f) ——— */
+#colMsg .bad,.fb .bad{color:var(--rust);font-weight:700}
+#colMsg .hint,.fb .hint{display:block;margin-top:4px;color:var(--ink-mute);font-style:italic}
+</style>
 </head>
 <body>
 
@@ -123,9 +128,9 @@
   </div>
   <div id="colPick" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px">
     <button class="cbtn" data-ok="1" data-v="x₁" data-msg="Зөв ✓ — −50 бол Z мөрийн хамгийн бага (хамгийн сөрөг) тоо. Тиймээс x₁ (ширээ) багана орох багана болно. Ширээ нэг бүр 50 мянган ₮ ашигтай — компани эхлээд түүнийг үйлдвэрлэнэ." style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">x₁ (Ширээ)<br><span style="font-size:26px;font-weight:700;color:var(--rust)">−50</span></button>
-    <button class="cbtn" data-v="x₂" data-msg="Буруу ✗ — −40 сөрөг мөн боловч −50-өөс ИХ. Дүрэм: сөрөг тоонуудаас хамгийн багыг нь сонгоно. Ийм сонголт хийвэл бага ашигтай барааг түрүүлж үйлдвэрлээд, оновчтой шийд рүү очих замаа уртасгана." style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">x₂ (Сандал)<br><span style="font-size:26px;font-weight:700;color:var(--rust)">−40</span></button>
-    <button class="cbtn" data-v="s₁" data-msg="Буруу ✗ — 0 бол сөрөг тоо биш. Зөвхөн СӨРӨГ коэффициенттэй багана л ашгийг нэмэгдүүлэх боломж үлдээсэн байдаг. s₁ багана энэ боломжийг санал болгохгүй." style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">s₁ (Мод)<br><span style="font-size:26px;font-weight:700;color:var(--ink-mute)">0</span></button>
-    <button class="cbtn" data-v="s₂" data-msg="Буруу ✗ — 0 бол сөрөг тоо биш. Хэрэв Z мөрөнд ердөө нэг ч сөрөг тоо үлдээгүй бол орох багана байхгүй буюу шийд аль хэдийн оновчтой болсон гэсэн үг." style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">s₂ (Цаг)<br><span style="font-size:26px;font-weight:700;color:var(--ink-mute)">0</span></button>
+    <button class="cbtn" data-v="x₂" data-msg="✗ «x₂ (Сандал)» тохирохгүй. <b class='bad'>−40 сөрөг мөн боловч −50-өөс ИХ.</b> Дүрэм: сөрөг тоонуудаас ХАМГИЙН БАГЫГ нь сонгоно. x₂-ыг сонговол бага ашигтай барааг түрүүлж үйлдвэрлээд, оновчтой шийд рүү очих замаа уртасгана.<span class='hint'>−50 ба −40-ийг тооны шулуун дээр харьцуулаад дахин сонгоно уу.</span>" style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">x₂ (Сандал)<br><span style="font-size:26px;font-weight:700;color:var(--rust)">−40</span></button>
+    <button class="cbtn" data-v="s₁" data-msg="✗ «s₁ (Мод)» тохирохгүй. <b class='bad'>s₁ баганын Z мөрийн утга 0 — сөрөг тоо биш.</b> Зөвхөн сөрөг коэффициент л «энэ хувьсагчийг нэмэгдүүлбэл Z өснө» гэсэн дохио өгдөг. s₁-ийг нэмэгдүүлнэ гэдэг нь модыг ашиглалгүй сул орхино гэсэн үг — ашиг огт өсөхгүй.<span class='hint'>Улаанаар тэмдэглэсэн сөрөг хоёр баганыг л харьцуулна уу.</span>" style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">s₁ (Мод)<br><span style="font-size:26px;font-weight:700;color:var(--ink-mute)">0</span></button>
+    <button class="cbtn" data-v="s₂" data-msg="✗ «s₂ (Цаг)» тохирохгүй. <b class='bad'>s₂ баганын Z мөрийн утга мөн 0 — сөрөг биш.</b> Хэрэв Z мөрөнд ганц ч сөрөг тоо үлдээгүй бол орох багана байхгүй, шийд аль хэдийн оновчтой болсон гэсэн үг. Гэтэл энд −50, −40 хоёр байсаар байна.<span class='hint'>Эхлээд сөрөг тоонуудыг ол, дараа нь тэдгээрээс багыг нь сонго.</span>" style="font:inherit;font-size:15px;font-weight:600;padding:18px 10px;border:1px solid var(--line);border-radius:12px;background:transparent;color:var(--ink);cursor:pointer">s₂ (Цаг)<br><span style="font-size:26px;font-weight:700;color:var(--ink-mute)">0</span></button>
   </div>
   <div id="colMsg" style="margin-top:18px;min-height:66px;font-size:16px;line-height:1.55;padding:14px 18px;border:1px dashed var(--line);border-radius:12px;color:var(--ink-soft)">Багана сонгоно уу — тайлбар энд гарна.</div>
   <div class="s-foot"><span>Бүлэг 5.4.3 · Дүрэм: Z мөрийн хамгийн бага сөрөг тоо</span><span class="pg"></span></div>
@@ -157,11 +162,11 @@
   <div class="grid g3" id="ratDrill">
     <div class="card" data-drill="1"><div class="k">Дасгал 1 · Орох багана x₁</div>
       <button class="rrow" data-ok="1" data-msg="Зөв ✓ 100 / 4 = 25 — хамгийн бага эерэг харьцаа. Гарах мөр: s₁." style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">s₁ мөр · b = 100 · a = 4</button>
-      <button class="rrow" data-msg="Буруу ✗ 80 / 2 = 40. 40 &gt; 25 тул s₂ мөр гарахгүй. Хамгийн БАГА харьцааг сонгоно." style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">s₂ мөр · b = 80 · a = 2</button>
+      <button class="rrow" data-msg="✗ «s₂ мөр» гарахгүй. <b class='bad'>80 / 2 = 40, энэ нь s₁-ийн 25-аас ИХ.</b> 40 ширээ хийнэ гэвэл 4·40 = 160 м³ мод хэрэгтэй ч агуулахад 100 л байна — s₁ сөрөг болж, шийд боломжгүй болно.<span class='hint'>Хоёр харьцааг тооцоод ХАМГИЙН БАГЫГ нь ав.</span>" style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">s₂ мөр · b = 80 · a = 2</button>
       <div class="fb" style="margin-top:11px;font-size:13.5px;line-height:1.5;color:var(--ink-mute);min-height:54px">Мөрөө товшино уу.</div>
     </div>
     <div class="card" data-drill="2"><div class="k">Дасгал 2 · Орох багана x₂</div>
-      <button class="rrow" data-msg="Буруу ✗ 25 / 0.5 = 50. 50 &gt; 10 тул x₁ мөр гарахгүй." style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">x₁ мөр · b = 25 · a = 0.5</button>
+      <button class="rrow" data-msg="✗ «x₁ мөр» гарахгүй. <b class='bad'>25 / 0.5 = 50, энэ нь s₂-ийн 10-аас ИХ.</b> 50 сандал хийвэл s₂ мөрийн 30 нөөц хүрэлцэхгүй: 30 − 3·50 = −120 буюу сөрөг болно.<span class='hint'>Хамгийн бага харьцаа л боломжит шийдийг хадгална.</span>" style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">x₁ мөр · b = 25 · a = 0.5</button>
       <button class="rrow" data-ok="1" data-msg="Зөв ✓ 30 / 3 = 10 — хамгийн бага эерэг харьцаа. Гарах мөр: s₂, ялгагч элемент 3." style="display:block;width:100%;text-align:left;font:inherit;font-size:14px;padding:9px 12px;margin-top:9px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">s₂ мөр · b = 30 · a = 3</button>
       <div class="fb" style="margin-top:11px;font-size:13.5px;line-height:1.5;color:var(--ink-mute);min-height:54px">Мөрөө товшино уу.</div>
     </div>
@@ -411,16 +416,16 @@
   <div class="grid g3" id="qz">
     <div class="card" data-q><div class="k">Асуулт 1</div><h3 style="font-size:16px">Z мөр: 0, −15, 12.5, 0. Юу хийх вэ?</h3>
       <button class="qa" data-ok="1" data-msg="Зөв ✓ −15 бол сөрөг тоо — ашиг нэмэгдүүлэх боломж үлдсэн байна. x₂ орох багана болж, дараагийн үе шат эхэлнэ." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Оновчлолыг үргэлжлүүлнэ</button>
-      <button class="qa" data-msg="Буруу ✗ Z мөрөнд сөрөг тоо байвал шийд оновчтой БИШ. Дор хаяж нэг үе шат үлдсэн." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Зогсоно — оновчтой шийд</button>
+      <button class="qa" data-msg="✗ «Зогсоно» буруу. <b class='bad'>x₂ баганад −15 гэсэн сөрөг тоо байна.</b> Энэ нь сандал нэг бүрээс ашгийг 15 нэгжээр нэмэгдүүлэх боломж үлдсэн гэсэн үг — дор хаяж нэг үе шат хийх ёстой.<span class='hint'>Зогсох нөхцөл: Z мөрөнд сөрөг тоо БАЙХГҮЙ болох.</span>" style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Зогсоно — оновчтой шийд</button>
       <div class="fb" style="margin-top:10px;font-size:13px;line-height:1.5;color:var(--ink-mute);min-height:60px">Хариугаа сонгоно уу.</div>
     </div>
     <div class="card" data-q><div class="k">Асуулт 2</div><h3 style="font-size:16px">Z мөр: 0, 0, 10, 5. Юу хийх вэ?</h3>
-      <button class="qa" data-msg="Буруу ✗ Сөрөг тоо байхгүй тул үргэлжлүүлэх шаардлагагүй — цаашид ашиг нэмэгдэхгүй." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Оновчлолыг үргэлжлүүлнэ</button>
+      <button class="qa" data-msg="✗ «Үргэлжлүүлнэ» буруу. <b class='bad'>0, 0, 10, 5 — сөрөг тоо нэг ч байхгүй.</b> Орох багана олдохгүй тул дараагийн үе шат хийх боломжгүй. 10 ба 5 нь сүүдрийн үнэ болохоос ашиг нэмэх боломж биш.<span class='hint'>Сөрөг тоо байвал л оновчлол үргэлжилнэ.</span>" style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Оновчлолыг үргэлжлүүлнэ</button>
       <button class="qa" data-ok="1" data-msg="Зөв ✓ 0, 0, 10, 5 — бүгд ≥ 0. Оновчтой шийд олдлоо: x₁ = 20, x₂ = 10, Z = 1,400,000₮." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Зогсоно — оновчтой шийд</button>
       <div class="fb" style="margin-top:10px;font-size:13px;line-height:1.5;color:var(--ink-mute);min-height:60px">Хариугаа сонгоно уу.</div>
     </div>
     <div class="card" data-q><div class="k">Асуулт 3</div><h3 style="font-size:16px">Суурь баганад s₁, s₂ алга. Юу гэсэн үг вэ?</h3>
-      <button class="qa" data-msg="Буруу ✗ Эсрэгээрээ — суурьт байхгүй хувьсагч 0 утгатай, өөрөөр хэлбэл үлдэгдэл БАЙХГҮЙ." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Нөөц илүүдэлтэй үлдсэн</button>
+      <button class="qa" data-msg="✗ «Илүүдэлтэй» буруу — яг эсрэгээрээ. <b class='bad'>Суурьт байхгүй хувьсагч 0 утгатай байна.</b> s₁ = s₂ = 0 гэдэг нь 100 м³ мод, 80 цаг үлдэгдэлгүй бүрэн зарцуулагдсан гэсэн үг: 4·20 + 2·10 = 100, 2·20 + 4·10 = 80.<span class='hint'>Илүүдэл байвал s суурьт орж, RHS нь эерэг гарна.</span>" style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Нөөц илүүдэлтэй үлдсэн</button>
       <button class="qa" data-ok="1" data-msg="Зөв ✓ s₁ = 0, s₂ = 0 — мод, цаг хоёулаа бүрэн ашиглагдсан. Эдгээр нь хүчинтэй хязгаарлалт (Binding Constraint)." style="display:block;width:100%;text-align:left;font:inherit;font-size:13.5px;padding:8px 11px;margin-top:8px;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);cursor:pointer">Хоёр нөөц бүрэн ашиглагдсан</button>
       <div class="fb" style="margin-top:10px;font-size:13px;line-height:1.5;color:var(--ink-mute);min-height:60px">Хариугаа сонгоно уу.</div>
     </div>
@@ -566,8 +571,8 @@ window.DECK = {
         var ok = b.getAttribute('data-ok') === '1';
         b.style.background = ok ? 'var(--green-bg)' : 'var(--rust-bg)';
         b.style.borderColor = ok ? 'var(--green)' : 'var(--rust)';
-        msg.textContent = b.getAttribute('data-msg');
-        msg.style.color = ok ? 'var(--green)' : 'var(--rust)';
+        msg.innerHTML = b.getAttribute('data-msg');
+        msg.style.color = ok ? 'var(--green)' : 'var(--ink-soft)';
         msg.style.borderStyle = 'solid';
         msg.style.borderColor = ok ? 'var(--green)' : 'var(--rust)';
       });
@@ -595,8 +600,8 @@ window.DECK = {
             var ok = r.getAttribute('data-ok') === '1';
             r.style.background = ok ? 'var(--green-bg)' : 'var(--rust-bg)';
             r.style.borderColor = ok ? 'var(--green)' : 'var(--rust)';
-            fb.textContent = r.getAttribute('data-msg');
-            fb.style.color = ok ? 'var(--green)' : 'var(--rust)';
+            fb.innerHTML = r.getAttribute('data-msg');
+            fb.style.color = ok ? 'var(--green)' : 'var(--ink-soft)';
           });
         })(rows[j]);
       }
@@ -747,8 +752,8 @@ window.DECK = {
           var ok = o.getAttribute('data-ok') === '1';
           o.style.background = ok ? 'var(--green-bg)' : 'var(--rust-bg)';
           o.style.borderColor = ok ? 'var(--green)' : 'var(--rust)';
-          fb.textContent = o.getAttribute('data-msg');
-          fb.style.color = ok ? 'var(--green)' : 'var(--rust)';
+          fb.innerHTML = o.getAttribute('data-msg');
+          fb.style.color = ok ? 'var(--green)' : 'var(--ink-soft)';
           done[idx] = ok;
           upd();
         });

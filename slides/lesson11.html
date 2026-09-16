@@ -77,20 +77,30 @@ table.bmtbl td.rt.min{color:var(--rust);font-weight:700}
 .ordi.bad{border-color:var(--rust);background:var(--rust-bg)}
 .ordi.bad .pos{background:var(--rust);color:var(--paper)}
 .ordmsg{font-size:13.5px;color:var(--ink-soft);margin-left:4px}
+/* Буруу байрлалын тайлбар */
+.ordf{display:none;margin-top:11px;background:var(--rust-bg);border-left:4px solid var(--rust);
+  border-radius:10px;padding:10px 15px;font-size:12.5px;line-height:1.5;color:var(--ink-soft)}
+.ordf.on{display:block}
+.ordf b{color:var(--ink)}
+.ordf .bad{color:var(--rust);font-weight:700}
+.ordf .hint{display:block;margin-top:4px;color:var(--ink-mute);font-style:italic}
 
 /* Тест */
-.qz{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:13px}
-.qzc{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 15px}
-.qzc .q{font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.45;margin-bottom:8px}
-.qzc .opts{display:flex;flex-direction:column;gap:5px}
-.qzc .opts button{text-align:left;font-family:var(--body);font-size:12px;line-height:1.4;color:var(--ink-soft);
-  background:var(--muted);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer}
+.qz{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.qzc{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 13px}
+.qzc .q{font-size:13px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:6px}
+.qzc .opts{display:flex;flex-direction:column;gap:4px}
+.qzc .opts button{text-align:left;font-family:var(--body);font-size:11.8px;line-height:1.35;color:var(--ink-soft);
+  background:var(--muted);border:1px solid var(--line);border-radius:8px;padding:5px 9px;cursor:pointer}
 .qzc .opts button:hover{border-color:var(--green)}
 .qzc .opts button.right{background:var(--green-bg);border-color:var(--green);color:var(--ink);font-weight:600}
 .qzc .opts button.wrong{background:var(--rust-bg);border-color:var(--rust);color:var(--ink)}
-.qzc .exp{margin-top:7px;font-size:11.5px;line-height:1.5;color:var(--ink-mute);
-  border-top:1px dashed var(--line);padding-top:7px;display:none}
+.qzc .exp{margin-top:6px;font-size:10.4px;line-height:1.38;color:var(--ink-mute);
+  border-top:1px dashed var(--line);padding-top:5px;display:none}
 .qzc.done .exp{display:block}
+.qzc .exp .wb{display:block;margin-bottom:3px;color:var(--ink-soft)}
+.qzc .exp .bad{color:var(--rust);font-weight:700}
+.qzc .exp .hint{display:block;margin-top:2px;color:var(--ink-mute);font-style:italic}
 
 /* Туслах блокууд */
 .mini{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--muted);
@@ -485,6 +495,7 @@ table.bmtbl td.rt.min{color:var(--rust);font-weight:700}
     <button class="ibtn" id="ordReset" type="button">↺ Эхнээс</button>
     <span class="ordmsg" id="ordMsg">Дээш / доош сумаар картуудыг зөв дараалалд оруулна уу.</span>
   </div>
+  <div class="ordf" id="ordFb"></div>
   <div class="s-foot"><span>Бүлэг 6.7.2–6.7.3 · 5 алхам</span><span class="pg"></span></div>
 </section>
 
@@ -967,9 +978,31 @@ window.DECK = {
   ];
   var START = [3, 5, 1, 4, 2];
 
+  /* Алхам бүрийг ЭРТ эсвэл ОРОЙ тавьсан тохиолдолд яагаад буруу болохыг тайлбарлана.
+     Түлхүүр: алхмын дугаар → { e: хэт эрт, l: хэт оройтсон } */
+  var WHY_BAD = {
+    1: { l:'<b class="bad">Каноник хэлбэр бол бүх зүйлийн эхлэл.</b> Зохиомол хувьсагч A хараахан ' +
+           'үүсээгүй байхад min W = A₁ + A₂ + … гэж ЮУНЫ нийлбэрийг бичих вэ? Тиймээс энэ алхам 1-т байна.' },
+    2: { e:'<b class="bad">A₁, A₂, … хувьсагчид хараахан үүсээгүй байна.</b> min W = ΣAᵢ туслах функцийг ' +
+           'бичихийн тулд эхлээд каноник хэлбэрт оруулж, ≥ хязгаарлалт бүрд −s ба +A нэмсэн байх ёстой.',
+         l:'<b class="bad">W-г минимумчлахаас өмнө W-г ЗОХИОСОН байх ёстой.</b> Туслах зорилгын функцгүйгээр ' +
+           'симплекс алгоритм юуг багасгахаа мэдэхгүй. Энэ алхам 2-т байрлана.' },
+    3: { e:'<b class="bad">Юуг минимумчлах вэ?</b> W туслах функц бэлэн болоогүй, каноник хэлбэр ч гараагүй ' +
+           'байхад симплекс ажиллуулах боломжгүй. Энэ бол 3 дахь алхам.',
+         l:'<b class="bad">W = 0 эсэхийг шалгахаас өмнө W-г минимумчилсэн байх ёстой.</b> Минимумчлаагүй, ' +
+           'зүгээр л анхны W-г хараад «шийдгүй» гэж дүгнэвэл бүрэн алдаа болно.' },
+    4: { e:'<b class="bad">Шалгах юм нь хараахан бэлэн биш.</b> Анхны хүснэгтэд W бараг үргэлж 0-ээс их ' +
+           'байдаг. W-ийн ХАМГИЙН БАГА утгыг олоогүй байж W = 0 эсэхийг шалгах нь утгагүй.',
+         l:'<b class="bad">Үе шат 2 руу орохоос ӨМНӨ W = 0 эсэхийг шалгана.</b> W > 0 хэвээр бол бодлого ' +
+           'шийдгүй (Infeasible) — Үе шат 2-ыг огт ажиллуулах шаардлагагүй болно.' },
+    5: { e:'<b class="bad">Үе шат 2 бол хамгийн сүүлчийн алхам.</b> Зохиомол хувьсагчийг суурьнаас гаргаж ' +
+           'W = 0 болгоогүй байхад жинхэнэ Z-г сэргээвэл боломжит БИШ цэгээс оновчлол эхэлнэ.' }
+  };
+
   var order = START.slice();
   var list = document.getElementById('ordList');
   var msg = document.getElementById('ordMsg');
+  var fb = document.getElementById('ordFb');
   var bChk = document.getElementById('ordCheck');
   var bRes = document.getElementById('ordReset');
 
@@ -1011,6 +1044,8 @@ window.DECK = {
       if(k < order.length - 1){ tmp = order[k + 1]; order[k + 1] = order[k]; order[k] = tmp; }
     }
     msg.textContent = 'Дээш / доош сумаар картуудыг зөв дараалалд оруулна уу.';
+    fb.className = 'ordf';
+    fb.innerHTML = '';
     draw(null);
   });
 
@@ -1018,21 +1053,38 @@ window.DECK = {
   bRes.addEventListener('mousedown', function(e){ e.preventDefault(); });
 
   bChk.addEventListener('click', function(){
-    var marks = [], ok = 0;
+    var marks = [], ok = 0, first = -1;
     for(var k = 0; k < order.length; k++){
       var good = (order[k] === k + 1);
       marks.push(good);
       if(good) ok++;
+      else if(first < 0) first = k;
     }
     draw(marks);
     msg.textContent = (ok === order.length)
       ? '✓ Бүрэн зөв! Үе шат 1 → W = 0 шалгалт → Үе шат 2.'
       : ok + ' / ' + order.length + ' зөв байрлалд байна. Улаан картуудыг зөөж үзнэ үү.';
+
+    if(first < 0){
+      fb.className = 'ordf';
+      fb.innerHTML = '';
+      return;
+    }
+    /* Дээрээс нь эхний буруу байрлалыг тайлбарлана */
+    var n = order[first];                      /* тэр картын жинхэнэ алхмын дугаар */
+    var w = WHY_BAD[n] || {};
+    var why = (n > first + 1) ? w.e : w.l;     /* хэт эрт тавьсан уу, хэт оройтуулсан уу */
+    fb.className = 'ordf on';
+    fb.innerHTML = '✗ <b>' + (first + 1) + '-р байрлалд</b> тавьсан карт (жинхэнэ ' + n +
+      '-р алхам) тохирохгүй. ' + (why || '') +
+      '<span class="hint">Энэ картыг ' + n + '-р байрлал руу зөөгөөд дахин шалгана уу.</span>';
   });
 
   bRes.addEventListener('click', function(){
     order = START.slice();
     msg.textContent = 'Дээш / доош сумаар картуудыг зөв дараалалд оруулна уу.';
+    fb.className = 'ordf';
+    fb.innerHTML = '';
     draw(null);
   });
 
@@ -1051,25 +1103,45 @@ window.DECK = {
          'Заавал яг 1000 гэж авна',
          'Хязгаарлалтын тоотой тэнцүү тоо'],
       a:0,
-      e:'M нь бусад бүх коэффициентээс давуу байхаар «маш том» эерэг тоо байх ёстой. Гараар бодохдоо тоон утга өгөлгүй, тэмдэг хэлбэрээр нь (3M − 5 гэх мэт) авч явах нь хамгийн найдвартай.' },
+      e:'M нь бусад бүх коэффициентээс давуу байхаар «маш том» эерэг тоо байх ёстой. Гараар бодохдоо тоон утга өгөлгүй, тэмдэг хэлбэрээр нь (3M − 5 гэх мэт) авч явах нь хамгийн найдвартай.',
+      w:['',
+         '<b class="bad">1000 бол бодлогоос хамаарахгүй тогтмол тоо.</b> Коэффициент нь саяар хэмжигдэх бодлогод торгууль болж чадахгүй.' +
+         '<span class="hint">M-ийг бусад коэффициенттэй харьцуулж бод.</span>',
+         '<b class="bad">M бол торгууль, хязгаарлалт тоолуур биш.</b> 2 хязгаарлалттай бодлогод M = 2 гэвэл 3M − 5 = 1 болж, A-г хөөх хүч үлдэхгүй.' +
+         '<span class="hint">3M − 5 хэзээ давамгайлахыг бодож үз.</span>'] },
     { q:'M-ийг хэт ЖИЖИГ сонговол юу болох вэ?',
       o:['Итерацийн тоо цөөрч, бодолт хурдасна',
          'Алгоритм зохиомол хувьсагчийг бүрэн хөөж чадахгүй байж болзошгүй',
          'Юу ч өөрчлөгдөхгүй'],
       a:1,
-      e:'Торгууль хангалттай өндөр биш бол зохиомол хувьсагч суурьт үлдэж, буруу «шийд» гарч ирж болзошгүй (Бүлэг 6.7.1).' },
+      e:'Торгууль хангалттай өндөр биш бол зохиомол хувьсагч суурьт үлдэж, буруу «шийд» гарч ирж болзошгүй (Бүлэг 6.7.1).',
+      w:['<b class="bad">Сул торгууль бодолтыг хурдасгадаггүй.</b> Эсрэгээрээ A суурьт удаан үлдэж, итераци нэмэгдэж ч болно.' +
+         '<span class="hint">M-ийн үүрэг — A-г суурьнаас хөөх.</span>',
+         '',
+         '<b class="bad">Z мөрийн бүх тоо M-ээс хамаарна.</b> 3M − 5, 3M − 3, −M — M-ийг өөрчлөх нь орох баганын сонголтыг өөрчилнө.' +
+         '<span class="hint">M = 1 гэж тавиад Z мөрийг дахин бод.</span>'] },
     { q:'M-ийг хэт ТОМ сонговол юу болох вэ?',
       o:['Компьютерийн тооцоололд тоон алдаа (rounding error) үүсэх эрсдэлтэй',
          'Оновчтой шийд өөрчлөгдөнө',
          'Бодлого автоматаар шийдгүй болно'],
       a:0,
-      e:'Хэт том M нь жижиг коэффициентүүдийг «дарж», хөвөгч цэгийн тооцоололд алдаа үүсгэнэ. Яг энэ шалтгаанаар программ хангамжид хоёр үе шатны арга илүү тохиромжтой.' },
+      e:'Хэт том M нь жижиг коэффициентүүдийг «дарж», хөвөгч цэгийн тооцоололд алдаа үүсгэнэ. Яг энэ шалтгаанаар программ хангамжид хоёр үе шатны арга илүү тохиромжтой.',
+      w:['',
+         '<b class="bad">M хангалттай том бол шийд M-ээс хамаарахаа болино.</b> Хариу x₁ = 2, x₂ = 4, Z = 22 хэвээр; зөвхөн нарийвчлал алдагдана.' +
+         '<span class="hint">Эцсийн хүснэгтэд M үлдээгүйг ажигла.</span>',
+         '<b class="bad">Шийдгүй эсэхийг хязгаарлалтууд шийднэ, M биш.</b> Зөвхөн эцсийн хүснэгтэд Aᵢ > 0 үлдвэл бодлого шийдгүй болно.' +
+         '<span class="hint">Бүлэг 6.5.6 — «бүх A = 0» шалгалт.</span>'] },
     { q:'Бодолт дуусахад A₁ = 3 гэж суурьт үлдвэл энэ юу гэсэн үг вэ?',
       o:['Оновчтой шийд олдсон',
          'Хязгааргүй шийдтэй бодлого',
          'Бодлого шийдгүй (Infeasible)'],
       a:2,
-      e:'Оновчтой хүснэгтэд ямар ч Aᵢ > 0 үлдэж болохгүй. Үлдсэн бол тавигдсан шаардлагыг бодит нөөцөөр хангах боломжгүй гэсэн үг (Бүлэг 6.5.6).' }
+      e:'Оновчтой хүснэгтэд ямар ч Aᵢ > 0 үлдэж болохгүй. Үлдсэн бол тавигдсан шаардлагыг бодит нөөцөөр хангах боломжгүй гэсэн үг (Бүлэг 6.5.6).',
+      w:['<b class="bad">Z мөр цэвэрлэгдсэн нь ганцаараа хангалтгүй.</b> A₁ = 3 нь шаардлагыг «хуурамч орц»-оор нөхөж байгаа хэрэг — шийд боломжит ч биш.' +
+         '<span class="hint">Дуусахад Z мөр БА бүх A-г шалгана.</span>',
+         '<b class="bad">Хязгааргүй шийд өөр шинжээр илэрнэ:</b> орох баганад эерэг элемент байхгүй тул гарах мөр олддоггүй. Энд харин A суурьт үлдсэн.' +
+         '<span class="hint">Гарах мөр олдсон уу — тэрнээс нь ялга.</span>',
+         ''] }
   ];
 
   var grid = document.getElementById('qzGrid');
@@ -1109,6 +1181,12 @@ window.DECK = {
     for(var k = 0; k < btns.length; k++){
       if(k === Q[qi].a) btns[k].classList.add('right');
       else if(k === oi) btns[k].classList.add('wrong');
+    }
+    /* Буруу сонгосон бол ЯАГААД буруу болохыг зөв хариултын тайлбарын өмнө харуулна */
+    var ex = card.querySelector('.exp');
+    if(oi !== Q[qi].a && ex){
+      var wb = (Q[qi].w && Q[qi].w[oi]) || '';
+      ex.innerHTML = '<span class="wb">✗ «' + Q[qi].o[oi] + '» биш. ' + wb + '</span>' + Q[qi].e;
     }
     card.classList.add('done');
     done[qi] = (oi === Q[qi].a);
