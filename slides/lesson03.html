@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Хичээл 3 — Хязгаарлалт, үл сөрөг нөхцөл, стандарт хэлбэр</title>
+<title>Хичээл 3 — Хязгаарлалт, сөрөг биш байх нөхцөл, стандарт хэлбэр</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
@@ -88,6 +88,73 @@ body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
 .ordr-row .mv button:hover{border-color:var(--green);color:var(--green)}
 .ordr-row.ok{border-left-color:var(--green);background:var(--green-bg)}
 .ordr-row.no{border-left-color:var(--rust);background:var(--rust-bg)}
+
+/* --- 4. ЗАГВАР УГСРАХ АНИМЭЙШН (2.7.4) --- */
+.mdl{display:grid;grid-template-columns:330px 1fr;gap:18px;margin-top:14px;align-items:stretch}
+
+.mdl-side{background:var(--paper);border:1px solid var(--line);border-radius:13px;
+  padding:15px 17px;display:flex;flex-direction:column}
+.mdl-step{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);font-weight:700;margin-bottom:7px}
+.mdl-side h4{font-family:var(--display);font-size:18px;font-weight:600;line-height:1.25;
+  color:var(--ink);margin-bottom:7px;min-height:44px}
+.mdl-side p{font-size:13px;line-height:1.55;color:var(--ink-soft);min-height:84px}
+.mdl-side p b{color:var(--ink);font-weight:600}
+.mdl-side p code{font-family:var(--mono);font-size:12.5px;background:var(--muted);
+  border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:var(--green)}
+.mdl-tbl{margin-top:auto !important;font-size:12px}
+.mdl-tbl th{padding:6px 9px;font-size:10px}
+.mdl-tbl td{padding:5.5px 9px;white-space:nowrap}
+.mdl-tbl td.hi{background:var(--gold-bg);color:var(--ink);font-weight:600}
+
+/* Баруун талын хар самбар — мөрүүд нэг нэгээр нэмэгдэнэ */
+.mdl-box{background:linear-gradient(135deg,#1B3B1F,#16321A);border-radius:15px;
+  padding:22px 26px;color:#fff;display:flex;flex-direction:column;justify-content:center;
+  min-height:318px;position:relative;overflow:hidden}
+.mdl-lines{font-family:var(--mono);font-size:21px;line-height:1.5}
+
+.mdl-line{display:flex;align-items:baseline;gap:9px;padding:6px 11px;margin:2px -11px;
+  border-radius:9px;opacity:0;transform:translateY(9px);
+  transition:opacity .42s var(--ease),transform .42s var(--ease),background .3s var(--ease)}
+.mdl-line.in{opacity:1;transform:none}
+.mdl-line.now{background:rgba(240,212,136,.13)}
+.mdl-line.dim{opacity:.42}
+
+.mdl-lbl{flex:0 0 74px;font-family:var(--body);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:700}
+.mdl-eq{flex:1}
+.mdl-eq .op{color:#A8D67E}
+.mdl-eq .c{color:#F0D488}
+
+/* Тэмдэглэгээ → тоо болж хувирах агшин */
+.tk{display:inline-block;transition:color .3s var(--ease)}
+.tk.flip{animation:tkflip .54s var(--ease)}
+@keyframes tkflip{
+  0%  {transform:rotateX(0) scale(1);   color:#F0D488}
+  45% {transform:rotateX(90deg) scale(1.16); color:#fff}
+  55% {transform:rotateX(-90deg) scale(1.16);color:#fff}
+  100%{transform:rotateX(0) scale(1);   color:#F0D488}
+}
+
+.mdl-cap{font-size:12.5px;line-height:1.55;color:rgba(255,255,255,.72);margin-top:15px;
+  padding-top:13px;border-top:1px solid rgba(255,255,255,.14);min-height:38px;
+  transition:opacity .3s var(--ease)}
+.mdl-cap b{color:#F0D488;font-weight:600}
+
+/* Бүрэн болсныг тэмдэглэх туяа */
+.mdl-box.done{box-shadow:inset 0 0 0 2px rgba(168,214,126,.5)}
+
+.mdl-bar{display:flex;justify-content:space-between;align-items:center;margin-top:13px;gap:14px}
+.mdl-dots{display:flex;gap:6px;align-items:center}
+.mdl-dots i{width:8px;height:8px;border-radius:50%;background:var(--line-strong);display:block;
+  transition:all .3s var(--ease)}
+.mdl-dots i.on{background:var(--green);transform:scale(1.25)}
+.mdl-bar .btns{display:flex;gap:8px}
+.mdl-bar button{background:var(--green);color:var(--on-accent);border:none;border-radius:9px;
+  padding:9px 17px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--body)}
+.mdl-bar button.ghost{background:var(--muted);color:var(--ink-soft);border:1px solid var(--line-strong)}
+.mdl-bar button:hover{opacity:.85}
+.mdl-bar button:disabled{opacity:.34;cursor:default}
 </style>
 </head>
 <body>
@@ -95,10 +162,10 @@ body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
 <div id="viewport"><div id="stage">
 
 <!-- ══════════ 1. НҮҮР ══════════ -->
-<section class="slide cover" data-sec="—" data-notes="Хичээл 2-т шийдвэрийн хувьсагч, зорилгын функцийг үзсэн. Өнөөдөр загварын үлдсэн хоёр хэсэг — хязгаарлалт, үл сөрөг нөхцөл — дээр стандарт хэлбэрийг нэмж, дөрвөн кейсийг бүрэн тавина. Гурван интерактив дасгал байгаа: 7, 17, 23-р слайд.">
+<section class="slide cover" data-sec="—" data-notes="Хичээл 2-т шийдвэрийн хувьсагч, зорилгын функцийг үзсэн. Өнөөдөр загварын үлдсэн хоёр хэсэг — хязгаарлалт, сөрөг биш байх нөхцөл — дээр стандарт хэлбэрийг нэмж, дөрвөн кейсийг бүрэн тавина. Гурван интерактив дасгал байгаа: 7, 17, 23-р слайд.">
   <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
   <div class="brandline">LP Suite · Шугаман программчлал</div>
-  <h1>Хязгаарлалт, үл сөрөг нөхцөл,<br><em>стандарт хэлбэр</em></h1>
+  <h1>Хязгаарлалт, сөрөг биш байх нөхцөл,<br><em>стандарт хэлбэр</em></h1>
   <div class="meta">
     <span class="pill solid">Хичээл 3</span>
     <span class="pill">Лекц · 1.5 цаг</span>
@@ -114,7 +181,7 @@ body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
   <div class="grid g3">
     <div class="card accent"><div class="k">2.4</div><h3>Хязгаарлалтын систем</h3><p>Ерөнхий хэлбэр, ≤ / ≥ / = гурван төрөл, технологийн коэффициент, сул гишүүн, түгээмэл алдаа.</p></div>
     <div class="card green"><div class="k">Интерактив</div><h3>Тэмдэг сонгогч</h3><p>Үг хэлбэрийн 8 нөхцөлд ≤, ≥, = аль нь тохирохыг өөрөө сонгоно.</p></div>
-    <div class="card accent"><div class="k">2.5</div><h3>Үл сөрөг байх нөхцөл</h3><p>xᵢ ≥ 0 яагаад заавал хэрэгтэй вэ? Хязгааргүй хувьсагч гэж юу вэ?</p></div>
+    <div class="card accent"><div class="k">2.5</div><h3>Сөрөг биш байх нөхцөл</h3><p>xᵢ ≥ 0 яагаад заавал хэрэгтэй вэ? Хязгааргүй хувьсагч гэж юу вэ?</p></div>
     <div class="card accent"><div class="k">2.6</div><h3>Стандарт хэлбэр</h3><p>Бүрэн загвар, матриц бичлэг, min → max ба ≥ → ≤ хувиргалтын гурван дүрэм.</p></div>
     <div class="card green"><div class="k">Интерактив</div><h3>Эрэмбэлэгч ба угсрагч</h3><p>Стандарт хэлбэрийн мөрүүдийг дараалалд оруулж, дараа нь коэффициентийг өөрөө бөглөнө.</p></div>
     <div class="card accent"><div class="k">2.7–2.8</div><h3>Дөрвөн кейс</h3><p>"Модон урлал", "Хиам" ХХК, портфель, тариалалт — бүрэн математик загвар.</p></div>
@@ -129,7 +196,7 @@ body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
   <ul class="pts">
     <li><span class="b">1</span><span>Хязгаарлалтын <strong>ерөнхий хэлбэрийг</strong> бичиж, aᵢ, xᵢ, b гурвын үүргийг тайлбарлах</span></li>
     <li><span class="b">2</span><span>Үг хэлбэрээр өгөгдсөн нөхцөлд <strong>≤, ≥, = аль тэмдэг</strong> тохирохыг зөв сонгох</span></li>
-    <li><span class="b">3</span><span><strong>Үл сөрөг байх нөхцөл</strong> яагаад заавал шаардлагатайг физик ба математик талаас нь тайлбарлах</span></li>
+    <li><span class="b">3</span><span><strong>Сөрөг биш байх нөхцөл</strong> яагаад заавал шаардлагатайг физик ба математик талаас нь тайлбарлах</span></li>
     <li><span class="b">4</span><span><strong>min → max</strong>, <strong>≥ → ≤</strong> хувиргалт хийж бодлогыг стандарт хэлбэрт оруулах</span></li>
     <li><span class="b">5</span><span>Бизнесийн нөхцөлөөс <strong>дөрвөн алхмаар</strong> бүрэн математик загвар гаргах</span></li>
   </ul>
@@ -271,7 +338,7 @@ body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
 <!-- ══════════ 10. ЗААГ 2.5 ══════════ -->
 <section class="slide divider dark" data-sec="2.5" data-notes="Хамгийн богино, гэхдээ хамгийн их мартагддаг алхам. Оюутнууд бодлого тавихдаа энэ мөрийг байнга орхигдуулдаг.">
   <div class="num">2.5</div>
-  <h2>Үл сөрөг байх нөхцөл</h2>
+  <h2>Сөрөг биш байх нөхцөл</h2>
   <p class="sub">Бодлогын тавилтын дөрөв дэх алхам — нэг мөр, гэхдээ түүнгүйгээр бүх загвар утгагүй болно.</p>
   <div class="s-foot"><span>Бүлэг 2.5 · Non-negativity</span><span class="pg"></span></div>
 </section>
@@ -288,7 +355,7 @@ body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
   </div>
   <div class="grid g2">
     <div class="card accent"><div class="k">Физик утгын үүднээс</div><h3>Сөрөг бараа гэж байхгүй</h3><p>Бодит амьдрал дээр сөрөг тоогоор бараа үйлдвэрлэх, сөрөг тоогоор ажилчин авах, сөрөг тоогоор тээвэрлэх боломжгүй. Математик бол амьдралын логикийг мэддэггүй, зүгээр л тоо боддог хэрэгсэл.</p></div>
-    <div class="card accent"><div class="k">Математикийн үүднээс</div><h3>Боломжит мужийг хашина</h3><p>Үл сөрөг байх нөхцөл нь боломжит шийдийн орон зайг координатын хавтгайн зөвхөн эерэг хэсэгт хязгаарлаж, бодлогыг тодорхой, хязгаарлагдмал мужид оруулдаг. → Бүлэг 3</p></div>
+    <div class="card accent"><div class="k">Математикийн үүднээс</div><h3>Боломжит мужийг хашина</h3><p>Сөрөг биш байх нөхцөл нь боломжит шийдийн орон зайг координатын хавтгайн зөвхөн эерэг хэсэгт хязгаарлаж, бодлогыг тодорхой, хязгаарлагдмал мужид оруулдаг. → Бүлэг 3</p></div>
   </div>
   <div class="s-foot"><span>Бүлэг 2.5.1–2.5.2</span><span class="pg"></span></div>
 </section>
@@ -371,7 +438,7 @@ body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
 </section>
 
 <!-- ══════════ 17. ИНТЕРАКТИВ 3 — ЭРЭМБЭЛЭГЧ ══════════ -->
-<section class="slide" data-sec="2.6" id="ordrSlide" data-notes="ИНТЕРАКТИВ 2 — 4 минут. Мөрүүдийг чирж эсвэл ▲▼ товчоор зөв дараалалд оруулна. Зөв дараалал: шийдвэрийн хувьсагч → зорилгын функц → хязгаарлалт (мод, цаг) → үл сөрөг нөхцөл. Оюутнаар яагаад ийм дараалалтай болохыг тайлбарлуул.">
+<section class="slide" data-sec="2.6" id="ordrSlide" data-notes="ИНТЕРАКТИВ 2 — 4 минут. Мөрүүдийг чирж эсвэл ▲▼ товчоор зөв дараалалд оруулна. Зөв дараалал: шийдвэрийн хувьсагч → зорилгын функц → хязгаарлалт (мод, цаг) → сөрөг биш байх нөхцөл. Оюутнаар яагаад ийм дараалалтай болохыг тайлбарлуул.">
   <div class="s-tag">Интерактив · 2.6.1 → зөв дараалал</div>
   <h2 class="title">Стандарт хэлбэрийг <em>эрэмбэлнэ үү</em></h2>
   <div class="ordr" id="ordrList"></div>
@@ -463,7 +530,7 @@ body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
     <div class="numcard"><div class="n">1</div><h3>Асуудлыг ойлгох</h3><p>Хэдэн ширээ, хэдэн сандал хийх вэ? Ашгаа хамгийн их болгох.</p></div>
     <div class="numcard"><div class="n">2</div><h3>Шийдвэрийн хувьсагч</h3><p style="font-family:var(--mono);font-size:14.5px;color:var(--green)">x₁ = хийх ширээний тоо<br>x₂ = хийх сандлын тоо</p></div>
     <div class="numcard"><div class="n">3</div><h3>Зорилгын функц</h3><p style="font-family:var(--mono);font-size:14.5px;color:var(--green)">Z = 50000x₁ + 40000x₂ → max</p><p style="margin-top:6px">Ширээний ашиг + сандлын ашиг.</p></div>
-    <div class="numcard"><div class="n">4</div><h3>Хязгаарлалтын систем</h3><p style="font-family:var(--mono);font-size:14.5px;color:var(--green)">Мод: 4x₁ + 2x₂ ≤ 100<br>Цаг: 2x₁ + 4x₂ ≤ 80<br>Үл сөрөг: x₁, x₂ ≥ 0</p></div>
+    <div class="numcard"><div class="n">4</div><h3>Хязгаарлалтын систем</h3><p style="font-family:var(--mono);font-size:14.5px;color:var(--green)">Мод: 4x₁ + 2x₂ ≤ 100<br>Цаг: 2x₁ + 4x₂ ≤ 80<br>Сөрөг биш: x₁, x₂ ≥ 0</p></div>
   </div>
   <div class="s-foot"><span>Бүлэг 2.7.3</span><span class="pg"></span></div>
 </section>
@@ -499,7 +566,7 @@ body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
         <span class="op" id="s2o">≤</span>
         <input class="bcell" id="b2" inputmode="numeric" autocomplete="off">
       </div>
-      <div class="bld-line"><span class="bld-lbl">үл сөрөг</span><span class="fix">x₁, x₂ </span><span class="op">≥ 0</span></div>
+      <div class="bld-line"><span class="bld-lbl">сөрөг биш</span><span class="fix">x₁, x₂ </span><span class="op">≥ 0</span></div>
     </div>
   </div>
   <div class="bld-bar">
@@ -532,6 +599,43 @@ body:not(.paper) .bld-form{background:linear-gradient(135deg,#16321A,#0F1F12)}
     <div class="card accent"><div class="k">≤ тэмдгийн утга</div><p>Зарцуулах нийт мод 100 м.кубаас, нийт ажлын цаг 80-аас <strong>хэтэрч болохгүй</strong> — эдгээр нь дээд хязгаар буюу бэлэн байгаа хамгийн их нөөц.</p></div>
   </div>
   <div class="s-foot"><span>Бүлэг 2.7.4–2.7.5 · Цааш → Бүлэг 3, 4.5, 5, 7.6</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="2.7" id="mdlSlide" data-notes="ИНТЕРАКТИВ 4 — 6 минут. Товчийг дарж загварыг мөр мөрөөр угсарна. Алхам 3 ба 5 дээр зогсоо: тэнд ерөнхий тэмдэглэгээ (c₁, a₁₁, b₁) хүснэгтийн бодит тоо болж хувирдгийг оюутан анзаартал хүлээ. 'Энэ 4 тоог хаанаас авсан бэ?' гэж асуу — зүүн талын хүснэгтээс шарлаж харагдана. Алхам 8-д бүрэн системийг цээжээр бичүүлж болно.">
+  <div class="s-tag">Интерактив · 2.7.4 → загвар өөрөө угсрах нь</div>
+  <h2 class="title">Загвар <em>хэрхэн бүрддэг</em> вэ</h2>
+
+  <div class="mdl">
+    <div class="mdl-side">
+      <div class="mdl-step" id="mdlStep">Алхам 0 / 8</div>
+      <h4 id="mdlH">Бизнесийн үг → математик</h4>
+      <p id="mdlP">Баруун талын самбар хоосон байна. <b>«Дараагийн алхам»</b> товчийг дарахад бодлогын тавилт мөр мөрөөр бүрдэж, тэмдэглэгээ нь хүснэгтийн бодит тоо болж хувирна.</p>
+      <table class="t sm mdl-tbl" id="mdlTbl">
+        <thead><tr><th>Бүтээгдэхүүн</th><th>Мод</th><th>Цаг</th><th>Ашиг</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Ширээ (x₁)</td><td data-c="a11">4</td><td data-c="a21">2</td><td data-c="c1">50 000</td></tr>
+          <tr><td class="k">Сандал (x₂)</td><td data-c="a12">2</td><td data-c="a22">4</td><td data-c="c2">40 000</td></tr>
+          <tr><td class="k">Нөөц</td><td data-c="b1">100</td><td data-c="b2">80</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mdl-box" id="mdlBox">
+      <div class="mdl-lines" id="mdlLines"></div>
+      <div class="mdl-cap" id="mdlCap">Загвар хоосон — эхлүүлнэ үү.</div>
+    </div>
+  </div>
+
+  <div class="mdl-bar">
+    <span class="mdl-dots" id="mdlDots"></span>
+    <span class="btns">
+      <button id="mdlBack" class="ghost">← Буцах</button>
+      <button id="mdlNext">Дараагийн алхам →</button>
+      <button id="mdlReset" class="ghost">Эхнээс</button>
+    </span>
+  </div>
+
+  <div class="s-foot"><span>Бүлэг 2.7.4 · Тэмдэглэгээ → тоо болж хувирахыг ажигла</span><span class="pg"></span></div>
 </section>
 
 <!-- ══════════ 25. 2.8.1 ХИАМ ХХК ══════════ -->
@@ -710,7 +814,7 @@ window.DECK = {
   parts: [
     {k:'intro', label:'Эхлэл'},
     {k:'2.4',   label:'Хязгаарлалт'},
-    {k:'2.5',   label:'Үл сөрөг нөхцөл'},
+    {k:'2.5',   label:'Сөрөг биш байх нөхцөл'},
     {k:'2.6',   label:'Стандарт хэлбэр'},
     {k:'2.7',   label:'Кейс 1'},
     {k:'2.8',   label:'Нэмэлт кейс'},
@@ -726,7 +830,7 @@ window.DECK = {
     {p:'2.4',   s:'Интерактив · Тэмдэг сонгогч'},
     {p:'2.4',   s:'2.4.3–2.4.4 · a ба b'},
     {p:'2.4',   s:'2.4.5 · Түгээмэл алдаанууд'},
-    {p:'2.5',   s:'Үл сөрөг байх нөхцөл'},
+    {p:'2.5',   s:'Сөрөг биш байх нөхцөл'},
     {p:'2.5',   s:'2.5.1–2.5.2 · Яагаад хэрэгтэй вэ?'},
     {p:'2.5',   s:'2.5.3–2.5.5 · Хязгааргүй хувьсагч'},
     {p:'2.6',   s:'Стандарт хэлбэр'},
@@ -741,6 +845,7 @@ window.DECK = {
     {p:'2.7',   s:'2.7.3 · Дөрвөн алхам'},
     {p:'2.7',   s:'Интерактив · Бодлого угсрагч'},
     {p:'2.7',   s:'2.7.4–2.7.5 · Эцсийн загвар'},
+    {p:'2.7',   s:'Интерактив · Загвар угсрах'},
     {p:'2.8',   s:'2.8.1 · Кейс 2 · "Хиам" ХХК'},
     {p:'2.8',   s:'2.8.2 · Кейс 3 · Портфель'},
     {p:'2.8',   s:'2.8.3 · Кейс 4 · Тариалалт'},
@@ -947,7 +1052,7 @@ document.addEventListener('keydown', function(e){
     {t:'max Z = 50000x₁ + 40000x₂',           r:'Зорилгын функц'},
     {t:'4x₁ + 2x₂ ≤ 100',                     r:'Хязгаарлалт · мод'},
     {t:'2x₁ + 4x₂ ≤ 80',                      r:'Хязгаарлалт · цаг'},
-    {t:'x₁, x₂ ≥ 0',                          r:'Үл сөрөг байх нөхцөл'}
+    {t:'x₁, x₂ ≥ 0',                          r:'Сөрөг биш байх нөхцөл'}
   ];
   const START = [2, 4, 0, 3, 1];   // зориудаар холисон эхний дараалал
   let order = START.slice();
@@ -1012,7 +1117,7 @@ document.addEventListener('keydown', function(e){
       if(good) n++;
     });
     status(n === ROWS.length
-      ? '✓ Зөв! Шийдвэрийн хувьсагч → зорилгын функц → хязгаарлалт → үл сөрөг нөхцөл'
+      ? '✓ Зөв! Шийдвэрийн хувьсагч → зорилгын функц → хязгаарлалт → сөрөг биш байх нөхцөл'
       : n + ' / ' + ROWS.length + ' мөр зөв байрлалд байна — улаан мөрүүдийг зөөнө үү');
   });
   document.getElementById('ordrReset').addEventListener('mousedown', e=>e.preventDefault());
@@ -1023,6 +1128,181 @@ document.addEventListener('keydown', function(e){
   });
 
   draw();
+})();
+
+/* ==========================================================================
+   4. ЗАГВАР УГСРАХ АНИМЭЙШН — "Модон урлал" ХХК   (Бүлэг 2.7.4)
+   --------------------------------------------------------------------------
+   Нэг товшилт = нэг алхам. Мөр нэмэгдэх, эсвэл байгаа мөрийн тэмдэглэгээ
+   бодит тоо болж ХУВИРНА (алхам 3, 5, 6). Зүүн талын хүснэгтийн тухайн
+   нүд зэрэг шарлаж, тоо хаанаас гарч ирснийг харуулна.
+   ========================================================================== */
+(function(){
+  const box = document.getElementById('mdlBox');
+  if(!box) return;
+
+  const linesEl = document.getElementById('mdlLines');
+  const capEl   = document.getElementById('mdlCap');
+  const stepEl  = document.getElementById('mdlStep');
+  const hEl     = document.getElementById('mdlH');
+  const pEl     = document.getElementById('mdlP');
+  const dotsEl  = document.getElementById('mdlDots');
+  const tbl     = document.getElementById('mdlTbl');
+
+  // ---- Мөрүүд. key нь алхмуудаас лавлагаа авахад хэрэгтэй --------------
+  const LINES = [
+    { key:'var',  lbl:'хувьсагч',  html:'x₁, x₂ — <span class="c">шийдвэрийн хувьсагч</span>' },
+    { key:'obj',  lbl:'зорилго',   html:'<span class="op">max</span> Z = ' +
+        '<span class="tk" data-k="c1">c₁</span>x₁ + <span class="tk" data-k="c2">c₂</span>x₂' },
+    { key:'c1',   lbl:'мод',       html:'<span class="tk" data-k="a11">a₁₁</span>x₁ + ' +
+        '<span class="tk" data-k="a12">a₁₂</span>x₂ <span class="op">≤</span> ' +
+        '<span class="tk" data-k="b1">b₁</span>' },
+    { key:'c2',   lbl:'цаг',       html:'<span class="tk" data-k="a21">a₂₁</span>x₁ + ' +
+        '<span class="tk" data-k="a22">a₂₂</span>x₂ <span class="op">≤</span> ' +
+        '<span class="tk" data-k="b2">b₂</span>' },
+    { key:'nneg', lbl:'сөрөг биш',  html:'x₁, x₂ <span class="op">≥ 0</span>' },
+  ];
+
+  // Тэмдэглэгээ → бодит тоо
+  const NUM = { c1:'50000', c2:'40000', a11:'4', a12:'2', b1:'100',
+                a21:'2', a22:'4', b2:'80' };
+
+  // ---- 8 алхам ----------------------------------------------------------
+  //  show  : энэ алхамд харагдах мөрүүд
+  //  now   : онцлох мөр
+  //  morph : тоо болж хувирах тэмдэглэгээнүүд
+  //  cells : зүүн хүснэгтэд шарлах нүднүүд
+  const STEPS = [
+    { h:'1 · Юуг шийдэх вэ?',
+      p:'Захирал <b>хэдэн ширээ, хэдэн сандал</b> хийхээ мэдэхгүй байна. Яг эдгээр тодорхойгүй тоог <code>x₁</code>, <code>x₂</code> гэж нэрлэвэл бүх зүйл эндээс эхэлнэ.',
+      show:['var'], now:'var', cells:[],
+      cap:'<b>x₁</b> — долоо хоногт хийх ширээний тоо, <b>x₂</b> — сандлын тоо. Загварын бусад бүх мөр эдгээрээр бичигдэнэ.' },
+
+    { h:'2 · Юуг нь хамгийн их болгох вэ?',
+      p:'Зорилго нь <b>ашгийг дээд зэргээр нэмэгдүүлэх</b>. Эхлээд коэффициентийг нь мэдэхгүй мэт <code>c₁</code>, <code>c₂</code> гэж бичье — бүтэц нь ийм байна.',
+      show:['var','obj'], now:'obj', cells:[],
+      cap:'Z нь нийт ашиг. <b>c₁, c₂</b> нь нэгж бүтээгдэхүүний ашиг — тэдгээрийг одоо хүснэгтээс олно.' },
+
+    { h:'3 · Ашгийн тоог тавих',
+      p:'Хүснэгтийн сүүлийн баганаас: нэг ширээ <b>50 000₮</b>, нэг сандал <b>40 000₮</b>. Тэмдэглэгээ шууд тоо болж хувирлаа.',
+      show:['var','obj'], now:'obj', morph:['c1','c2'], cells:['c1','c2'],
+      cap:'<b>max Z = 50000x₁ + 40000x₂</b> — 10 ширээ, 5 сандал хийвэл Z = 700 000₮.' },
+
+    { h:'4 · Эхний нөөц: мод',
+      p:'Агуулахад мод хязгаартай. Зарцуулалт нь <code>a₁₁x₁ + a₁₂x₂</code>, бэлэн нөөц нь <code>b₁</code>. Зарцуулалт нөөцөөс <b>хэтэрч болохгүй</b> тул <code>≤</code>.',
+      show:['var','obj','c1'], now:'c1', cells:[],
+      cap:'Хязгаарлалт бүр нэг л нөөцийг хариуцна. Энэ мөр бол <b>модны</b> мөр.' },
+
+    { h:'5 · Модны тоог тавих',
+      p:'Хүснэгтийн «Мод» баганаас: ширээ тутамд <b>4</b> м.куб, сандал тутамд <b>2</b>. Агуулахад нийт <b>100</b> м.куб байна.',
+      show:['var','obj','c1'], now:'c1', morph:['a11','a12','b1'], cells:['a11','a12','b1'],
+      cap:'<b>4x₁ + 2x₂ ≤ 100</b> — 25 ширээ хийвэл мод яг дуусна, өөр юу ч хийх боломжгүй.' },
+
+    { h:'6 · Хоёр дахь нөөц: ажлын цаг',
+      p:'Мужаанууд долоо хоногт <b>80 цаг</b> ажиллана. Ширээ <b>2</b> цаг, сандал <b>4</b> цаг шаардана — сандал цаг илүү иддэг нь энд харагдана.',
+      show:['var','obj','c1','c2'], now:'c2', morph:['a21','a22','b2'], cells:['a21','a22','b2'],
+      cap:'<b>2x₁ + 4x₂ ≤ 80</b> — хоёр хязгаарлалт бие биенээ таслана: мод ширээг, цаг сандлыг хязгаарлана.' },
+
+    { h:'7 · Тоо нь утгатай байх ёстой',
+      p:'Математик хувьд <code>x₁ = −3</code> боломжтой ч <b>−3 ширээ</b> гэж байхгүй. Тиймээс сөрөг биш байх нөхцөлийг ЗААВАЛ бичнэ.',
+      show:['var','obj','c1','c2','nneg'], now:'nneg', cells:[],
+      cap:'Энэ мөрийг мартвал бодолт утгагүй сөрөг хариу өгч мэднэ — хамгийн түгээмэл алдаа.' },
+
+    { h:'8 · Бүрэн загвар',
+      p:'Бизнесийн хоёр өгүүлбэр <b>дөрвөн мөр математик</b> болж хувирлаа. Энэ бол ШП-ийн бодлогын стандарт тавилт — Бүлэг 3-аас эхлэн үүнийг бодно.',
+      show:['var','obj','c1','c2','nneg'], now:null, done:true, cells:[],
+      cap:'Хувьсагч 2, хязгаарлалт 2, сөрөг биш байх нөхцөл 1. <b>Цааш:</b> график (Бүлэг 3), матриц (4.5), симплекс (5).' },
+  ];
+
+  // ---- Мөрүүдийг нэг удаа байгуулна -------------------------------------
+  const nodeOf = {};
+  LINES.forEach(L=>{
+    const row = document.createElement('div');
+    row.className = 'mdl-line';
+    row.innerHTML = '<span class="mdl-lbl">' + L.lbl + '</span>' +
+                    '<span class="mdl-eq">' + L.html + '</span>';
+    linesEl.appendChild(row);
+    nodeOf[L.key] = row;
+  });
+
+  // Тэмдэглэгээний анхны текстийг хадгална (Эхнээс товчид хэрэгтэй)
+  const tokens = {};
+  linesEl.querySelectorAll('.tk').forEach(t=>{ tokens[t.dataset.k] = { el:t, sym:t.textContent }; });
+
+  // Цэгүүд
+  STEPS.forEach(()=> dotsEl.appendChild(document.createElement('i')));
+  const dots = Array.from(dotsEl.children);
+
+  const btnNext  = document.getElementById('mdlNext');
+  const btnBack  = document.getElementById('mdlBack');
+  const btnReset = document.getElementById('mdlReset');
+
+  let at = -1;                 // -1 = хоосон эхлэл
+
+  function paint(prev){
+    const s = at >= 0 ? STEPS[at] : null;
+
+    // мөрүүд
+    LINES.forEach(L=>{
+      const on = !!(s && s.show.indexOf(L.key) >= 0);
+      nodeOf[L.key].classList.toggle('in', on);
+      nodeOf[L.key].classList.toggle('now', !!(s && s.now === L.key));
+      nodeOf[L.key].classList.toggle('dim', !!(on && s.now && s.now !== L.key));
+    });
+
+    // тэмдэглэгээ ⇄ тоо
+    const upto = at;
+    Object.keys(tokens).forEach(k=>{
+      let numeric = false;
+      for(let i = 0; i <= upto; i++){
+        if(STEPS[i].morph && STEPS[i].morph.indexOf(k) >= 0){ numeric = true; break; }
+      }
+      const t = tokens[k];
+      const want = numeric ? NUM[k] : t.sym;
+      if(t.el.textContent !== want) t.el.textContent = want;
+    });
+
+    // хувирах агшинд эргэлдэх хөдөлгөөн (зөвхөн урагш явахад)
+    if(s && s.morph && prev !== undefined && prev < at){
+      s.morph.forEach(k=>{
+        const el = tokens[k].el;
+        el.classList.remove('flip');
+        void el.offsetWidth;              // reflow — анимэйшнийг дахин эхлүүлнэ
+        el.classList.add('flip');
+      });
+    }
+
+    // хүснэгтийн нүд онцлох
+    tbl.querySelectorAll('td[data-c]').forEach(td=>{
+      td.classList.toggle('hi', !!(s && s.cells && s.cells.indexOf(td.dataset.c) >= 0));
+    });
+
+    // текстүүд
+    stepEl.textContent = 'Алхам ' + (at + 1) + ' / ' + STEPS.length;
+    hEl.innerHTML  = s ? s.h : 'Бизнесийн үг → математик';
+    pEl.innerHTML  = s ? s.p : 'Баруун талын самбар хоосон байна. <b>«Дараагийн алхам»</b> товчийг дарахад бодлогын тавилт мөр мөрөөр бүрдэж, тэмдэглэгээ нь хүснэгтийн бодит тоо болж хувирна.';
+    capEl.innerHTML = s ? s.cap : 'Загвар хоосон — эхлүүлнэ үү.';
+
+    box.classList.toggle('done', !!(s && s.done));
+    dots.forEach((d,i)=> d.classList.toggle('on', i <= at));
+
+    btnBack.disabled = at < 0;
+    btnNext.disabled = at >= STEPS.length - 1;
+    btnNext.textContent = at >= STEPS.length - 1 ? 'Дууслаа ✓' : 'Дараагийн алхам →';
+  }
+
+  function go(n){
+    const prev = at;
+    at = Math.max(-1, Math.min(STEPS.length - 1, n));
+    paint(prev);
+  }
+
+  [btnNext, btnBack, btnReset].forEach(b=> b.addEventListener('mousedown', e=>e.preventDefault()));
+  btnNext.addEventListener('click',  ()=> go(at + 1));
+  btnBack.addEventListener('click',  ()=> go(at - 1));
+  btnReset.addEventListener('click', ()=> go(-1));
+
+  paint();
 })();
 </script>
 <script src="deck.js"></script>
