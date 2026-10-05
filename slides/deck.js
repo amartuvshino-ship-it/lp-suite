@@ -249,11 +249,26 @@
     if(pg) pg.textContent = (i+1) + ' / ' + slides.length;
   });
 
+  /* ---------------------------------------------------------------
+     Слайдыг дэлгэцэд багтаах.
+     Багшийн тэмдэглэл нээлттэй үед доод 34vh-ийг тэмдэглэл эзэлдэг тул
+     слайдыг ҮЛДСЭН ӨНДӨРТ багтааж, дээш нь зөөнө. Эс тэгвээс тэмдэглэл
+     болон удирдлагын товчнууд слайдын текстийг дарна.
+     34 гэсэн тоо нь deck.css доторх #notes{max-height:34vh}-тай ИЖИЛ байна.
+     --------------------------------------------------------------- */
+  const NOTES_VH = 0.34;   // deck.css → #notes{max-height:34vh}-тай ИЖИЛ
+  const HUD_GAP  = 56;     // тэмдэглэл ба слайдын хооронд үлдээх зай (#hud-д)
   function fit(){
-    const k = Math.min(window.innerWidth/1280, window.innerHeight/720) * 0.94;
-    stage.style.transform = 'scale(' + k + ')';
+    const open    = document.body.classList.contains('notes-on');
+    const reserve = open ? (window.innerHeight * NOTES_VH + HUD_GAP) : 0;
+    const avH     = Math.max(200, window.innerHeight - reserve);
+    const k       = Math.min(window.innerWidth/1280, avH/720) * 0.94;
+    stage.style.transform = 'translateY(' + (-reserve/2) + 'px) scale(' + k + ')';
   }
   window.addEventListener('resize', fit); fit();
+  stage.addEventListener('transitionend', e=>{
+    if(e.propertyName==='transform' && window.__wmBuild) window.__wmBuild();
+  });
   setTimeout(()=>window.__wmBuild && window.__wmBuild(), 60);
   const vp=document.getElementById('viewport');
   ['scroll','focusin'].forEach(ev=>vp.addEventListener(ev,()=>{vp.scrollTop=0;vp.scrollLeft=0;}));
@@ -287,6 +302,10 @@
     notes.classList.toggle('on', notesOn);
     document.body.classList.toggle('notes-on', notesOn);
     document.getElementById('bNotes').classList.toggle('on', notesOn);
+    fit();                                   // слайдыг тэмдэглэлийн дээр багтаана
+    // Ус тэмдэг тайзны байрлалаас хамаардаг тул шилжилт дууссаны дараа дахин зурна
+    clearTimeout(toggleNotes._wm);
+    toggleNotes._wm = setTimeout(()=>window.__wmBuild && window.__wmBuild(), 420);
   }
   function toggleOverview(force){
     const on = (force===undefined) ? !overview.classList.contains('on') : force;
