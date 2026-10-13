@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<title>Өгүүлбэрээс математик руу — «Модон урлал» ХХК</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --deep:#0C1410; --deep2:#132019;
+  --ink:#F3F6EF; --soft:#C4CEBE; --mute:#8D9A86;
+  --green:#A3DA7C; --green-d:#2C5F2D; --gold:#EFD180; --gold-d:#C8A951;
+  --rust:#F0A184;
+  --display:'Fraunces',Georgia,serif;
+  --body:'Geist',-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+  --ease:cubic-bezier(.22,.68,.28,1);
+  --spring:cubic-bezier(.34,1.46,.44,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#070B09;font-family:var(--body)}
+
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1280px;height:720px;flex:none;position:relative;overflow:hidden;border-radius:10px;
+  background:radial-gradient(130% 110% at 18% 0%,#1B3324 0%,var(--deep2) 45%,var(--deep) 100%);
+  transform-origin:center center;box-shadow:0 40px 110px rgba(0,0,0,.7)}
+#stage::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(163,218,124,.045) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(163,218,124,.045) 1px,transparent 1px);
+  background-size:48px 48px}
+
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden;
+  transition:opacity .55s var(--ease)}
+.scene.on{opacity:1;visibility:visible}
+
+/* ---------- толгой ---------- */
+#head{position:absolute;left:72px;top:58px;right:72px}
+.kicker{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);
+  font-weight:700;display:flex;align-items:center;gap:12px}
+.kicker::before{content:'';width:26px;height:2px;background:var(--gold)}
+#steptag{font-family:var(--display);font-size:33px;line-height:1.2;font-weight:600;
+  color:var(--ink);margin-top:14px}
+#steptag em{font-style:italic;color:var(--gold)}
+#steptag.sw{animation:swap .5s var(--ease)}
+@keyframes swap{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------- зүүн багана: бодлогын нөхцөл ---------- */
+#tcol{position:absolute;left:72px;top:170px;width:470px;
+  font-size:18px;line-height:1.85;color:var(--soft);
+  transform-origin:left top;transition:transform .95s var(--ease), font-size .95s var(--ease)}
+body.read #tcol{transform:translate(258px,-30px) scale(1.32)}
+#tcol .w{opacity:0;transition:opacity .34s var(--ease), color .4s}
+#tcol .w.on{opacity:1}
+#tcol.dim .w.on{color:rgba(230,240,225,.30)}
+#tcol .n{font-family:var(--mono);font-weight:600;font-size:.95em;color:var(--gold);
+  padding:1px 4px;border-radius:5px;transition:color .35s,background .35s,box-shadow .35s}
+#tcol.dim .n{color:rgba(239,209,128,.40)}
+#tcol .n.hot{color:#20180A;background:var(--gold);
+  box-shadow:0 0 0 4px rgba(239,209,128,.20),0 0 26px rgba(239,209,128,.5);
+  animation:beat 1s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+#tcol .n.used{color:rgba(163,218,124,.8);background:rgba(163,218,124,.12);
+  box-shadow:none;animation:none}
+
+/* ---------- нисдэг тоо ---------- */
+.ghost{position:fixed;z-index:60;font-family:var(--mono);font-weight:600;color:var(--gold);
+  transform-origin:left top;white-space:nowrap;pointer-events:none;
+  text-shadow:0 0 22px rgba(239,209,128,.75);
+  transition:transform .8s var(--ease), opacity .8s var(--ease)}
+
+/* ---------- зураг ---------- */
+#art{position:absolute;right:92px;top:206px;width:410px;height:330px;opacity:0;
+  transition:opacity .55s var(--ease)}
+#art.in{opacity:1}
+#art svg{width:100%;height:100%;overflow:visible}
+#art path,#art line,#art rect,#art circle{
+  stroke:var(--green);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:var(--L);stroke-dashoffset:var(--L)}
+#art.in path,#art.in line,#art.in rect,#art.in circle{animation:draw 1.5s var(--ease) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+#art .s2{animation-delay:.3s!important}
+#art .s3{animation-delay:.6s!important}
+#bubble{position:absolute;right:92px;bottom:116px;max-width:400px;
+  background:rgba(239,209,128,.1);border:1px solid rgba(239,209,128,.34);
+  border-left:3px solid var(--gold);border-radius:14px;padding:18px 22px;
+  font-size:19px;line-height:1.5;color:var(--ink);opacity:0;transform:translateY(14px);
+  transition:.6s var(--ease)}
+#bubble.in{opacity:1;transform:none}
+#bubble b{color:var(--gold)}
+#bubble .who{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--mute);margin-bottom:8px}
+
+/* ---------- баруун багана: математик ---------- */
+#rcol{position:absolute;left:626px;top:162px;width:584px}
+.blk{opacity:0;transform:translateY(16px);transition:.65s var(--ease);
+  padding:9px 14px;border-radius:12px;margin-bottom:9px;position:relative;overflow:hidden}
+.blk.in{opacity:1;transform:none}
+.blk .bh{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);
+  font-weight:700;margin-bottom:7px}
+.blk.glow{background:rgba(163,218,124,.07);box-shadow:inset 0 0 0 1px rgba(163,218,124,.26)}
+.blk.glow::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 35%,rgba(239,209,128,.33),transparent 65%);
+  background-size:260% 100%;animation:sweep 1.5s var(--ease)}
+@keyframes sweep{from{background-position:150% 0}to{background-position:-70% 0}}
+
+.mrow{font-family:var(--mono);font-size:24px;color:var(--ink);
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.mrow .op{color:var(--green)}
+.mrow .xv{color:var(--ink)}
+.vrow{display:flex;align-items:center;gap:14px;margin:5px 0;font-size:17.5px;color:var(--soft)}
+.vrow b{color:var(--ink)}
+.slot{display:inline-block;min-width:44px;padding:0 8px;height:34px;line-height:31px;
+  text-align:center;border:1.6px dashed rgba(239,209,128,.42);border-radius:9px;
+  font-family:var(--mono);font-size:23px;color:var(--gold);background:rgba(239,209,128,.05)}
+.slot.filled{border-color:transparent;background:none;padding:0 2px;min-width:0;
+  animation:land .55s var(--spring)}
+@keyframes land{0%{transform:scale(1.55);opacity:.2}60%{transform:scale(1.07)}100%{transform:none;opacity:1}}
+.vslot{font-size:27px;min-width:52px;height:38px;line-height:35px}
+.note{font-size:15px;color:var(--mute);margin-top:5px;line-height:1.45}
+.note s{color:var(--rust);opacity:.9}
+
+/* ---------- эцсийн загвар ---------- */
+.mid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column}
+.final{width:720px;padding:40px 50px;border-radius:20px;
+  background:linear-gradient(140deg,rgba(44,95,45,.42),rgba(12,20,16,.78));
+  border:1px solid rgba(163,218,124,.3);position:relative;opacity:0;transform:scale(.94)}
+.final.in{animation:popbox .8s var(--spring) forwards}
+@keyframes popbox{to{opacity:1;transform:none}}
+.final::after{content:'';position:absolute;inset:-2px;border-radius:22px;pointer-events:none;
+  background:linear-gradient(120deg,transparent 30%,rgba(239,209,128,.5),transparent 70%);
+  background-size:280% 100%;opacity:0}
+.final.in::after{animation:fsweep 2.6s var(--ease) .5s}
+@keyframes fsweep{0%{background-position:160% 0;opacity:0}25%{opacity:.85}
+                  100%{background-position:-60% 0;opacity:0}}
+.final .fl{font-family:var(--mono);font-size:32px;line-height:2.05;color:var(--ink)}
+.final .fl .c{color:var(--gold)}
+.final .fl .op{color:var(--green)}
+.final .cap{margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.12);
+  font-size:16px;color:var(--mute);font-family:var(--body)}
+h1{font-family:var(--display);font-size:54px;line-height:1.1;font-weight:600;color:var(--ink)}
+h1 em{font-style:italic;color:var(--green)}
+.chips{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap;justify-content:center}
+.chip{padding:11px 20px;border-radius:999px;border:1px solid rgba(163,218,124,.34);
+  color:var(--soft);font-size:15.5px;background:rgba(163,218,124,.07);
+  opacity:0;transform:translateY(14px)}
+.scene.on .chip{animation:up .6s var(--ease) forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.c1{animation-delay:.5s}.c2{animation-delay:.7s}.c3{animation-delay:.9s}
+.brand{position:absolute;left:72px;bottom:96px;font-size:11.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--mute)}
+.brand b{color:var(--green)}
+
+/* ---------- хадмал, удирдлага ---------- */
+#sub{position:absolute;left:0;right:0;bottom:28px;text-align:center;padding:0 200px;
+  font-size:20.5px;line-height:1.5;color:rgba(255,255,255,.93);
+  text-shadow:0 2px 16px rgba(0,0,0,.95);opacity:0;transition:opacity .35s;pointer-events:none}
+#sub.on{opacity:1}
+body.nosub #sub{display:none}
+#prog{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(255,255,255,.1)}
+#prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--gold))}
+#proghit{position:absolute;left:0;right:0;bottom:0;height:24px;cursor:pointer;z-index:9}
+#panel{position:fixed;right:20px;bottom:20px;display:flex;gap:8px;z-index:70;
+  transition:opacity .4s;background:rgba(12,16,12,.9);padding:8px;border-radius:14px;
+  box-shadow:0 10px 34px rgba(0,0,0,.5)}
+#panel button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  color:#fff;height:38px;min-width:38px;padding:0 13px;border-radius:9px;cursor:pointer;
+  font-family:var(--body);font-size:14px}
+#panel button:hover{background:rgba(255,255,255,.22)}
+#panel button.on{background:var(--gold);border-color:var(--gold);color:#241E08}
+#tc{color:rgba(255,255,255,.75);font-family:var(--mono);font-size:12px;
+  display:flex;align-items:center;padding:0 9px}
+/* ---------- эхлэх дэлгэц (iframe дотор ?start=0) ---------- */
+#poster{position:absolute;inset:0;z-index:40;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:26px;cursor:pointer;
+  background:radial-gradient(60% 60% at 50% 45%,rgba(12,20,16,.72),rgba(7,11,9,.93))}
+body.poster #poster{display:flex}
+#pBig{width:98px;height:98px;border-radius:50%;border:2px solid rgba(163,218,124,.6);
+  background:rgba(163,218,124,.14);color:var(--green);font-size:34px;cursor:pointer;
+  transition:.25s var(--ease);padding-left:6px}
+#pBig:hover{background:rgba(163,218,124,.26);transform:scale(1.06)}
+#poster .pt{font-family:var(--display);font-size:29px;color:var(--ink);text-align:center;
+  max-width:720px;line-height:1.3}
+#poster .ps{font-size:14.5px;color:var(--mute);letter-spacing:.12em;text-transform:uppercase}
+
+/* ---------- төгсгөлийн товч ---------- */
+.cta{display:flex;gap:14px;margin-top:34px;justify-content:center;opacity:0}
+.scene.on .cta{animation:up .6s var(--ease) 1.2s forwards}
+.cta a{padding:13px 26px;border-radius:999px;font-size:16px;text-decoration:none;
+  font-weight:600;transition:.22s}
+.cta a.solid{background:var(--green);color:#10200F}
+.cta a.solid:hover{background:#B8E894}
+.cta a.line{border:1px solid rgba(255,255,255,.3);color:var(--soft)}
+.cta a.line:hover{border-color:var(--green);color:var(--ink)}
+
+/* ---------- утас: хэвтээ болгох анхааруулга ---------- */
+#rot{display:none;position:fixed;inset:0;z-index:95;background:#070B09;color:var(--ink);
+  align-items:center;justify-content:center;flex-direction:column;gap:20px;
+  text-align:center;padding:40px;font-size:19px;line-height:1.5}
+#rot .ic{font-size:52px}
+#rot small{color:var(--mute);font-size:14.5px}
+@media (max-width:860px) and (orientation:portrait){#rot{display:flex}}
+
+.emb #stage{border-radius:0;box-shadow:none}
+.emb #panel{right:12px;bottom:12px}
+body.idle #panel{opacity:0;pointer-events:none}
+body.idle{cursor:none}
+
+/* ═══════════════════════════════════════════════════════════════
+   ЦАЙВАР ГОРИМ — LP Suite сайтын css/tokens.css-тай ижил өнгө
+   ═══════════════════════════════════════════════════════════════ */
+body.light{
+  --ink:#141412; --soft:#474742; --mute:#78786F;
+  --green:#2C5F2D; --green-d:#97BC62;
+  --gold:#8A6D1F; --gold-d:#C8A951;
+  --rust:#B5482A;
+  background:#E9E8E1;
+}
+body.light #wrap{background:#E9E8E1}
+body.light #stage{
+  background:radial-gradient(130% 110% at 18% 0%,#FFFFFF 0%,#FAFAF7 45%,#F4F3EE 100%);
+  box-shadow:0 30px 80px rgba(20,20,15,.18)}
+body.light #stage::before{
+  background-image:linear-gradient(rgba(44,95,45,.05) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(44,95,45,.05) 1px,transparent 1px)}
+
+/* бодлогын текст ба түүн доторх тоонууд */
+body.light #tcol.dim .w.on{color:rgba(20,20,18,.34)}
+body.light #tcol .n{color:#7A5F15;background:#FAF3DC}
+body.light #tcol.dim .n{color:rgba(122,95,21,.46);background:rgba(250,243,220,.55)}
+body.light #tcol .n.hot{color:#2A2004;background:#EFD180;
+  box-shadow:0 0 0 4px rgba(200,169,81,.3),0 0 22px rgba(200,169,81,.45)}
+body.light #tcol .n.used{color:#2C5F2D;background:#E9F1E2}
+body.light .ghost{color:#8A6D1F;text-shadow:0 0 18px rgba(200,169,81,.5)}
+
+/* захирлын бөмбөлөг */
+body.light #bubble{background:#FAF3DC;border-color:#E7CE8A;border-left-color:#C8A951}
+body.light #bubble b{color:#8A6D1F}
+
+/* математикийн блокууд */
+body.light .blk.glow{background:#E9F1E2;box-shadow:inset 0 0 0 1px rgba(44,95,45,.22)}
+body.light .blk.glow::after{background-size:260% 100%;
+  background:linear-gradient(115deg,transparent 35%,rgba(200,169,81,.38),transparent 65%)}
+body.light .slot{border-color:rgba(200,169,81,.62);background:#FAF3DC;color:#8A6D1F}
+body.light .slot.filled{border-color:transparent;background:none}
+
+/* эцсийн загвар */
+body.light .final{background:linear-gradient(140deg,#E9F1E2,#FFFFFF);
+  border-color:rgba(44,95,45,.26);box-shadow:0 18px 50px rgba(20,20,15,.1)}
+body.light .final .fl .c{color:#8A6D1F}
+body.light .final .cap{border-top-color:#E5E3D9}
+
+/* төгсгөлийн чип ба товч */
+body.light .chip{border-color:rgba(44,95,45,.3);background:#E9F1E2;color:#2C5F2D}
+body.light .cta a.solid{background:#2C5F2D;color:#FFFFFF}
+body.light .cta a.solid:hover{background:#224A23}
+body.light .cta a.line{border-color:#C9C5B5;color:#474742}
+body.light .cta a.line:hover{border-color:#2C5F2D;color:#141412}
+
+/* хадмал, явц, удирдлага */
+body.light #sub{color:#141412;text-shadow:0 1px 10px rgba(255,255,255,.92)}
+body.light #prog{background:rgba(20,20,15,.1)}
+body.light #prog i{background:linear-gradient(90deg,#97BC62,#C8A951)}
+body.light #panel{background:rgba(255,255,255,.94);box-shadow:0 10px 30px rgba(20,20,15,.14)}
+body.light #panel button{background:#F4F3EE;border-color:#C9C5B5;color:#141412}
+body.light #panel button:hover{background:#EBE9E0}
+body.light #panel button.on{background:#C8A951;border-color:#C8A951;color:#2A2004}
+body.light #tc{color:#474742}
+
+/* эхлэх дэлгэц ба утасны анхааруулга */
+body.light #poster{background:radial-gradient(60% 60% at 50% 45%,
+  rgba(255,255,255,.86),rgba(244,243,238,.96))}
+body.light #pBig{border-color:rgba(44,95,45,.5);background:rgba(44,95,45,.1);color:#2C5F2D}
+body.light #pBig:hover{background:rgba(44,95,45,.2)}
+body.light #rot{background:#FAFAF7;color:#141412}
+</style>
+</head>
+<body class="read">
+<div id="wrap"><div id="stage">
+
+<!-- ══════ ҮНДСЭН ҮЗЭГДЭЛ: нөхцөл → загвар ══════ -->
+<section class="scene on" id="sA">
+  <div id="head">
+    <div class="kicker">LP Suite · Бүлэг 2 · «Модон урлал» ХХК</div>
+    <div id="steptag">Бодлогын <em>нөхцөл</em></div>
+  </div>
+
+  <div id="tcol"></div>
+
+  <div id="art">
+    <svg viewBox="0 0 410 330">
+      <g style="--L:460">
+        <rect x="18" y="86" width="172" height="13" rx="4"/>
+        <line class="s2" x1="34" y1="99" x2="34" y2="194"/>
+        <line class="s2" x1="174" y1="99" x2="174" y2="194"/>
+      </g>
+      <g style="--L:420">
+        <path class="s2" d="M238 82 L238 164 L330 164 L330 82"/>
+        <rect class="s3" x="232" y="156" width="104" height="12" rx="4"/>
+        <line class="s3" x1="244" y1="168" x2="244" y2="224"/>
+        <line class="s3" x1="324" y1="168" x2="324" y2="224"/>
+      </g>
+      <g style="--L:200">
+        <path class="s3" d="M160 258 q0-26 24-26 q24 0 24 24 q0 20-24 26 l0 10"/>
+        <circle class="s3" cx="184" cy="306" r="3"/>
+      </g>
+    </svg>
+  </div>
+  <div id="bubble"><span class="who">Захирлын асуулт</span>
+    <b>Хэдэн ширээ, хэдэн сандал</b> хийвэл ашиг хамгийн их вэ?</div>
+
+  <div id="rcol">
+    <div class="blk" id="rk-var">
+      <div class="bh">Шийдвэрийн хувьсагч</div>
+      <div class="vrow"><span class="slot vslot" id="v-x1"></span>
+        <span>— хийх <b>ширээний</b> тоо</span></div>
+      <div class="vrow"><span class="slot vslot" id="v-x2"></span>
+        <span>— хийх <b>сандлын</b> тоо</span></div>
+    </div>
+
+    <div class="blk" id="rk-obj">
+      <div class="bh">Зорилгын функц · ашгийг хамгийн их болгоно</div>
+      <div class="mrow"><span class="op">max</span><span>Z =</span>
+        <span class="slot" id="o-c1"></span><span class="xv">x₁</span><span>+</span>
+        <span class="slot" id="o-c2"></span><span class="xv">x₂</span></div>
+    </div>
+
+    <div class="blk" id="rk-c1">
+      <div class="bh">Хязгаарлалт 1 · модны нөөц</div>
+      <div class="mrow"><span class="slot" id="o-a11"></span><span class="xv">x₁</span>
+        <span>+</span><span class="slot" id="o-a12"></span><span class="xv">x₂</span>
+        <span class="op">≤</span><span class="slot" id="o-b1"></span></div>
+    </div>
+
+    <div class="blk" id="rk-c2">
+      <div class="bh">Хязгаарлалт 2 · ажлын цаг</div>
+      <div class="mrow"><span class="slot" id="o-a21"></span><span class="xv">x₁</span>
+        <span>+</span><span class="slot" id="o-a22"></span><span class="xv">x₂</span>
+        <span class="op">≤</span><span class="slot" id="o-b2"></span></div>
+    </div>
+
+    <div class="blk" id="rk-nn">
+      <div class="bh">Сөрөг биш байх нөхцөл</div>
+      <div class="mrow"><span class="xv">x₁</span><span>,</span><span class="xv">x₂</span>
+        <span class="op">≥ 0</span></div>
+      <div class="note"><s>−3 ширээ</s> гэж хийж болдоггүй.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ ЭЦСИЙН ЗАГВАР ══════ -->
+<section class="scene" id="sF">
+  <div id="head2" style="position:absolute;left:72px;top:58px">
+    <div class="kicker">Эцсийн математик загвар</div>
+  </div>
+  <div class="mid">
+    <div class="final" id="fin">
+      <div class="fl">
+        <span class="op">max</span> Z = <span class="c">50000</span>x₁ + <span class="c">40000</span>x₂<br>
+        4x₁ + 2x₂ <span class="op">≤</span> 100<br>
+        2x₁ + 4x₂ <span class="op">≤</span> 80<br>
+        x₁, x₂ <span class="op">≥ 0</span>
+      </div>
+      <div class="cap">Хоёр өгүүлбэр → дөрвөн мөр математик</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ ТӨГСГӨЛ ══════ -->
+<section class="scene" id="sE">
+  <div class="mid">
+    <h1 style="text-align:center">Загвар бэлэн.<br>Одоо түүнийг <em>бодно</em></h1>
+    <div class="chips">
+      <span class="chip c1">Бүлэг 3 · Графикийн арга</span>
+      <span class="chip c2">Бүлэг 4 · Матриц хэлбэр</span>
+      <span class="chip c3">Бүлэг 5 · Симплекс арга</span>
+    </div>
+    <div class="cta">
+      <a class="solid" href="../index.html" target="_top">LP Suite рүү очих</a>
+      <a class="line" href="../index.html#/glossary" target="_top">Нэр томьёоны толь</a>
+    </div>
+  </div>
+  <div class="brand">LP SUITE · ХААИС · <b>Кибернетикийн тэнхим</b></div>
+</section>
+
+<div id="poster">
+  <div class="ps">LP Suite · Бүлэг 2</div>
+  <button id="pBig" aria-label="Тоглуулах">▶</button>
+  <div class="pt">94 секундэд: өгүүлбэр хэрхэн <em style="color:var(--gold);font-style:italic">математик</em> болдог вэ?</div>
+</div>
+<div id="sub"></div>
+<div id="prog"><i></i></div>
+<div id="proghit" title="Товшвол тухайн хэсэг рүү шилжинэ"></div>
+
+</div></div>
+
+<div id="rot"><div class="ic">📱</div>
+  <div>Утсаа <b>хэвтээ</b> эргүүлнэ үү</div>
+  <small>Энэ видео өргөн дэлгэцэд зориулагдсан</small></div>
+
+<div id="panel">
+  <button id="bPlay">⏸</button>
+  <button id="bBack">↺</button>
+  <span id="tc">0:00 / 0:00</span>
+  <button id="bLight" title="Өнгө (T)">☾</button>
+  <button id="bSub" class="on">Хадмал</button>
+</div>
+
+<script>
+/* ═══════════ бодлогын нөхцөл ═══════════ */
+const RAW = `«Модон урлал» ХХК ширээ, сандал хоёр төрлийн тавилга үйлдвэрлэдэг.
+Нэг ширээ хийхэд {a11:4} м.куб мод, {a21:2} цаг ажиллах хүч,
+нэг сандал хийхэд {a12:2} м.куб мод, {a22:4} цаг ажиллах хүч шаардагдана.
+Агуулахад нийт {b1:100} м.куб мод байгаа бөгөөд мужаанууд долоо хоногт {b2:80} цаг ажиллана.
+Нэг ширээ борлуулснаар {c1:50000}₮, нэг сандал борлуулснаар {c2:40000}₮ ашиг олдог.
+Ашгийг хамгийн их болгохын тулд хэдэн {v1:ширээ}, хэдэн {v2:сандал} хийх вэ?`;
+
+const tcol = document.getElementById('tcol');
+tcol.innerHTML = RAW.trim().split(/\s+/).map(tk=>{
+  const m = tk.match(/^(.*)\{([a-z0-9]+):([^}]*)\}(.*)$/i);
+  const inner = m ? m[1]+'<b class="n" id="n-'+m[2]+'">'+m[3]+'</b>'+m[4] : tk;
+  return '<span class="w">'+inner+'</span>';
+}).join(' ');
+const WORDS = [...tcol.querySelectorAll('.w')];
+const W_T0 = 1.2, W_DT = 0.235;          // эхлэх хором, нэг үгийн хугацаа
+
+/* ═══════════ хадмал ═══════════ */
+const SUB = [
+  [ 0.6,'Эхлээд бодлогын нөхцөлийг бүтнээр нь уншъя.'],
+  [17.4,''],
+  [18.8,'Цех ширээ, сандал хоёрыг хийдэг.'],
+  [21.2,'Захирлын асуулт: хэдийг хийвэл ашиг хамгийн их вэ?'],
+  [25.2,'Юуг мэдэхгүй байна вэ? Түүнийгээ хамгийн түрүүнд нэрлэнэ.'],
+  [28.6,'Хийх ширээний тоог x₁ гэж тэмдэглэе.'],
+  [31.8,'Хийх сандлын тоог x₂ гэж тэмдэглэе.'],
+  [34.4,'Дараа нь юуг их болгохыг бичнэ — ашиг.'],
+  [37.6,'Нэг ширээний ашиг тавин мянга. Энэ бол x₁-ийн коэффициент.'],
+  [41.0,'Нэг сандлын ашиг дөчин мянга. Энэ бол x₂-ийн коэффициент.'],
+  [43.2,'Зорилгын функц бэлэн боллоо.'],
+  [45.4,'Одоо нөөц. Зарцуулсан мод байгаагаас хэтэрч болохгүй.'],
+  [48.6,'Нэг ширээнд дөрвөн шоо метр.'],
+  [51.8,'Нэг сандалд хоёр шоо метр.'],
+  [55.0,'Агуулахад байгаа нийт нөөц зуун шоо метр.'],
+  [57.2,'Тэгэхээр 4x₁ + 2x₂ нь 100-аас их байж болохгүй.'],
+  [59.4,'Цагийн нөөц ч яг адилхан.'],
+  [62.6,'Ширээнд хоёр цаг.'],
+  [65.8,'Сандалд дөрвөн цаг.'],
+  [69.0,'Долоо хоногийн нийт цаг наян.'],
+  [71.0,'Тэгэхээр 2x₁ + 4x₂ нь 80-аас их байж болохгүй.'],
+  [73.4,'Сүүлийн нөхцөл: хасах гурван ширээ гэж байхгүй.'],
+  [75.4,'Тиймээс хоёр хувьсагч хоёулаа сөрөг биш байна.'],
+  [79.4,'Ингээд бүтэн нөхцөл дөрвөн мөр математик болж хувирлаа.'],
+  [87.4,'Загвар бэлэн. Одоо түүнийг хэрхэн бодохыг дараагийн бүлгүүдээс үзнэ.'],
+];
+
+/* ═══════════ хугацааны хуваарь ═══════════ */
+const T = [
+  [ 0.0, ()=>{ scene('sA'); document.body.classList.add('read'); }],
+  // ---- нөхцөл уншигдаж дуусаад зүүн тийш шилжинэ ----
+  [17.4, ()=>{ document.body.classList.remove('read'); }],
+  [18.6, ()=>{ on('art'); }],
+  [20.9, ()=>{ on('bubble'); }],
+  // ---- Алхам 1 · хувьсагч ----
+  [25.0, ()=>{ step('Алхам 1 · <em>Хувьсагч</em> нэрлэх'); off('art'); off('bubble');
+               tcol.classList.add('dim'); blk('rk-var'); }],
+  [26.8, ()=>hot('n-v1')],
+  [28.2, ()=>fly('n-v1','v-x1','x₁')],
+  [30.4, ()=>hot('n-v2')],
+  [31.6, ()=>fly('n-v2','v-x2','x₂')],
+  // ---- Алхам 2 · зорилгын функц ----
+  [33.4, ()=>glow('rk-var')],
+  [34.2, ()=>{ step('Алхам 2 · <em>Зорилгын функц</em>'); blk('rk-obj'); }],
+  [36.2, ()=>hot('n-c1')],
+  [37.6, ()=>fly('n-c1','o-c1','50000')],
+  [39.8, ()=>hot('n-c2')],
+  [41.0, ()=>fly('n-c2','o-c2','40000')],
+  [43.2, ()=>glow('rk-obj')],
+  // ---- Алхам 3 · модны хязгаарлалт ----
+  [45.2, ()=>{ step('Алхам 3 · <em>Модны</em> хязгаарлалт'); blk('rk-c1'); }],
+  [47.2, ()=>hot('n-a11')],
+  [48.6, ()=>fly('n-a11','o-a11','4')],
+  [50.6, ()=>hot('n-a12')],
+  [51.8, ()=>fly('n-a12','o-a12','2')],
+  [53.8, ()=>hot('n-b1')],
+  [55.0, ()=>fly('n-b1','o-b1','100')],
+  [57.2, ()=>glow('rk-c1')],
+  // ---- Алхам 4 · цагийн хязгаарлалт ----
+  [59.4, ()=>{ step('Алхам 4 · <em>Цагийн</em> хязгаарлалт'); blk('rk-c2'); }],
+  [61.4, ()=>hot('n-a21')],
+  [62.6, ()=>fly('n-a21','o-a21','2')],
+  [64.6, ()=>hot('n-a22')],
+  [65.8, ()=>fly('n-a22','o-a22','4')],
+  [67.8, ()=>hot('n-b2')],
+  [69.0, ()=>fly('n-b2','o-b2','80')],
+  [71.0, ()=>glow('rk-c2')],
+  // ---- Алхам 5 · сөрөг биш ----
+  [73.4, ()=>{ step('Алхам 5 · <em>Сөрөг биш</em> байх нөхцөл'); blk('rk-nn'); }],
+  [75.4, ()=>glow('rk-nn')],
+  // ---- эцсийн загвар ба төгсгөл ----
+  [79.2, ()=>scene('sF')],
+  [80.2, ()=>on('fin')],
+  [87.2, ()=>scene('sE')],
+];
+const DUR = 94;
+
+/* ═══════════ үйлдлүүд ═══════════ */
+const $ = id => document.getElementById(id);
+let curScene=null, INSTANT=false, timers=[], ghosts=[];
+
+function scene(id){
+  if(curScene && curScene!==id) $(curScene).classList.remove('on');
+  curScene=id; $(id).classList.add('on');
+}
+function on(id){ $(id).classList.add('in'); }
+function off(id){ $(id).classList.remove('in'); }
+function blk(id){ $(id).classList.add('in'); }
+function glow(id){ $(id).classList.remove('glow'); void $(id).offsetWidth; $(id).classList.add('glow'); }
+function step(html){
+  const e=$('steptag'); e.innerHTML=html;
+  e.classList.remove('sw'); void e.offsetWidth; e.classList.add('sw');
+}
+function hot(id){ const e=$(id); if(e) e.classList.add('hot'); }
+function land(dstId,val){
+  const d=$(dstId); d.textContent=val;
+  d.classList.remove('filled'); void d.offsetWidth; d.classList.add('filled');
+}
+/* тоо өгүүлбэрээс нисч математик дээр буух */
+function fly(srcId,dstId,val){
+  const s=$(srcId), d=$(dstId);
+  if(s){ s.classList.remove('hot'); s.classList.add('used'); }
+  if(INSTANT || !s){ land(dstId,val); return; }
+  const sr=s.getBoundingClientRect(), dr=d.getBoundingClientRect();
+  const fsS=parseFloat(getComputedStyle(s).fontSize)*K;
+  const fsD=parseFloat(getComputedStyle(d).fontSize)*K;
+  const g=document.createElement('span');
+  g.className='ghost'; g.textContent=val;
+  g.style.cssText+=';left:'+sr.left+'px;top:'+sr.top+'px;font-size:'+fsS+'px';
+  document.body.appendChild(g); ghosts.push(g);
+  requestAnimationFrame(()=>{
+    const dx=dr.left-sr.left+(dr.width-s.offsetWidth*K)/2;
+    g.style.transform='translate('+dx+'px,'+(dr.top-sr.top)+'px) scale('+(fsD/fsS)+')';
+  });
+  timers.push(setTimeout(()=>{
+    g.remove(); ghosts=ghosts.filter(x=>x!==g); land(dstId,val);
+  },800));
+}
+
+/* ═══════════ тоглуулагч ═══════════ */
+const stage=$('stage'), bar=document.querySelector('#prog i'), sub=$('sub');
+let t0=performance.now(), paused=false, pauseAt=0, fired=new Set(), subI=-1, lastW=-1, K=1;
+
+function reset(){
+  timers.forEach(clearTimeout); timers=[];
+  ghosts.forEach(g=>g.remove()); ghosts=[];
+  document.querySelectorAll('.scene').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.in').forEach(e=>e.classList.remove('in'));
+  document.querySelectorAll('.glow').forEach(e=>e.classList.remove('glow'));
+  document.querySelectorAll('#tcol .n').forEach(e=>e.classList.remove('hot','used'));
+  document.querySelectorAll('.slot').forEach(e=>{ e.textContent=''; e.classList.remove('filled'); });
+  WORDS.forEach(w=>w.classList.remove('on'));
+  tcol.classList.remove('dim'); document.body.classList.add('read');
+  $('steptag').innerHTML='Бодлогын <em>нөхцөл</em>';
+  curScene=null; fired.clear(); subI=-1; lastW=-1; sub.classList.remove('on');
+  t0=performance.now(); pauseAt=0;
+}
+function fmt(s){ s=Math.max(0,Math.floor(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+
+function applyTo(t){
+  T.forEach(([tt,fn],i)=>{ if(t>=tt && !fired.has(i)){ fired.add(i); fn(); } });
+  const n=Math.max(0,Math.floor((t-W_T0)/W_DT)+1);
+  if(n!==lastW){
+    const lim=Math.min(n,WORDS.length);
+    for(let i=0;i<WORDS.length;i++) WORDS[i].classList.toggle('on', i<lim);
+    lastW=n;
+  }
+  let k=-1; SUB.forEach(([tt],i)=>{ if(t>=tt) k=i; });
+  if(k!==subI){ subI=k;
+    if(k>=0 && SUB[k][1]){ sub.textContent=SUB[k][1]; sub.classList.add('on'); }
+    else sub.classList.remove('on');
+  }
+  bar.style.width=Math.min(100,t/DUR*100)+'%';
+  $('tc').textContent=fmt(t)+' / '+fmt(DUR);
+}
+function seek(t){
+  t=Math.max(0,Math.min(DUR,t));
+  reset(); t0=performance.now()-t*1000;
+  if(paused) pauseAt=performance.now();
+  INSTANT=true; applyTo(t); INSTANT=false;
+}
+window.__seek=seek;
+function now(){ return paused ? (pauseAt-t0)/1000 : (performance.now()-t0)/1000; }
+
+function tick(){
+  if(!paused){
+    const t=(performance.now()-t0)/1000;
+    applyTo(t);
+    if(t>DUR+1.5) reset();
+  }
+  requestAnimationFrame(tick);
+}
+/* iframe дотор бол ирмэг хүртэл дүүргэнэ */
+const EMB=(function(){try{return window.self!==window.top}catch(e){return true}})();
+if(EMB) document.documentElement.classList.add('emb');
+function fit(){
+  K=Math.min(innerWidth/1280, innerHeight/720)*(EMB?1:0.95);
+  stage.style.transform='scale('+K+')';
+}
+addEventListener('resize',fit); fit();
+
+$('bPlay').onclick=()=>{
+  paused=!paused;
+  if(paused) pauseAt=performance.now(); else t0+=performance.now()-pauseAt;
+  $('bPlay').textContent=paused?'▶':'⏸';
+};
+$('bBack').onclick=()=>{ reset(); paused=false; $('bPlay').textContent='⏸'; };
+$('bSub').onclick=()=>{
+  document.body.classList.toggle('nosub');
+  $('bSub').classList.toggle('on', !document.body.classList.contains('nosub'));
+};
+$('proghit').onclick=e=>{
+  const r=$('proghit').getBoundingClientRect();
+  seek((e.clientX-r.left)/r.width*DUR);
+};
+let idleT=null;
+function wake(){
+  document.body.classList.remove('idle');
+  clearTimeout(idleT); idleT=setTimeout(()=>document.body.classList.add('idle'),2600);
+}
+addEventListener('mousemove',wake); addEventListener('keydown',wake); wake();
+
+addEventListener('keydown',e=>{
+  if(e.key===' '){ e.preventDefault(); $('bPlay').click(); }
+  if(e.key==='ArrowRight'){ e.preventDefault(); seek(now()+5); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); seek(now()-5); }
+  if(e.key==='r'||e.key==='R') $('bBack').click();
+  if(e.key==='t'||e.key==='T') $('bLight').click();
+  if(e.key==='f'||e.key==='F'){
+    if(document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  }
+});
+/* ---------- өнгөний горим: цайвар (сайттай ижил) ба бараан ---------- */
+const THEME_KEY='lpVideoTheme';
+function setTheme(light){
+  document.body.classList.toggle('light', light);
+  $('bLight').textContent = light ? '☾' : '☀';
+  $('bLight').title = (light ? 'Бараан' : 'Цайвар') + ' болгох (T)';
+  try{ localStorage.setItem(THEME_KEY, light?'light':'dark'); }catch(e){}
+}
+(function(){
+  let light = true;                       // ӨГӨГДМӨЛ: цайвар — LP Suite сайттай ижил
+  try{ const v=localStorage.getItem(THEME_KEY); if(v) light = (v==='light'); }catch(e){}
+  const q = new URLSearchParams(location.search).get('theme');
+  if(q==='light') light = true;
+  if(q==='dark')  light = false;
+  setTheme(light);
+})();
+$('bLight').onclick=()=>setTheme(!document.body.classList.contains('light'));
+
+reset(); tick();
+
+/* iframe дотор автоматаар эхлэхгүй: ?start=0 */
+if(new URLSearchParams(location.search).get('start')==='0'){
+  paused=true; pauseAt=performance.now();
+  document.body.classList.add('poster');
+  $('bPlay').textContent='▶';
+}
+function startNow(){
+  if(!document.body.classList.contains('poster')) return;
+  document.body.classList.remove('poster');
+  if(paused) $('bPlay').click();
+}
+$('poster').onclick=startNow; $('pBig').onclick=e=>{ e.stopPropagation(); startNow(); };
+</script>
+</body></html>
