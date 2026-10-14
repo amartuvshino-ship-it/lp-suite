@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<title>Графикийн аргаар бодох — «Модон урлал» ХХК</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF7; --paper:#FFFFFF; --muted:#F4F3EE; --subtle:#EBE9E0;
+  --ink:#141412; --soft:#474742; --mute:#78786F;
+  --line:#E5E3D9; --line2:#C9C5B5;
+  --green:#2C5F2D; --green-lite:#97BC62; --green-bg:#E9F1E2;
+  --gold:#8A6D1F; --gold-f:#C8A951; --gold-bg:#FAF3DC;
+  --rust:#B5482A; --rust-bg:#FBE8DE;
+  --indigo:#3B4A7A; --indigo-bg:#E6EAF3;
+  --display:'Fraunces',Georgia,serif;
+  --body:'Geist',-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+  --ease:cubic-bezier(.22,.68,.28,1);
+  --spring:cubic-bezier(.34,1.46,.44,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#E9E8E1;font-family:var(--body)}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#E9E8E1}
+#stage{width:1280px;height:720px;flex:none;position:relative;overflow:hidden;border-radius:10px;
+  transform-origin:center center;box-shadow:0 30px 80px rgba(20,20,15,.18);
+  background:radial-gradient(130% 110% at 18% 0%,#FFFFFF 0%,#FAFAF7 45%,#F4F3EE 100%)}
+.emb #stage{border-radius:0;box-shadow:none}
+#stage::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.55;
+  background-image:linear-gradient(rgba(44,95,45,.05) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(44,95,45,.05) 1px,transparent 1px);
+  background-size:48px 48px}
+
+.scene{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .5s var(--ease)}
+.scene.on{opacity:1;visibility:visible}
+
+/* ---------- толгой ---------- */
+#head{position:absolute;left:64px;top:44px;right:64px}
+.kicker{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);
+  font-weight:700;display:flex;align-items:center;gap:12px}
+.kicker::before{content:'';width:26px;height:2px;background:var(--gold-f)}
+#steptag{font-family:var(--display);font-size:31px;line-height:1.2;font-weight:600;
+  color:var(--ink);margin-top:11px}
+#steptag em{font-style:italic;color:var(--green)}
+#steptag.sw{animation:swap .5s var(--ease)}
+@keyframes swap{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+/* ---------- график ---------- */
+#chart{position:absolute;left:52px;top:132px;width:600px;height:552px}
+#chart svg{width:100%;height:100%;overflow:visible}
+.ax{stroke:var(--ink);stroke-width:2.4;fill:none}
+.grid{stroke:rgba(20,20,15,.07);stroke-width:1.2}
+.tk{font-family:var(--mono);font-size:17px;fill:var(--mute)}
+.axl{font-family:var(--body);font-size:19px;font-weight:600;fill:var(--soft)}
+
+.ln{stroke-width:3.2;fill:none;stroke-dasharray:620;stroke-dashoffset:620;
+  transition:stroke-dashoffset 1.3s var(--ease)}
+.ln.in{stroke-dashoffset:0}
+#L1{stroke:var(--indigo)} #L2{stroke:var(--rust)}
+.lnlab{font-family:var(--mono);font-size:17px;opacity:0;transition:opacity .5s}
+.lnlab.in{opacity:.95}
+#L1lab{fill:var(--indigo)} #L2lab{fill:var(--rust)}
+
+.ipt{opacity:0;transform-box:fill-box;transform-origin:center;transition:opacity .4s}
+.ipt.in{opacity:1;animation:pop .5s var(--spring)}
+@keyframes pop{0%{transform:scale(2.2)}100%{transform:scale(1)}}
+.ipt circle{stroke:#fff;stroke-width:2.5}
+.ipt text{font-family:var(--mono);font-size:16px;font-weight:600}
+.i1 circle{fill:var(--indigo)} .i1 text{fill:var(--indigo)}
+.i2 circle{fill:var(--rust)}   .i2 text{fill:var(--rust)}
+
+.half{opacity:0;transition:opacity .9s var(--ease)}
+.half.in{opacity:1}
+#H1{fill:var(--indigo);fill-opacity:.17} #H2{fill:var(--rust);fill-opacity:.17}
+
+#REG{fill:var(--green);opacity:0;transition:opacity .9s var(--ease)}
+#REG.in{opacity:.3}
+#REGT{font-family:var(--body);font-size:21px;font-weight:700;fill:var(--green);
+  opacity:0;transition:opacity .5s}
+#REGT.in{opacity:1}
+
+.vx{opacity:0;transition:opacity .45s}
+.vx.in{opacity:1}
+.vx circle{fill:var(--green);stroke:#fff;stroke-width:2.5}
+.vx text{font-family:var(--mono);font-size:17px;font-weight:700;fill:var(--green)}
+#VC.hot circle{fill:var(--gold-f);r:11}
+#VC.hot text{fill:var(--gold)}
+#halo{fill:none;stroke:var(--gold-f);stroke-width:3;opacity:0}
+#halo.in{opacity:1;animation:ping 1.6s var(--ease) infinite}
+@keyframes ping{0%{r:11;opacity:.9}70%{r:38;opacity:0}100%{opacity:0}}
+#gds{opacity:0;transition:opacity .5s}
+#gds.in{opacity:1}
+#gds line{stroke:var(--gold);stroke-width:2.2;stroke-dasharray:7 7}
+#gds text{font-family:var(--mono);font-size:16px;font-weight:600;fill:var(--gold)}
+
+/* ---------- баруун самбар ---------- */
+#side{position:absolute;left:700px;top:132px;width:520px}
+.pnl{position:absolute;left:0;top:0;width:100%;opacity:0;visibility:hidden;
+  transition:opacity .45s var(--ease)}
+.pnl.on{opacity:1;visibility:visible}
+.bh{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);
+  font-weight:700;margin-bottom:12px}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  padding:16px 20px;margin-bottom:12px;box-shadow:0 6px 20px rgba(20,20,15,.05)}
+.mn{font-family:var(--mono);font-size:22px;line-height:1.7;color:var(--ink)}
+.mn .op{color:var(--green)} .mn .c{color:var(--gold)} .mn .r{color:var(--rust)}
+.mn .b{color:var(--indigo)}
+.say{font-size:17.5px;line-height:1.6;color:var(--soft);margin-top:4px}
+.say b{color:var(--ink)}
+.stp{opacity:0;transform:translateY(10px);transition:.5s var(--ease)}
+.stp.in{opacity:1;transform:none}
+
+/* огтлолцол бодох */
+.calc{font-family:var(--mono);font-size:21px;line-height:1.85}
+.calc .lbl{color:var(--mute);font-size:14px;margin-left:10px}
+
+/* Z хүснэгт */
+table.zt{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:20px}
+table.zt th{font-family:var(--body);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mute);font-weight:700;text-align:right;padding:0 8px 9px}
+table.zt th:first-child{text-align:left}
+table.zt td{padding:9px 8px;text-align:right;border-top:1px solid var(--line);color:var(--ink)}
+table.zt td:first-child{text-align:left;color:var(--green);font-weight:600}
+table.zt tr.r{opacity:0;transition:opacity .45s}
+table.zt tr.r.in{opacity:1}
+table.zt tr.best td{background:var(--gold-bg);color:var(--gold);font-weight:700}
+table.zt tr.best td:first-child{color:var(--gold);border-radius:8px 0 0 8px}
+table.zt tr.best td:last-child{border-radius:0 8px 8px 0}
+
+/* хариу */
+.ans{background:linear-gradient(135deg,var(--green-bg),#FFFFFF);
+  border:2px solid rgba(44,95,45,.32);border-radius:18px;padding:22px 26px;
+  box-shadow:0 14px 36px rgba(44,95,45,.12)}
+.ans .a1{font-family:var(--mono);font-size:25px;color:var(--ink);line-height:1.6}
+.ans .a1 b{color:var(--green);font-weight:700}
+.ans .a2{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--gold);margin-top:8px}
+
+/* ---------- эхлэл ба төгсгөл ---------- */
+.mid{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;padding:0 90px;text-align:center}
+h1{font-family:var(--display);font-size:52px;line-height:1.12;font-weight:600;color:var(--ink)}
+h1 em{font-style:italic;color:var(--green)}
+.sub{font-size:21px;color:var(--soft);margin-top:22px;max-width:760px;line-height:1.6}
+.card0{margin-top:30px;background:var(--paper);border:1px solid var(--line);border-radius:18px;
+  padding:24px 34px;box-shadow:0 12px 34px rgba(20,20,15,.07);opacity:0;transform:translateY(16px);
+  transition:.7s var(--ease)}
+.card0.in{opacity:1;transform:none}
+.card0 .mn{font-size:25px;line-height:1.75}
+.chips{display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;justify-content:center}
+.chip{padding:10px 19px;border-radius:999px;border:1px solid rgba(44,95,45,.3);
+  color:var(--green);font-size:15px;background:var(--green-bg);opacity:0;transform:translateY(12px)}
+.scene.on .chip{animation:up .6s var(--ease) forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.c1{animation-delay:.5s}.c2{animation-delay:.7s}.c3{animation-delay:.9s}
+.brand{position:absolute;left:64px;bottom:92px;font-size:11.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--mute)}
+.brand b{color:var(--green)}
+
+/* ---------- хадмал ба удирдлага ---------- */
+#sub{position:absolute;left:0;right:0;bottom:26px;text-align:center;padding:0 200px;
+  font-size:20px;line-height:1.5;color:var(--ink);
+  text-shadow:0 1px 10px rgba(255,255,255,.95);opacity:0;transition:opacity .35s;
+  pointer-events:none}
+#sub.on{opacity:1}
+body.nosub #sub{display:none}
+#prog{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(20,20,15,.1)}
+#prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green-lite),var(--gold-f))}
+#proghit{position:absolute;left:0;right:0;bottom:0;height:24px;cursor:pointer;z-index:9}
+#poster{position:absolute;inset:0;z-index:40;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:24px;cursor:pointer;
+  background:radial-gradient(60% 60% at 50% 45%,rgba(255,255,255,.88),rgba(244,243,238,.96))}
+body.poster #poster{display:flex}
+#pBig{width:96px;height:96px;border-radius:50%;border:2px solid rgba(44,95,45,.5);
+  background:rgba(44,95,45,.1);color:var(--green);font-size:33px;cursor:pointer;
+  transition:.25s var(--ease);padding-left:6px}
+#pBig:hover{background:rgba(44,95,45,.2);transform:scale(1.06)}
+#poster .pt{font-family:var(--display);font-size:28px;color:var(--ink);text-align:center;
+  max-width:760px;line-height:1.3}
+#poster .ps{font-size:13.5px;color:var(--mute);letter-spacing:.14em;text-transform:uppercase}
+#panel{position:fixed;right:20px;bottom:20px;display:flex;gap:8px;z-index:70;
+  transition:opacity .4s;background:rgba(255,255,255,.94);padding:8px;border-radius:14px;
+  box-shadow:0 10px 30px rgba(20,20,15,.16)}
+.emb #panel{right:12px;bottom:12px}
+#panel button{background:#F4F3EE;border:1px solid #C9C5B5;color:#141412;height:38px;
+  min-width:38px;padding:0 13px;border-radius:9px;cursor:pointer;font-family:var(--body);font-size:14px}
+#panel button:hover{background:#EBE9E0}
+#panel button.on{background:var(--gold-f);border-color:var(--gold-f);color:#2A2004}
+#tc{color:#474742;font-family:var(--mono);font-size:12px;display:flex;align-items:center;padding:0 9px}
+body.idle #panel{opacity:0;pointer-events:none}
+body.idle{cursor:none}
+body.bare #panel,body.bare #prog,body.bare #proghit{display:none}
+#rot{display:none;position:fixed;inset:0;z-index:95;background:#FAFAF7;color:var(--ink);
+  align-items:center;justify-content:center;flex-direction:column;gap:18px;text-align:center;
+  padding:40px;font-size:19px;line-height:1.5}
+#rot .ic{font-size:50px}
+#rot small{color:var(--mute);font-size:14.5px}
+@media (max-width:860px) and (orientation:portrait){#rot{display:flex}}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="stage">
+
+<!-- ═══════ ЭХЛЭЛ ═══════ -->
+<section class="scene" id="sIntro">
+  <div class="mid">
+    <h1>Загвар бэлэн.<br>Одоо түүнийг <em>графикаар бодъё</em></h1>
+    <div class="card0" id="c0">
+      <div class="mn">
+        <span class="op">max</span> Z = <span class="c">50000</span>x₁ + <span class="c">40000</span>x₂<br>
+        4x₁ + 2x₂ <span class="op">≤</span> 100<br>
+        2x₁ + 4x₂ <span class="op">≤</span> 80<br>
+        x₁, x₂ <span class="op">≥ 0</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ ҮНДСЭН ═══════ -->
+<section class="scene" id="sMain">
+  <div id="head">
+    <div class="kicker">LP Suite · Бүлэг 3 · «Модон урлал» ХХК</div>
+    <div id="steptag">Алхам 1 · Хязгаарлалтыг <em>шулуун</em> болгох</div>
+  </div>
+
+  <div id="chart">
+    <svg viewBox="0 0 700 680">
+      <!-- тор -->
+      <g class="grid">
+        <line x1="214" y1="600" x2="214" y2="70"/><line x1="339" y1="600" x2="339" y2="70"/>
+        <line x1="463" y1="600" x2="463" y2="70"/><line x1="588" y1="600" x2="588" y2="70"/>
+        <line x1="90" y1="505" x2="660" y2="505"/><line x1="90" y1="411" x2="660" y2="411"/>
+        <line x1="90" y1="316" x2="660" y2="316"/><line x1="90" y1="222" x2="660" y2="222"/>
+        <line x1="90" y1="127" x2="660" y2="127"/>
+      </g>
+
+      <!-- хагас хавтгай -->
+      <polygon class="half" id="H1" points="90,600 401,600 90,127" opacity="0"/>
+      <polygon class="half" id="H2" points="90,600 588,600 90,411" opacity="0"/>
+      <!-- боломжит муж -->
+      <polygon id="REG" points="90,600 401,600 339,505 90,411"/>
+      <text id="REGT" x="140" y="560">Боломжит муж</text>
+
+      <!-- шулуунууд -->
+      <line class="ln" id="L1" x1="401" y1="600" x2="90" y2="127"/>
+      <line class="ln" id="L2" x1="588" y1="600" x2="90" y2="411"/>
+      <text class="lnlab" id="L1lab" x="150" y="186">4x₁+2x₂=100</text>
+      <text class="lnlab" id="L2lab" x="470" y="546">2x₁+4x₂=80</text>
+
+      <!-- огтлолын цэгүүд -->
+      <g class="ipt i1" id="P1a"><circle cx="401" cy="600" r="7"/><text x="408" y="592">(25,0)</text></g>
+      <g class="ipt i1" id="P1b"><circle cx="90" cy="127" r="7"/><text x="102" y="120">(0,50)</text></g>
+      <g class="ipt i2" id="P2a"><circle cx="588" cy="600" r="7"/><text x="596" y="592">(40,0)</text></g>
+      <g class="ipt i2" id="P2b"><circle cx="90" cy="411" r="7"/><text x="30" y="404">(0,20)</text></g>
+
+      <!-- тэнхлэг -->
+      <line class="ax" x1="90" y1="600" x2="668" y2="600"/>
+      <line class="ax" x1="90" y1="600" x2="90" y2="62"/>
+      <text class="tk" x="83" y="625">0</text>
+      <text class="tk" x="202" y="625">10</text>
+      <text class="tk" x="327" y="625">20</text>
+      <text class="tk" x="451" y="625">30</text>
+      <text class="tk" x="576" y="625">40</text>
+      <text class="tk" x="58" y="511">10</text>
+      <text class="tk" x="58" y="417">20</text>
+      <text class="tk" x="58" y="322">30</text>
+      <text class="tk" x="58" y="228">40</text>
+      <text class="tk" x="58" y="133">50</text>
+      <text class="axl" x="546" y="658">x₁ — ширээ</text>
+      <text class="axl" x="16" y="42">x₂ — сандал</text>
+
+      <!-- оройнууд -->
+      <g class="vx" id="VA"><circle cx="90" cy="600" r="8"/><text x="58" y="592">A</text></g>
+      <g class="vx" id="VB"><circle cx="401" cy="600" r="8"/><text x="408" y="592">B</text></g>
+      <g class="vx" id="VC"><circle cx="339" cy="505" r="8"/><text x="348" y="498">C</text></g>
+      <g class="vx" id="VD"><circle cx="90" cy="411" r="8"/><text x="62" y="400">D</text></g>
+      <circle id="halo" cx="339" cy="505" r="11"/>
+
+      <g id="gds">
+        <line x1="339" y1="505" x2="339" y2="600"/>
+        <line x1="339" y1="505" x2="90"  y2="505"/>
+        <text x="300" y="590">x₁=20</text>
+        <text x="150" y="494">x₂=10</text>
+      </g>
+    </svg>
+  </div>
+
+  <div id="side">
+    <!-- 1. шулуун болгох -->
+    <div class="pnl" id="pnl1">
+      <div class="bh">≤ тэмдгийг = болгож шулуун татна</div>
+      <div class="box stp" id="s1a">
+        <div class="mn"><span class="b">4x₁ + 2x₂ = 100</span></div>
+        <div class="say">x₂ = 0 бол <b>x₁ = 25</b> &nbsp;·&nbsp; x₁ = 0 бол <b>x₂ = 50</b></div>
+      </div>
+      <div class="box stp" id="s1b">
+        <div class="mn"><span class="r">2x₁ + 4x₂ = 80</span></div>
+        <div class="say">x₂ = 0 бол <b>x₁ = 40</b> &nbsp;·&nbsp; x₁ = 0 бол <b>x₂ = 20</b></div>
+      </div>
+      <div class="say stp" id="s1c" style="margin-top:14px">
+        Хоёр цэг олдвол шулуун татагдана.</div>
+    </div>
+
+    <!-- 2. аль тал -->
+    <div class="pnl" id="pnl2">
+      <div class="bh">Аль тал нь нөхцөлийг хангах вэ?</div>
+      <div class="box stp" id="s2a">
+        <div class="say">Хялбар арга: <b>(0,0) цэгийг</b> нөхцөлд тавьж үзнэ.</div>
+        <div class="mn" style="margin-top:10px">
+          4·0 + 2·0 = 0 <span class="op">≤</span> 100 &nbsp;<span class="op">✓</span><br>
+          2·0 + 4·0 = 0 <span class="op">≤</span> 80 &nbsp;<span class="op">✓</span>
+        </div>
+      </div>
+      <div class="say stp" id="s2b">
+        Хоёулаа хангагдлаа. Тэгэхээр <b>эхийг агуулсан тал</b> зөв.</div>
+    </div>
+
+    <!-- 3. боломжит муж -->
+    <div class="pnl" id="pnl3">
+      <div class="bh">Боломжит муж</div>
+      <div class="box stp" id="s3a">
+        <div class="say">Бүх нөхцөлийг <b>зэрэг</b> хангах хэсэг — хоёр талын
+          <b>огтлолцол</b>. Сөрөг биш нөхцөл эхний мужаар хязгаарлана.</div>
+      </div>
+      <div class="box stp" id="s3b">
+        <div class="say">Энэ олон өнцөгтийн <b>дөрвөн орой</b>:</div>
+        <div class="mn" style="margin-top:8px">A(0,0) &nbsp; B(25,0) &nbsp; C(?,?) &nbsp; D(0,20)</div>
+      </div>
+    </div>
+
+    <!-- 4. C оройг олох -->
+    <div class="pnl" id="pnl4">
+      <div class="bh">C орой — хоёр шулууны огтлолцол</div>
+      <div class="box">
+        <div class="calc">
+          <div class="stp" id="s4a"><span class="b">4x₁ + 2x₂ = 100</span></div>
+          <div class="stp" id="s4b"><span class="r">2x₁ + 4x₂ = 80</span> <span class="lbl">× 2</span></div>
+          <div class="stp" id="s4c" style="border-top:1px solid var(--line);margin-top:8px;padding-top:8px">
+            <span class="r">4x₁ + 8x₂ = 160</span></div>
+          <div class="stp" id="s4d"><span class="op">−</span> хасвал: 6x₂ = 60 →
+            <b style="color:var(--gold)">x₂ = 10</b></div>
+          <div class="stp" id="s4e">4x₁ + 2·10 = 100 →
+            <b style="color:var(--gold)">x₁ = 20</b></div>
+        </div>
+      </div>
+      <div class="say stp" id="s4f"><b>C(20, 10)</b> — 20 ширээ, 10 сандал.</div>
+    </div>
+
+    <!-- 5. Z тооцох -->
+    <div class="pnl" id="pnl5">
+      <div class="bh">Орой бүрт Z = 50000x₁ + 40000x₂</div>
+      <div class="box">
+        <table class="zt">
+          <thead><tr><th>Орой</th><th>x₁</th><th>x₂</th><th>Z (₮)</th></tr></thead>
+          <tbody>
+            <tr class="r" id="z1"><td>A</td><td>0</td><td>0</td><td>0</td></tr>
+            <tr class="r" id="z2"><td>B</td><td>25</td><td>0</td><td>1 250 000</td></tr>
+            <tr class="r" id="z3"><td>C</td><td>20</td><td>10</td><td>1 400 000</td></tr>
+            <tr class="r" id="z4"><td>D</td><td>0</td><td>20</td><td>800 000</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="say stp" id="s5a">Хамгийн их нь <b>C орой</b>.</div>
+    </div>
+
+    <!-- 6. хариу -->
+    <div class="pnl" id="pnl6">
+      <div class="bh">Хариу</div>
+      <div class="ans stp" id="s6a">
+        <div class="a1"><b>20</b> ширээ · <b>10</b> сандал</div>
+        <div class="a2">Z = 1 400 000 ₮</div>
+      </div>
+      <div class="box stp" id="s6b" style="margin-top:14px">
+        <div class="say">Нөөц бүрэн ашиглагдана:<br>
+          мод 4·20+2·10 = <b>100</b> &nbsp;·&nbsp; цаг 2·20+4·10 = <b>80</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ ТӨГСГӨЛ ═══════ -->
+<section class="scene" id="sEnd">
+  <div class="mid">
+    <h1>Оптимум үргэлж <em>оройд</em> байна</h1>
+    <div class="sub">Тиймээс бүх цэгийг биш, зөвхөн оройнуудыг шалгахад хангалттай.
+      Хувьсагч олон болоход график зурах боломжгүй — тэр үед симплекс арга хэрэгтэй.</div>
+    <div class="chips">
+      <span class="chip c1">Бүлэг 4 · Матриц хэлбэр</span>
+      <span class="chip c2">Бүлэг 5 · Симплекс арга</span>
+      <span class="chip c3">Бүлэг 6 · Хосмог бодлого</span>
+    </div>
+  </div>
+  <div class="brand">LP SUITE · ХААИС · <b>Кибернетикийн тэнхим</b></div>
+</section>
+
+<div id="poster">
+  <div class="ps">LP Suite · Бүлэг 3</div>
+  <button id="pBig" aria-label="Тоглуулах">▶</button>
+  <div class="pt">«Модон урлал» ХХК-ийн загварыг <em style="font-style:italic;color:var(--gold)">графикаар</em> бодох нь</div>
+</div>
+<div id="sub"></div>
+<div id="prog"><i></i></div>
+<div id="proghit" title="Товшвол тухайн хэсэг рүү шилжинэ"></div>
+
+</div></div>
+
+<div id="rot"><div class="ic">📱</div><div>Утсаа <b>хэвтээ</b> эргүүлнэ үү</div>
+  <small>Энэ видео өргөн дэлгэцэд зориулагдсан</small></div>
+
+<div id="panel">
+  <button id="bPlay">⏸</button><button id="bBack">↺</button>
+  <span id="tc">0:00 / 0:00</span>
+  <button id="bSub" class="on">Хадмал</button>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+/* ═══════ хадмал ═══════ */
+const SUB = [
+  [ 0.6,'Өмнөх видеонд бид өгүүлбэрийг математик загвар болголоо.'],
+  [ 3.6,'Одоо энэ загварыг графикийн аргаар бодъё.'],
+  [ 7.4,'Эхний алхам: тэнцэтгэл бишийг тэнцэтгэл болгож шулуун татна.'],
+  [10.0,'Эхний нөхцөл: дөрвөн x₁ нэмэх хоёр x₂ тэнцүү зуу.'],
+  [11.4,'x₂ тэг бол x₁ хорин тав.'],
+  [12.8,'x₁ тэг бол x₂ тавь.'],
+  [14.4,'Хоёр цэгийг холбоход шулуун гарна.'],
+  [17.4,'Хоёр дахь нөхцөл мөн адил.'],
+  [18.8,'x₂ тэг бол x₁ дөч.'],
+  [20.2,'x₁ тэг бол x₂ хорь.'],
+  [21.8,'Хоёр дахь шулуун ч бэлэн боллоо.'],
+  [25.2,'Шулуун нь хавтгайг хоёр хуваана. Аль тал нь зөв вэ?'],
+  [27.8,'Хамгийн хялбар шалгалт: эхийг буюу тэг тэг цэгийг тавьж үзнэ.'],
+  [31.4,'Хоёулаа хангагдсан тул эхийг агуулсан тал зөв.'],
+  [35.2,'Хоёр талын огтлолцол нь боломжит муж болно.'],
+  [37.4,'Энэ мужийн аль ч цэг бүх нөхцөлийг хангана.'],
+  [40.0,'Мужийн дөрвөн орой: A, B, C, D.'],
+  [44.2,'C орой нь хоёр шулууны огтлолцол — түүнийг бодож олъё.'],
+  [48.8,'Хоёр дахь тэгшитгэлийг хоёр дахин авна.'],
+  [51.4,'Хасахад зургаан x₂ тэнцүү жар.'],
+  [53.8,'Эндээс x₂ тэнцүү арав.'],
+  [56.2,'Орлуулахад x₁ тэнцүү хорь.'],
+  [58.4,'Тэгэхээр C орой нь хорь, арав.'],
+  [62.2,'Одоо орой бүрт ашгийг тооцно.'],
+  [64.4,'A дээр юу ч үйлдвэрлэхгүй тул ашиг тэг.'],
+  [66.4,'B дээр нэг сая хоёр зуун тавин мянга.'],
+  [68.4,'C дээр нэг сая дөрвөн зуун мянга.'],
+  [70.4,'D дээр найман зуун мянга.'],
+  [73.2,'Хамгийн их нь C орой байна.'],
+  [77.2,'Хариу: хорин ширээ, арван сандал.'],
+  [79.4,'Хамгийн их ашиг нэг сая дөрвөн зуун мянган төгрөг.'],
+  [83.4,'Энэ шийдэлд мод ч, цаг ч бүрэн ашиглагдана.'],
+  [88.4,'Оптимум үргэлж оройд байдаг тул зөвхөн оройнуудыг шалгахад хангалттай.'],
+];
+
+/* ═══════ хуваарь ═══════ */
+const T = [
+  [ 0.0, ()=>scene('sIntro')],
+  [ 3.0, ()=>on('c0')],
+  // ---- 1. шулуун болгох ----
+  [ 7.2, ()=>{ scene('sMain'); step('Алхам 1 · Хязгаарлалтыг <em>шулуун</em> болгох'); pnl('pnl1'); }],
+  [ 9.6, ()=>on('s1a')],
+  [11.0, ()=>on('P1a')],
+  [12.4, ()=>on('P1b')],
+  [14.0, ()=>{ on('L1'); on('L1lab'); }],
+  [17.2, ()=>on('s1b')],
+  [18.6, ()=>on('P2a')],
+  [20.0, ()=>on('P2b')],
+  [21.6, ()=>{ on('L2'); on('L2lab'); }],
+  [23.4, ()=>on('s1c')],
+  // ---- 2. аль тал ----
+  [25.0, ()=>{ step('Алхам 2 · <em>Аль тал</em> нь нөхцөлийг хангах вэ?'); pnl('pnl2'); }],
+  [27.6, ()=>on('s2a')],
+  [29.6, ()=>on('H1')],
+  [31.2, ()=>{ on('H2'); on('s2b'); }],
+  // ---- 3. боломжит муж ----
+  [35.0, ()=>{ step('Алхам 3 · <em>Боломжит муж</em>'); pnl('pnl3'); off('H1'); off('H2'); }],
+  [36.4, ()=>{ on('REG'); on('s3a'); }],
+  [38.4, ()=>on('REGT')],
+  [40.0, ()=>{ on('VA'); on('VB'); on('VC'); on('VD'); on('s3b'); }],
+  // ---- 4. C орой ----
+  [44.0, ()=>{ step('Алхам 4 · <em>C орой</em>-г бодож олох'); pnl('pnl4'); on('s4a'); }],
+  [46.4, ()=>on('s4b')],
+  [48.8, ()=>on('s4c')],
+  [51.4, ()=>on('s4d')],
+  [53.8, ()=>on('s4e')],
+  [56.4, ()=>{ on('s4f'); $('VC').classList.add('hot'); on('halo'); }],
+  [58.2, ()=>on('gds')],
+  // ---- 5. Z тооцох ----
+  [62.0, ()=>{ step('Алхам 5 · Орой бүрт <em>ашгийг</em> тооцох'); pnl('pnl5'); }],
+  [64.2, ()=>on('z1')],
+  [66.2, ()=>on('z2')],
+  [68.2, ()=>on('z3')],
+  [70.2, ()=>on('z4')],
+  [73.0, ()=>{ $('z3').classList.add('best'); on('s5a'); }],
+  // ---- 6. хариу ----
+  [77.0, ()=>{ step('<em>Хариу</em>'); pnl('pnl6'); on('s6a'); }],
+  [83.2, ()=>on('s6b')],
+  // ---- төгсгөл ----
+  [88.2, ()=>scene('sEnd')],
+];
+const DUR = 95;
+
+/* ═══════ үйлдлүүд ═══════ */
+let curScene=null, curPnl=null;
+function scene(id){
+  if(curScene && curScene!==id) $(curScene).classList.remove('on');
+  curScene=id; $(id).classList.add('on');
+}
+function pnl(id){
+  if(curPnl && curPnl!==id) $(curPnl).classList.remove('on');
+  curPnl=id; $(id).classList.add('on');
+}
+function on(id){ $(id).classList.add('in'); }
+function off(id){ $(id).classList.remove('in'); }
+function step(html){
+  const e=$('steptag'); e.innerHTML=html;
+  e.classList.remove('sw'); void e.offsetWidth; e.classList.add('sw');
+}
+
+/* ═══════ тоглуулагч ═══════ */
+const stage=$('stage'), bar=document.querySelector('#prog i'), sub=$('sub');
+let t0=performance.now(), paused=false, pauseAt=0, fired=new Set(), subI=-1, K=1;
+
+function reset(){
+  document.querySelectorAll('.scene').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.pnl').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.in').forEach(e=>e.classList.remove('in'));
+  $('VC').classList.remove('hot'); $('z3').classList.remove('best');
+  $('steptag').innerHTML='Алхам 1 · Хязгаарлалтыг <em>шулуун</em> болгох';
+  curScene=null; curPnl=null; fired.clear(); subI=-1; sub.classList.remove('on');
+  t0=performance.now(); pauseAt=0;
+}
+function fmt(s){ s=Math.max(0,Math.floor(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function applyTo(t){
+  T.forEach(([tt,fn],i)=>{ if(t>=tt && !fired.has(i)){ fired.add(i); fn(); } });
+  let k=-1; SUB.forEach(([tt],i)=>{ if(t>=tt) k=i; });
+  if(k!==subI){ subI=k;
+    if(k>=0 && SUB[k][1]){ sub.textContent=SUB[k][1]; sub.classList.add('on'); }
+    else sub.classList.remove('on');
+  }
+  bar.style.width=Math.min(100,t/DUR*100)+'%';
+  $('tc').textContent=fmt(t)+' / '+fmt(DUR);
+}
+function seek(t){
+  t=Math.max(0,Math.min(DUR,t));
+  reset(); t0=performance.now()-t*1000;
+  if(paused) pauseAt=performance.now();
+  applyTo(t);
+}
+window.__seek=seek;
+function now(){ return paused ? (pauseAt-t0)/1000 : (performance.now()-t0)/1000; }
+function tick(){
+  if(!paused){
+    const t=(performance.now()-t0)/1000;
+    applyTo(t);
+    if(t>DUR+1.5 && LOOP) reset();
+  }
+  requestAnimationFrame(tick);
+}
+const EMB=(function(){try{return window.self!==window.top}catch(e){return true}})();
+if(EMB) document.documentElement.classList.add('emb');
+function fit(){
+  K=Math.min(innerWidth/1280, innerHeight/720)*(EMB?1:0.95);
+  stage.style.transform='scale('+K+')';
+}
+addEventListener('resize',fit); fit();
+
+$('bPlay').onclick=()=>{
+  paused=!paused;
+  if(paused) pauseAt=performance.now(); else t0+=performance.now()-pauseAt;
+  $('bPlay').textContent=paused?'▶':'⏸';
+};
+$('bBack').onclick=()=>{ reset(); paused=false; $('bPlay').textContent='⏸'; };
+$('bSub').onclick=()=>{
+  document.body.classList.toggle('nosub');
+  $('bSub').classList.toggle('on', !document.body.classList.contains('nosub'));
+};
+$('proghit').onclick=e=>{
+  const r=$('proghit').getBoundingClientRect();
+  seek((e.clientX-r.left)/r.width*DUR);
+};
+let idleT=null;
+function wake(){ document.body.classList.remove('idle'); clearTimeout(idleT);
+  idleT=setTimeout(()=>document.body.classList.add('idle'),2600); }
+addEventListener('mousemove',wake); addEventListener('keydown',wake); wake();
+addEventListener('keydown',e=>{
+  if(e.key===' '){ e.preventDefault(); $('bPlay').click(); }
+  if(e.key==='ArrowRight'){ e.preventDefault(); seek(now()+5); }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); seek(now()-5); }
+  if(e.key==='r'||e.key==='R') $('bBack').click();
+  if(e.key==='f'||e.key==='F'){
+    if(document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  }
+});
+
+const QP=new URLSearchParams(location.search);
+if(QP.get('bare')==='1') document.body.classList.add('bare');
+const LOOP = QP.get('loop') !== '0';
+
+reset(); tick();
+
+if(QP.get('start')==='0'){
+  paused=true; pauseAt=performance.now();
+  document.body.classList.add('poster');
+  $('bPlay').textContent='▶';
+}
+function startNow(){
+  if(!document.body.classList.contains('poster')) return;
+  document.body.classList.remove('poster');
+  if(paused) $('bPlay').click();
+}
+$('poster').onclick=startNow;
+$('pBig').onclick=e=>{ e.stopPropagation(); startNow(); };
+</script>
+</body></html>
