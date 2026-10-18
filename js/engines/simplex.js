@@ -300,7 +300,7 @@
           this.steps.push(this.snapshot('Хязгааргүй шийд (Unbounded)', { final: true, unbounded: true, enterCol: enter }));
           return this;
         }
-        this.steps.push(this.snapshot('Iteration ' + (this.iterations + 1) + ': гол элемент сонгох', {
+        this.steps.push(this.snapshot('Iteration ' + (this.iterations + 1) + ': ялгагч элемент сонгох', {
           enterCol: enter, leaveRow: leave, ratios: ratios
         }));
         this.pivot(leave, enter);
