@@ -141,7 +141,8 @@ td.rat.best{background:var(--indigo-bg) !important}
 .zz{opacity:0;transition:opacity .5s} .zz.in{opacity:1}
 
 /* мөрийн үйлдлийн тэмдэглэгээ */
-#ops{position:absolute;left:488px;top:352px;width:740px;min-height:66px}
+#ops{position:absolute;left:488px;top:352px;width:740px;height:100px}
+.opg{position:absolute;left:0;top:0;width:100%}
 .op1{font-family:var(--mono);font-size:20px;color:var(--ink);margin:4px 0;
   opacity:0;transform:translateX(-12px);transition:.45s var(--ease)}
 .op1.in{opacity:1;transform:none}
@@ -337,13 +338,21 @@ body.bare #panel,body.bare #prog,body.bare #proghit{display:none}
   </div>
 
   <!-- ── мөрийн үйлдэл ── -->
+  <!-- Итераци бүрийн мөрүүд ТУСДАА бүлэгт. Хоёр бүлэг хоёулаа #ops-ийн
+       дээд талаас эхэлнэ — эс тэгвээс нуугдсан (opacity:0) мөрүүд зай
+       эзэлсээр байгаад 2-р итерацийн мөрүүдийг доош түлхэж, тайлбарын
+       самбар дээр давхцуулдаг. -->
   <div id="ops">
-    <div class="op1" id="o1"><span class="t">R₁ ← R₁ ÷ 4</span><span class="n">тулгуур мөрийг тулгуур элементэд хуваана</span></div>
-    <div class="op1" id="o2"><span class="t">R₂ ← R₂ − 2·R₁</span><span class="n">x₁ баганыг тэглэнэ</span></div>
-    <div class="op1" id="o3"><span class="t">Z ← Z + 50·R₁</span><span class="n">Z мөрөөс −50-г арилгана</span></div>
-    <div class="op1" id="o4"><span class="t">R₂ ← R₂ ÷ 3</span><span class="n">шинэ тулгуур мөр</span></div>
-    <div class="op1" id="o5"><span class="t">R₁ ← R₁ − 0.5·R₂</span><span class="n">x₂ баганыг тэглэнэ</span></div>
-    <div class="op1" id="o6"><span class="t">Z ← Z + 15·R₂</span><span class="n">Z мөрөөс −15-г арилгана</span></div>
+    <div class="opg">
+      <div class="op1" id="o1"><span class="t">R₁ ← R₁ ÷ 4</span><span class="n">гол мөрийг ялгагч элементэд хуваана</span></div>
+      <div class="op1" id="o2"><span class="t">R₂ ← R₂ − 2·R₁</span><span class="n">x₁ баганыг тэглэнэ</span></div>
+      <div class="op1" id="o3"><span class="t">Z ← Z + 50·R₁</span><span class="n">Z мөрөөс −50-г арилгана</span></div>
+    </div>
+    <div class="opg">
+      <div class="op1" id="o4"><span class="t">R₂ ← R₂ ÷ 3</span><span class="n">шинэ гол мөр</span></div>
+      <div class="op1" id="o5"><span class="t">R₁ ← R₁ − 0.5·R₂</span><span class="n">x₂ баганыг тэглэнэ</span></div>
+      <div class="op1" id="o6"><span class="t">Z ← Z + 15·R₂</span><span class="n">Z мөрөөс −15-г арилгана</span></div>
+    </div>
   </div>
 
   <!-- ── тайлбарын самбар ── -->
@@ -359,7 +368,7 @@ body.bare #panel,body.bare #prog,body.bare #proghit{display:none}
     <div class="pn" id="p3">
       <div class="box">
         <div class="say"><b>Аль баганыг оруулах вэ?</b> Z мөрийн
-          <span class="rr">хамгийн сөрөг</span> тоог хардаг — энд <b>−50</b>.
+          <span class="rr">хамгийн бага утгатай сөрөг</span> тоог хардаг — энд <b>−50</b>.
           Энэ нь нэг ширээ нэмэхэд ашиг хамгийн их өснө гэсэн үг.
           Тэгэхээр <span class="o">x₁ багана</span> орно.</div>
       </div>
@@ -376,14 +385,14 @@ body.bare #panel,body.bare #prog,body.bare #proghit{display:none}
       <div class="box">
         <div class="say">Нэг орой урагшиллаа: <span class="g">A → B(25, 0)</span>,
           ашиг <b>0 → 1250</b>. Гэхдээ Z мөрөнд <span class="rr">−15</span> үлдсэн
-          тул <b>хараахан оптимум биш</b> — дахин нэг итерац.</div>
+          тул <b>хараахан оптимум биш</b> — дахин нэг итераци.</div>
       </div>
     </div>
     <div class="pn" id="p6">
       <div class="box">
-        <div class="say">Хоёр дахь итерац: <span class="o">x₂ орно</span>,
+        <div class="say">Хоёр дахь итераци: <span class="o">x₂ орно</span>,
           харьцаа 25 ÷ 0.5 = 50 ба 30 ÷ 3 = <b>10</b> тул
-          <span class="g">R₂ гарна</span>. Тулгуур элемент — <span class="rr">3</span>.</div>
+          <span class="g">R₂ гарна</span>. Ялгагч элемент — <span class="rr">3</span>.</div>
       </div>
     </div>
     <div class="pn" id="p7">
@@ -403,7 +412,7 @@ body.bare #panel,body.bare #prog,body.bare #proghit{display:none}
         <div class="box" style="flex:1">
           <div class="bh">Нэмэлт мэдээлэл — сүүдрийн үнэ</div>
           <div class="say" style="font-size:16px">Z мөрийн s₁ = <b>10</b>, s₂ = <b>5</b>.
-            Модны нөөц 1 м.куб нэмэгдвэл ашиг <b>10 мянга</b>, цаг 1 нэгж нэмэгдвэл
+            Модны нөөц 1 м³ нэмэгдвэл ашиг <b>10 мянга</b>, цаг 1 нэгж нэмэгдвэл
             <b>5 мянга</b>-аар өснө. Энэ бол <span class="g">хосмог бодлогын шийд</span>.</div>
         </div>
       </div>
@@ -441,7 +450,7 @@ body.bare #panel,body.bare #prog,body.bare #proghit{display:none}
 </div></div>
 
 <div id="rot"><div class="ic">📱</div><div>Утсаа <b>хэвтээ</b> эргүүлнэ үү</div>
-  <small>Энэ видео өргөн дэлгэцэд зориулагдсан</small></div>
+  <small>Энэ видео өргөн дэлгэцэд зориулсан</small></div>
 
 <div id="panel">
   <button id="bPlay">⏸</button><button id="bBack">↺</button>
@@ -466,7 +475,7 @@ function setCell(id,val){
 function setRow(pre,vals){
   ['x1','x2','s1','s2','b'].forEach((k,i)=>setCell(pre+k, vals[i]));
 }
-/* ═══════ тулгуур мөр нөгөө мөр рүү нисэх ═══════ */
+/* ═══════ гол мөр нөгөө мөр рүү нисэх ═══════ */
 function flyRow(srcId,dstId){
   if(INSTANT) return;
   const s=$(srcId), d=$(dstId);
@@ -561,25 +570,25 @@ const SUB = [
   [ 45.4,'Эхний хүснэгтэд суурь хувьсагч нь s нэг, s хоёр.'],
   [ 48.4,'Өөрөөр хэлбэл юу ч үйлдвэрлээгүй — энэ бол графикийн A орой.'],
   [ 53.4,'Эхний асуулт: аль баганыг оруулах вэ?'],
-  [ 55.4,'Z мөрийн хамгийн сөрөг тоог хардаг — энд хасах тавь.'],
+  [ 55.4,'Z мөрийн хамгийн бага утгатай сөрөг тоог хардаг — энд хасах тавь.'],
   [ 58.4,'Энэ нь нэг ширээ нэмэхэд ашиг хамгийн их өснө гэсэн үг.'],
   [ 61.4,'Хоёр дахь асуулт: аль мөр гарах вэ?'],
   [ 63.4,'Шийдийг орох баганын тоонд хуваана. Зуу хуваах дөрөв хорин тав.'],
   [ 65.4,'Наян хуваах хоёр дөч.'],
   [ 67.4,'Хамгийн бага нь гарна — эс бөгөөс нөөц хэтэрнэ.'],
-  [ 70.4,'Хоёр нь огтлолцсон нүд бол тулгуур элемент — дөрөв.'],
-  [ 73.4,'Тулгуур мөрийг дөрөвт хуваана.'],
+  [ 70.4,'Хоёр нь огтлолцсон нүд бол ялгагч элемент — дөрөв.'],
+  [ 73.4,'Гол мөрийг дөрөвт хуваана.'],
   [ 78.4,'Одоо энэ мөрийг ашиглаж бусад мөрийн x₁ баганыг тэглэнэ.'],
-  [ 83.4,'Хоёр дахь мөрөөс тулгуур мөрийг хоёр дахин хасна.'],
+  [ 83.4,'Хоёр дахь мөрөөс гол мөрийг хоёр дахин хасна.'],
   [ 88.4,'Z мөрөнд тавь дахин нэмнэ.'],
   [ 93.4,'Суурь хувьсагч s нэгээс x₁ болж солигдлоо.'],
   [ 95.9,'Графикт бид A оройноос B орой руу шилжлээ. Ашиг нэг мянга хоёр зуун тавь.'],
   [ 99.9,'Гэхдээ Z мөрөнд хасах арван тав үлдсэн — хараахан оптимум биш.'],
-  [104.4,'Хоёр дахь итерац. Одоо x₂ багана орно.'],
+  [104.4,'Хоёр дахь итераци. Одоо x₂ багана орно.'],
   [107.4,'Харьцаа: хорин тав хуваах тэг цэг тав тавь, гуч хуваах гурав арав.'],
-  [111.4,'Арав нь бага тул хоёр дахь мөр гарна. Тулгуур элемент — гурав.'],
-  [114.4,'Тулгуур мөрийг гуравт хуваана.'],
-  [119.4,'Эхний мөрөөс тулгуур мөрийн тэг цэг тав дахиныг хасна.'],
+  [111.4,'Арав нь бага тул хоёр дахь мөр гарна. Ялгагч элемент — гурав.'],
+  [114.4,'Гол мөрийг гуравт хуваана.'],
+  [119.4,'Эхний мөрөөс гол мөрийн тэг цэг тав дахиныг хасна.'],
   [124.4,'Z мөрөнд арван тав дахин нэмнэ.'],
   [128.9,'Суурь хувьсагч x₂ боллоо. Графикт B оройноос C орой руу шилжлээ.'],
   [133.4,'Z мөрөнд сөрөг тоо үлдээгүй — цааш сайжрах боломжгүй.'],
@@ -611,16 +620,16 @@ const T = [
   // ── эхний хүснэгт ──
   [  37.2, ()=>{ step('Эхний <em>симплекс хүснэгт</em>'); }],
   [  45.2, ()=>pn('p2')],
-  // ── Итерац 1 ──
-  [  53.2, ()=>{ step('Итерац 1 · <em>Оруулах багана</em>'); pn('p3'); }],
+  // ── Итераци 1 ──
+  [  53.2, ()=>{ step('Итераци 1 · <em>Орох багана</em>'); pn('p3'); }],
   [  55.2, ()=>colOn('x1')],
-  [  61.2, ()=>{ step('Итерац 1 · <em>Гарах мөр</em>'); pn('p4'); }],
+  [  61.2, ()=>{ step('Итераци 1 · <em>Гарах мөр</em>'); pn('p4'); }],
   [  63.2, ()=>{ $('r1r').textContent='100÷4 = 25'; }],
   [  65.2, ()=>{ $('r2r').textContent='80÷2 = 40'; }],
   [  67.4, ()=>{ $('r1r').classList.add('best'); $('R1').classList.add('prow'); }],
   [  70.2, ()=>$('c1x1').classList.add('piv')],
   // мөрийн үйлдлүүд
-  [  73.2, ()=>{ step('Итерац 1 · <em>Мөрийн үйлдэл</em>'); on('o1');
+  [  73.2, ()=>{ step('Итераци 1 · <em>Мөрийн үйлдэл</em>'); on('o1');
                 $('r2r').textContent='';
                 setRow('c1',['1','0.5','0.25','0','25']); }],
   [  78.2, ()=>on('o2')],
@@ -635,8 +644,8 @@ const T = [
                 $('r1r').classList.remove('best'); }],
   [  95.7, ()=>{ on('trail'); mark(331,300,'1250','B(25, 0) — зөвхөн ширээ'); }],
   [  99.7, ()=>pn('p5')],
-  // ── Итерац 2 ──
-  [ 104.2, ()=>{ step('Итерац 2 · <em>Дахин сайжруулах</em>'); pn('p6');
+  // ── Итераци 2 ──
+  [ 104.2, ()=>{ step('Итераци 2 · <em>Дахин сайжруулах</em>'); pn('p6');
                 document.querySelectorAll('.op1').forEach(e=>e.classList.remove('in'));
                 colOn('x2'); }],
   [ 107.2, ()=>{ $('r1r').textContent='25÷0.5 = 50'; $('r2r').textContent='30÷3 = 10'; }],
