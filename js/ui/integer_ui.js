@@ -56,7 +56,7 @@
     const treeCard = el('div', { class: 'card' });
     treeCard.appendChild(el('h3', { class: 'subsection' }, '◈ Алхам 2 — Branch & Bound мод'));
     treeCard.appendChild(el('p', {
-      html: 'Зангилаа бүр нь нэг ШП-ийн дэд бодлого. ' +
+      html: 'Зангилаа бүр нь нэг ШП-ын дэд бодлого. ' +
             '<span style="color:var(--accent)"><b>★</b></span> — хамгийн сайн бүхэл тоо, ' +
             '<span style="color:var(--ink-muted)">✗</span> — хязгаарласан/хаасан салаа.'
     }));
