@@ -83,14 +83,21 @@
   function seedAdmin() {
     const arr = read(KEYS.users, []);
     if (arr.length) return;
-    const salt = C().randomHex(16);
+    const sa = Cfg.SEED_ADMIN || {};
+    // Шинэ хэлбэр: config.js-д урьдчилан бодсон salt + hash байна (нууц үг ил биш).
+    // Хуучин хэлбэр (password) ч ажиллана — хуучин тохиргоотой хувилбартай нийцнэ.
+    let salt = sa.salt, hash = sa.hash;
+    if (!salt || !hash) {
+      salt = C().randomHex(16);
+      hash = C().hashPassword(sa.password || '', salt);
+    }
     arr.push({
       id: uid('u'),
-      username: Cfg.SEED_ADMIN.username,
-      name: Cfg.SEED_ADMIN.name,
+      username: sa.username,
+      name: sa.name,
       role: 'admin',
       salt: salt,
-      hash: C().hashPassword(Cfg.SEED_ADMIN.password, salt),
+      hash: hash,
       active: true, must_change_pw: true,
       created_at: Date.now(), last_login: null,
       note: 'Автоматаар үүсгэсэн анхны админ',
